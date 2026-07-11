@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FiSearch, FiMapPin, FiStar, FiSliders } from "react-icons/fi";
 import { MdTravelExplore } from "react-icons/md";
+import Link from "next/link";
 import { Button, InputGroup, Card } from "@heroui/react";
 
 const categories = [
@@ -241,46 +242,45 @@ const ExploreDestinations = () => {
         {filtered.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-16 md:pb-24">
             {filtered.map((dest) => (
-              <Card
-                key={dest.id}
-                className="overflow-hidden group cursor-pointer border border-[var(--border)] rounded-2xl bg-[var(--card)]"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <div
-                    className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                    style={{ backgroundImage: `url(${dest.image})` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                    <span className="text-xs font-medium text-white/90 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm capitalize">
-                      {dest.category}
-                    </span>
-                    <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-semibold text-[var(--foreground)]">
-                      <FiStar className="text-[var(--accent)] fill-current text-xs" />
-                      {dest.rating}
+              <Link key={dest.id} href={`/destinations/${dest.id}`}>
+                <Card className="overflow-hidden group border border-[var(--border)] rounded-2xl bg-[var(--card)] cursor-pointer">
+                  <div className="relative h-48 overflow-hidden">
+                    <div
+                      className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+                      style={{ backgroundImage: `url(${dest.image})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                      <span className="text-xs font-medium text-white/90 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm capitalize">
+                        {dest.category}
+                      </span>
+                      <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-semibold text-[var(--foreground)]">
+                        <FiStar className="text-[var(--accent)] fill-current text-xs" />
+                        {dest.rating}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-start gap-1.5 mb-1">
-                    <FiMapPin className="text-[var(--primary)] mt-0.5 shrink-0 text-sm" />
-                    <h3 className="font-semibold text-sm text-[var(--foreground)]">
-                      {dest.name}
-                    </h3>
+                  <div className="p-4">
+                    <div className="flex items-start gap-1.5 mb-1">
+                      <FiMapPin className="text-[var(--primary)] mt-0.5 shrink-0 text-sm" />
+                      <h3 className="font-semibold text-sm text-[var(--foreground)]">
+                        {dest.name}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-[var(--muted-foreground)] line-clamp-2 mb-3">
+                      {dest.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[var(--muted-foreground)]">
+                        {dest.reviews.toLocaleString()} reviews
+                      </span>
+                      <span className="text-sm font-bold text-[var(--primary)]">
+                        ${dest.price}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-xs text-[var(--muted-foreground)] line-clamp-2 mb-3">
-                    {dest.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[var(--muted-foreground)]">
-                      {dest.reviews.toLocaleString()} reviews
-                    </span>
-                    <span className="text-sm font-bold text-[var(--primary)]">
-                      ${dest.price}
-                    </span>
-                  </div>
-                </div>
-              </Card>
+                </Card>
+              </Link>
             ))}
           </div>
         ) : (
