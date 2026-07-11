@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { FiMapPin, FiCalendar, FiSearch } from "react-icons/fi";
 import { MdTravelExplore } from "react-icons/md";
+import { motion } from "framer-motion";
+import { fadeUp, fadeLeft, scaleIn, stagger } from "@/src/Components/Animations";
 import { Button, InputGroup } from "@heroui/react";
 
 interface SearchFilters {
@@ -54,9 +56,14 @@ export default function HomePageHero() {
       </div>
 
       {/* Content */}
-      <div className="relative flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-20 md:py-24 min-h-[600px] md:min-h-[700px]">
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="visible"
+        className="relative flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-20 md:py-24 min-h-[600px] md:min-h-[700px]"
+      >
         {/* Hero Text */}
-        <div className="text-center mb-10 md:mb-14 max-w-3xl">
+        <motion.div variants={fadeUp} className="text-center mb-10 md:mb-14 max-w-3xl">
           <div className="flex items-center justify-center mb-5">
             <MdTravelExplore className="text-white text-5xl md:text-6xl" />
           </div>
@@ -66,13 +73,14 @@ export default function HomePageHero() {
           <p className="text-base md:text-lg text-white/80 max-w-2xl mx-auto">
             Explore incredible destinations and create unforgettable memories
           </p>
-        </div>
+        </motion.div>
 
         {/* Search Form */}
-        <form
+        <motion.div variants={fadeUp} className="w-full max-w-4xl">
+          <form
           onSubmit={handleSearch}
           className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl px-6 py-5 md:px-8 md:py-6"
-        >
+          >
           <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
             {/* Location Input */}
             <div className="flex-1 min-w-0">
@@ -152,29 +160,31 @@ export default function HomePageHero() {
               <span className="hidden md:inline">Search</span>
             </Button>
           </div>
-        </form>
+          </form>
+        </motion.div>
 
         {/* Popular Destinations */}
-        <div className="mt-10 md:mt-14 text-center">
+        <motion.div variants={fadeUp} className="mt-10 md:mt-14 text-center">
           <p className="text-white/60 text-xs mb-4 tracking-widest uppercase font-medium">
             Popular destinations
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {["Bali", "Maldives", "Iceland", "Costa Rica", "Paris", "Tokyo"].map(
               (place) => (
-                <button
-                  key={place}
-                  type="button"
-                  className="px-5 py-2.5 bg-white/15 hover:bg-white/25 active:bg-white/35 text-white rounded-full text-sm font-medium transition-all backdrop-blur-sm border border-white/10 cursor-pointer"
-                  onClick={() => handleInputChange("location", place)}
-                >
-                  {place}
-                </button>
+                <motion.div key={place} variants={scaleIn}>
+                  <button
+                    type="button"
+                    className="px-5 py-2.5 bg-white/15 hover:bg-white/25 active:bg-white/35 text-white rounded-full text-sm font-medium transition-all backdrop-blur-sm border border-white/10 cursor-pointer"
+                    onClick={() => handleInputChange("location", place)}
+                  >
+                    {place}
+                  </button>
+                </motion.div>
               )
             )}
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

@@ -10,22 +10,15 @@ import { FiMenu, FiX, FiSun, FiMoon, FiUser } from "react-icons/fi";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/explore-destinations", label: "Destinations" },
-  { href: "#deals", label: "Deals" },
+  { href: "/deals", label: "Deals" },
   { href: "#blog", label: "Blog" },
   { href: "#contact", label: "Contact" },
 ];
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { setTheme, resolvedTheme } = useTheme();
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -40,29 +33,13 @@ const Navbar = () => {
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-[var(--card)]/90 dark:bg-gray-950/90 backdrop-blur-md shadow-sm border-b border-[var(--border)]"
-          : "bg-transparent"
-      }`}
-    >
+    <header className="fixed top-0 left-0 right-0 z-50 bg-gray-950 shadow-sm border-b border-gray-800">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <MdTravelExplore
-              className={`text-2xl ${
-                scrolled ? "text-[var(--primary)]" : "text-white"
-              }`}
-            />
-            <span
-              className={`text-lg font-bold ${
-                scrolled
-                  ? "text-[var(--foreground)]"
-                  : "text-white"
-              }`}
-            >
+            <MdTravelExplore className="text-2xl text-teal-400" />
+            <span className="text-lg font-bold text-white">
               TravelSpot
             </span>
           </Link>
@@ -75,12 +52,8 @@ const Navbar = () => {
                   href={link.href}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive(link.href)
-                      ? scrolled
-                        ? "text-[var(--primary)] bg-[var(--primary)]/10"
-                        : "text-white bg-white/15"
-                      : scrolled
-                        ? "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--border)]/50"
-                        : "text-white/80 hover:text-white hover:bg-white/10"
+                      ? "text-teal-400 bg-teal-400/10"
+                      : "text-gray-400 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {link.label}
@@ -95,11 +68,7 @@ const Navbar = () => {
             <button
               type="button"
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
-                scrolled
-                  ? "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--border)]/50"
-                  : "text-white/80 hover:text-white hover:bg-white/10"
-              }`}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer text-gray-400 hover:text-white hover:bg-white/10"
               aria-label="Toggle theme"
             >
               {resolvedTheme === "dark" ? (
@@ -112,21 +81,13 @@ const Navbar = () => {
             {/* Auth Links */}
             <Link
               href="/register"
-              className={`hidden sm:inline-flex items-center gap-1.5 px-4 rounded-lg text-sm font-medium h-9 transition-colors cursor-pointer ${
-                scrolled
-                  ? "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                  : "text-white/80 hover:text-white"
-              }`}
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 rounded-lg text-sm font-medium h-9 transition-colors cursor-pointer text-gray-400 hover:text-white"
             >
               Sign Up
             </Link>
             <Link
               href="/login"
-              className={`hidden sm:inline-flex items-center gap-1.5 px-4 rounded-lg text-sm font-medium h-9 transition-colors cursor-pointer ${
-                scrolled
-                  ? "bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]"
-                  : "bg-white/15 text-white hover:bg-white/25"
-              }`}
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 rounded-lg text-sm font-medium h-9 transition-colors cursor-pointer bg-teal-600 text-white hover:bg-teal-500"
             >
               <FiUser className="text-sm" />
               <span>Sign In</span>
@@ -136,11 +97,7 @@ const Navbar = () => {
             <button
               type="button"
               onClick={() => setMobileOpen(!mobileOpen)}
-              className={`md:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
-                scrolled
-                  ? "text-[var(--foreground)] hover:bg-[var(--border)]/50"
-                  : "text-white hover:bg-white/10"
-              }`}
+              className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer text-gray-400 hover:text-white hover:bg-white/10"
               aria-label="Toggle menu"
             >
               {mobileOpen ? (
@@ -161,16 +118,16 @@ const Navbar = () => {
         onClick={closeMobile}
       />
       <div
-        className={`fixed top-0 right-0 h-full w-72 bg-[var(--card)] dark:bg-gray-950 shadow-2xl transition-transform duration-300 md:hidden z-60 ${
+        className={`fixed top-0 right-0 h-full w-72 bg-gray-950 shadow-2xl transition-transform duration-300 md:hidden z-60 ${
           mobileOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between px-5 h-16 border-b border-[var(--border)]">
-          <span className="font-bold text-[var(--foreground)]">Menu</span>
+        <div className="flex items-center justify-between px-5 h-16 border-b border-gray-800">
+          <span className="font-bold text-white">Menu</span>
           <button
             type="button"
             onClick={closeMobile}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--border)]/50 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
           >
             <FiX className="text-lg" />
           </button>
@@ -182,9 +139,9 @@ const Navbar = () => {
                 href={link.href}
                 onClick={closeMobile}
                 className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                  isActive(link.href)
-                    ? "text-[var(--primary)] bg-[var(--primary)]/10"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--border)]/50"
+                    isActive(link.href)
+                      ? "text-teal-400 bg-teal-400/10"
+                      : "text-gray-400 hover:text-white hover:bg-white/10"
                 }`}
               >
                 {link.label}
@@ -192,11 +149,11 @@ const Navbar = () => {
             </li>
           ))}
         </ul>
-        <div className="px-5 pt-4 border-t border-[var(--border)] space-y-2">
+        <div className="px-5 pt-4 border-t border-gray-800 space-y-2">
           <Link
             href="/login"
             onClick={closeMobile}
-            className="flex items-center justify-center gap-2 w-full bg-[var(--primary)] text-white rounded-xl py-3 text-sm font-semibold transition-colors hover:bg-[var(--primary-hover)]"
+            className="flex items-center justify-center gap-2 w-full bg-teal-600 text-white rounded-xl py-3 text-sm font-semibold transition-colors hover:bg-teal-500"
           >
             <FiUser className="text-sm" />
             Sign In
@@ -204,7 +161,7 @@ const Navbar = () => {
           <Link
             href="/register"
             onClick={closeMobile}
-            className="flex items-center justify-center gap-2 w-full bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-xl py-3 text-sm font-semibold transition-colors hover:bg-[var(--background)]"
+            className="flex items-center justify-center gap-2 w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-xl py-3 text-sm font-semibold transition-colors hover:bg-gray-700"
           >
             Create Account
           </Link>

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { FiSearch, FiMapPin, FiStar, FiSliders } from "react-icons/fi";
 import { MdTravelExplore } from "react-icons/md";
+import { motion } from "framer-motion";
+import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
 import Link from "next/link";
 import { Button, InputGroup, Card } from "@heroui/react";
 
@@ -161,7 +163,7 @@ const ExploreDestinations = () => {
               'url("https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&h=600&fit=crop")',
           }}
         />
-        <div className="relative px-4 sm:px-6 lg:px-8 py-16 md:py-20 text-center">
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="relative px-4 sm:px-6 lg:px-8 py-16 md:py-20 text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
             <MdTravelExplore className="text-white/80 text-2xl" />
             <span className="text-white/80 font-semibold text-sm tracking-widest uppercase">
@@ -174,12 +176,12 @@ const ExploreDestinations = () => {
           <p className="text-white/70 max-w-lg mx-auto">
             Find your perfect getaway from hundreds of amazing destinations worldwide
           </p>
-        </div>
+        </motion.div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search & Filter Bar */}
-        <div className="-mt-7 mb-8 relative z-10">
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="-mt-7 mb-8 relative z-10">
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-lg p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
@@ -204,11 +206,12 @@ const ExploreDestinations = () => {
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Category Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        <motion.div variants={stagger} initial="hidden" animate="visible" className="flex flex-wrap gap-2 mb-8">
           {categories.map((cat) => (
+            <motion.div variants={scaleIn}>
             <button
               key={cat.key}
               type="button"
@@ -221,11 +224,12 @@ const ExploreDestinations = () => {
             >
               {cat.label}
             </button>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="flex items-center justify-between mb-6">
           <p className="text-sm text-[var(--muted-foreground)]">
             {filtered.length} destination{filtered.length !== 1 ? "s" : ""} found
           </p>
@@ -236,12 +240,13 @@ const ExploreDestinations = () => {
             <FiSliders />
             Filters
           </button>
-        </div>
+        </motion.div>
 
         {/* Destination Grid */}
         {filtered.length > 0 ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-16 md:pb-24">
+          <motion.div key={filtered.length} variants={stagger} initial="hidden" animate="visible" className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-16 md:pb-24">
             {filtered.map((dest) => (
+              <motion.div variants={fadeUp}>
               <Link key={dest.id} href={`/destinations/${dest.id}`}>
                 <Card className="overflow-hidden group border border-[var(--border)] rounded-2xl bg-[var(--card)] cursor-pointer">
                   <div className="relative h-48 overflow-hidden">
@@ -281,10 +286,11 @@ const ExploreDestinations = () => {
                   </div>
                 </Card>
               </Link>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
-          <div className="text-center py-16">
+          <motion.div key={filtered.length} variants={fadeUp} initial="hidden" animate="visible" className="text-center py-16">
             <MdTravelExplore className="text-5xl text-[var(--muted-foreground)]/30 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-[var(--foreground)] mb-1">
               No destinations found
@@ -292,12 +298,12 @@ const ExploreDestinations = () => {
             <p className="text-sm text-[var(--muted-foreground)]">
               Try adjusting your search or filter to find what you&apos;re looking for
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* Pagination */}
         {filtered.length > 0 && (
-          <div className="flex items-center justify-center gap-2 pb-16 md:pb-24">
+          <motion.div variants={fadeUp} initial="hidden" animate="visible" className="flex items-center justify-center gap-2 pb-16 md:pb-24">
             {[1, 2, 3].map((page) => (
               <button
                 key={page}
@@ -317,7 +323,7 @@ const ExploreDestinations = () => {
             >
               Next
             </button>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

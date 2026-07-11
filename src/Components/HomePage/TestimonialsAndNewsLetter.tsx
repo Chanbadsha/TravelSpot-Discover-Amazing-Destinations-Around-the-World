@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { FiMessageCircle, FiSend, FiStar, FiMail } from "react-icons/fi";
 import { MdFormatQuote } from "react-icons/md";
+import { motion } from "framer-motion";
+import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
 import { Card, Button, InputGroup } from "@heroui/react";
 
 const testimonials = [
@@ -49,7 +51,7 @@ const TestimonialsAndNewsLetter = () => {
       {/* Testimonials Section */}
       <div className="py-16 md:py-24 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
               <FiMessageCircle className="text-[var(--primary)] text-2xl" />
               <span className="text-[var(--primary)] font-semibold text-sm tracking-widest uppercase">
@@ -62,10 +64,11 @@ const TestimonialsAndNewsLetter = () => {
             <p className="text-[var(--muted-foreground)] max-w-xl mx-auto">
               Real stories from real people who traveled with us
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonials.map((t) => (
+              <motion.div variants={fadeUp}>
               <Card
                 key={t.id}
                 className="p-6 border border-[var(--border)] rounded-2xl bg-[var(--card)]"
@@ -97,14 +100,15 @@ const TestimonialsAndNewsLetter = () => {
                   </div>
                 </div>
               </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Newsletter Section */}
       <div className="py-16 md:py-24 bg-[var(--primary)]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <FiMail className="text-white/80 text-2xl" />
             <span className="text-white/80 font-semibold text-sm tracking-widest uppercase">
@@ -153,7 +157,7 @@ const TestimonialsAndNewsLetter = () => {
           <p className="text-white/60 text-xs mt-4">
             No spam. Unsubscribe anytime.
           </p>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

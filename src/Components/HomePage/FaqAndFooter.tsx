@@ -8,6 +8,8 @@ import {
   MdOutlineRestaurant,
 } from "react-icons/md";
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
+import { motion } from "framer-motion";
+import { fadeUp, stagger } from "@/src/Components/Animations";
 import { Accordion, Button } from "@heroui/react";
 
 const faqs = [
@@ -75,7 +77,7 @@ const FaqAndFooter = () => {
       {/* FAQ Section */}
       <div className="py-16 md:py-24 bg-[var(--surface)]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
               <FiHelpCircle className="text-[var(--primary)] text-2xl" />
               <span className="text-[var(--primary)] font-semibold text-sm tracking-widest uppercase">
@@ -88,45 +90,47 @@ const FaqAndFooter = () => {
             <p className="text-[var(--muted-foreground)] max-w-xl mx-auto">
               Everything you need to know before your next adventure
             </p>
-          </div>
+          </motion.div>
 
-          <Accordion>
-            {faqs.map((faq) => (
-              <Accordion.Item key={faq.id}>
-                <Accordion.Heading>
-                  <Accordion.Trigger className="flex w-full items-center justify-between px-5 py-4 text-left text-sm md:text-base font-medium text-[var(--foreground)] hover:text-[var(--primary)] transition-colors">
-                    {faq.question}
-                    <Accordion.Indicator className="text-[var(--muted-foreground)] shrink-0 ml-4" />
-                  </Accordion.Trigger>
-                </Accordion.Heading>
-                <Accordion.Panel>
-                  <Accordion.Body className="px-5 pb-4">
-                    <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                      {faq.answer}
-                    </p>
-                  </Accordion.Body>
-                </Accordion.Panel>
-              </Accordion.Item>
-            ))}
-          </Accordion>
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <Accordion>
+              {faqs.map((faq) => (
+                <Accordion.Item key={faq.id}>
+                  <Accordion.Heading>
+                    <Accordion.Trigger className="flex w-full items-center justify-between px-5 py-4 text-left text-sm md:text-base font-medium text-[var(--foreground)] hover:text-[var(--primary)] transition-colors">
+                      {faq.question}
+                      <Accordion.Indicator className="text-[var(--muted-foreground)] shrink-0 ml-4" />
+                    </Accordion.Trigger>
+                  </Accordion.Heading>
+                  <Accordion.Panel>
+                    <Accordion.Body className="px-5 pb-4">
+                      <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </Accordion.Body>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              ))}
+            </Accordion>
+          </motion.div>
 
-          <div className="text-center mt-8">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mt-8">
             <p className="text-sm text-[var(--muted-foreground)] mb-4">
               Still have questions?
             </p>
             <Button className="bg-[var(--primary)] text-white px-8 rounded-xl" size="lg">
               Contact Support
             </Button>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Footer */}
       <footer className="bg-gray-950 text-gray-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
             {/* Brand Column */}
-            <div className="lg:col-span-2">
+            <motion.div variants={fadeUp} className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <MdTravelExplore className="text-[var(--primary)] text-2xl" />
                 <span className="text-xl font-bold text-white">TravelSpot</span>
@@ -147,11 +151,11 @@ const FaqAndFooter = () => {
                   </a>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Link Columns */}
             {footerLinks.map((group) => (
-              <div key={group.title}>
+              <motion.div variants={fadeUp} key={group.title}>
                 <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
                   {group.title}
                 </h4>
@@ -168,12 +172,12 @@ const FaqAndFooter = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Popular Tags */}
-          <div className="mt-10 pt-8 border-t border-gray-800">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-10 pt-8 border-t border-gray-800">
             <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               Popular Tags
             </h4>
@@ -188,10 +192,10 @@ const FaqAndFooter = () => {
                 </a>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Partners / Trust Badges */}
-          <div className="mt-10 pt-8 border-t border-gray-800">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-10 pt-8 border-t border-gray-800">
             <div className="flex flex-wrap items-center justify-center gap-6 text-gray-500">
               <span className="flex items-center gap-1 text-xs">
                 <MdOutlineFlight className="text-base" /> Airlines Partner
@@ -203,7 +207,7 @@ const FaqAndFooter = () => {
                 <MdOutlineRestaurant className="text-base" /> Dining Curated
               </span>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Copyright Bar */}

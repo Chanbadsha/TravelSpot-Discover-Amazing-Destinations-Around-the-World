@@ -9,6 +9,8 @@ import {
   MdRestaurant,
   MdPark,
 } from "react-icons/md";
+import { motion } from "framer-motion";
+import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
 import { Card, Button } from "@heroui/react";
 
 const exploreCategories = [
@@ -57,7 +59,7 @@ const ExploreAndFeatured = () => {
       {/* Explore Section */}
       <div className="py-16 md:py-24 bg-[var(--surface)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
               <FiCompass className="text-[var(--primary)] text-2xl" />
               <span className="text-[var(--primary)] font-semibold text-sm tracking-widest uppercase">
@@ -70,34 +72,35 @@ const ExploreAndFeatured = () => {
             <p className="text-[var(--muted-foreground)] max-w-xl mx-auto">
               Find your perfect trip based on what you love
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {exploreCategories.map((cat) => {
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {exploreCategories.map((cat) => {
               const Icon = cat.icon;
               return (
-                <button
-                  key={cat.key}
-                  type="button"
-                  className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md transition-all cursor-pointer group"
-                >
-                  <div className="w-14 h-14 rounded-full bg-[var(--primary)]/10 flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-colors">
-                    <Icon className={`text-2xl ${cat.color}`} />
-                  </div>
-                  <span className="text-sm font-medium text-[var(--foreground)] text-center">
-                    {cat.label}
-                  </span>
-                </button>
+                <motion.div key={cat.key} variants={scaleIn}>
+                  <button
+                    type="button"
+                    className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="w-14 h-14 rounded-full bg-[var(--primary)]/10 flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-colors">
+                      <Icon className={`text-2xl ${cat.color}`} />
+                    </div>
+                    <span className="text-sm font-medium text-[var(--foreground)] text-center">
+                      {cat.label}
+                    </span>
+                  </button>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Featured Destinations Section */}
       <div className="py-16 md:py-24 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-12">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="flex items-end justify-between mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <FiStar className="text-[var(--accent)] text-2xl" />
@@ -119,11 +122,12 @@ const ExploreAndFeatured = () => {
             >
               View All
             </Button>
-          </div>
+          </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredDestinations.map((dest) => (
-              <Card key={dest.id} className="overflow-hidden group cursor-pointer border border-[var(--border)] rounded-2xl">
+              <motion.div key={dest.id} variants={fadeUp}>
+              <Card className="overflow-hidden group cursor-pointer border border-[var(--border)] rounded-2xl">
                 <div className="relative h-48 overflow-hidden">
                   <div
                     className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
@@ -146,10 +150,11 @@ const ExploreAndFeatured = () => {
                   </p>
                 </div>
               </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
-          <div className="mt-8 text-center sm:hidden">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-8 text-center sm:hidden">
             <Button
               variant="primary"
               className="bg-[var(--primary)] text-white px-8 rounded-xl w-full sm:w-auto"
@@ -157,7 +162,7 @@ const ExploreAndFeatured = () => {
             >
               View All
             </Button>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

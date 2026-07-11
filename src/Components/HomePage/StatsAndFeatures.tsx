@@ -7,6 +7,8 @@ import {
   MdSupportAgent,
   MdFlight,
 } from "react-icons/md";
+import { motion } from "framer-motion";
+import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
 import { Card } from "@heroui/react";
 import CountUp from "react-countup";
 
@@ -50,11 +52,11 @@ const StatsAndFeatures = () => {
       {/* Stats Bar */}
       <div className="bg-[var(--primary)] py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div
+                <motion.div variants={fadeUp}
                   key={stat.label}
                   className="text-center text-white"
                 >
@@ -72,17 +74,17 @@ const StatsAndFeatures = () => {
                   <div className="text-white/80 text-sm font-medium">
                     {stat.label}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Features Section */}
       <div className="py-16 md:py-24 bg-[var(--surface)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <span className="text-[var(--primary)] font-semibold text-sm tracking-widest uppercase">
               Why Travel With Us
             </span>
@@ -92,12 +94,13 @@ const StatsAndFeatures = () => {
             <p className="text-[var(--muted-foreground)] max-w-xl mx-auto">
               We take care of every detail so you can focus on making memories
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
+                <motion.div variants={fadeUp}>
                 <Card
                   key={feature.title}
                   className="p-6 border border-[var(--border)] rounded-2xl bg-[var(--card)]"
@@ -112,9 +115,10 @@ const StatsAndFeatures = () => {
                     {feature.description}
                   </p>
                 </Card>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

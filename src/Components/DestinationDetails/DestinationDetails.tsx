@@ -11,6 +11,9 @@ import {
   FiCalendar,
   FiChevronLeft,
   FiChevronRight,
+  FiThumbsUp,
+  FiSend,
+  FiUser,
 } from "react-icons/fi";
 import {
   MdTravelExplore,
@@ -18,6 +21,8 @@ import {
   MdCategory,
   MdTerrain,
 } from "react-icons/md";
+import { motion } from "framer-motion";
+import { fadeUp, fadeLeft, fadeRight, stagger } from "@/src/Components/Animations";
 import { Button, Card } from "@heroui/react";
 
 interface Destination {
@@ -85,6 +90,63 @@ const infoItems = [
   { label: "Opening Hours", value: destinationData.openingHours, icon: FiClock },
 ];
 
+interface Review {
+  id: number;
+  name: string;
+  avatar: string;
+  rating: number;
+  date: string;
+  comment: string;
+  likes: number;
+}
+
+const reviews: Review[] = [
+  {
+    id: 1,
+    name: "Sarah Johnson",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face",
+    rating: 5,
+    date: "June 2026",
+    comment: "Absolutely breathtaking! The caldera views are even more stunning in person. We stayed in Oia and watched the sunset every evening — pure magic. The local food and wine were incredible too.",
+    likes: 48,
+  },
+  {
+    id: 2,
+    name: "Marcus Chen",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
+    rating: 5,
+    date: "May 2026",
+    comment: "Santorini exceeded every expectation. The architecture, the people, the food — everything was perfect. Highly recommend the boat tour around the caldera and the wine tasting experience.",
+    likes: 36,
+  },
+  {
+    id: 3,
+    name: "Emma Williams",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face",
+    rating: 4,
+    date: "April 2026",
+    comment: "Beautiful island with so much to explore. The only downside was the crowds in peak hours, but if you venture off the main paths you'll find quiet gems. The red beach is a must-see!",
+    likes: 29,
+  },
+  {
+    id: 4,
+    name: "James Rodriguez",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
+    rating: 5,
+    date: "March 2026",
+    comment: "Best destination for a romantic getaway. My partner and I fell in love with the island just as much as each other. The sunset in Oia is something everyone should experience at least once.",
+    likes: 52,
+  },
+];
+
+const ratingDistribution = [
+  { stars: 5, count: 820 },
+  { stars: 4, count: 310 },
+  { stars: 3, count: 85 },
+  { stars: 2, count: 20 },
+  { stars: 1, count: 5 },
+];
+
 const DestinationDetails = () => {
   const [currentImage, setCurrentImage] = useState(0);
 
@@ -94,7 +156,7 @@ const DestinationDetails = () => {
   return (
     <div>
       {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+      <motion.div variants={fadeUp} initial="hidden" animate="visible" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
         <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
           <Link href="/" className="hover:text-[var(--primary)] transition-colors">Home</Link>
           <span>/</span>
@@ -102,14 +164,14 @@ const DestinationDetails = () => {
           <span>/</span>
           <span className="text-[var(--foreground)] font-medium">{destinationData.name}</span>
         </div>
-      </div>
+      </motion.div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-16 md:pb-24">
         <div className="grid lg:grid-cols-5 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
             {/* Gallery */}
-            <div className="relative rounded-2xl overflow-hidden bg-[var(--card)] border border-[var(--border)]">
+            <motion.div variants={fadeLeft} initial="hidden" animate="visible" className="relative rounded-2xl overflow-hidden bg-[var(--card)] border border-[var(--border)]">
               <div className="relative aspect-[16/10]">
                 <Image
                   src={destinationData.images[currentImage]}
@@ -149,10 +211,10 @@ const DestinationDetails = () => {
                 <FiStar className="text-[var(--accent)] fill-current" />
                 {destinationData.rating}
               </div>
-            </div>
+            </motion.div>
 
             {/* Thumbnail Strip */}
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
               {destinationData.images.map((img, i) => (
                 <button
                   key={i}
@@ -175,23 +237,152 @@ const DestinationDetails = () => {
                   </div>
                 </button>
               ))}
-            </div>
+            </motion.div>
 
             {/* Overview */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
               <h2 className="text-xl font-bold text-[var(--foreground)] mb-4">Overview</h2>
               {destinationData.description.split("\n").map((para, i) => (
                 <p key={i} className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-3 last:mb-0">
                   {para}
                 </p>
               ))}
-            </div>
+            </motion.div>
+
+            {/* Reviews & Ratings */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <FiStar className="text-[var(--accent)] text-xl" />
+                <h2 className="text-xl font-bold text-[var(--foreground)]">Reviews & Ratings</h2>
+              </div>
+
+              {/* Rating Summary */}
+              <div className="flex flex-col sm:flex-row gap-6 pb-6 border-b border-[var(--border)] mb-6">
+                <div className="text-center sm:text-left shrink-0">
+                  <div className="text-4xl font-bold text-[var(--foreground)]">{destinationData.rating}</div>
+                  <div className="flex gap-0.5 mt-1 justify-center sm:justify-start">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <FiStar
+                        key={i}
+                        className={`text-sm ${
+                          i <= Math.round(destinationData.rating)
+                            ? "text-[var(--accent)] fill-current"
+                            : "text-[var(--border)]"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-xs text-[var(--muted-foreground)] mt-1">
+                    {destinationData.reviews.toLocaleString()} reviews
+                  </div>
+                </div>
+                <div className="flex-1 space-y-1.5">
+                  {ratingDistribution.map((dist) => (
+                    <div key={dist.stars} className="flex items-center gap-2 text-sm">
+                      <span className="text-xs text-[var(--muted-foreground)] w-4 shrink-0 text-right">
+                        {dist.stars}
+                      </span>
+                      <FiStar className="text-[var(--accent)] fill-current text-[10px] shrink-0" />
+                      <div className="flex-1 h-2 rounded-full bg-[var(--border)] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[var(--accent)] transition-all"
+                          style={{
+                            width: `${(dist.count / destinationData.reviews) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs text-[var(--muted-foreground)] w-10 shrink-0 text-right">
+                        {dist.count}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Review Cards */}
+              <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-5">
+                {reviews.map((review) => (
+                  <motion.div
+                    key={review.id}
+                    variants={fadeUp}
+                    className="pb-5 border-b border-[var(--border)] last:border-0 last:pb-0"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-10 h-10 rounded-full bg-cover bg-center shrink-0"
+                        style={{ backgroundImage: `url(${review.avatar})` }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="font-semibold text-sm text-[var(--foreground)]">
+                            {review.name}
+                          </div>
+                          <span className="text-[11px] text-[var(--muted-foreground)]">{review.date}</span>
+                        </div>
+                        <div className="flex gap-0.5 mt-0.5 mb-2">
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <FiStar
+                              key={i}
+                              className={`text-[10px] ${
+                                i <= review.rating
+                                  ? "text-[var(--accent)] fill-current"
+                                  : "text-[var(--border)]"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                          {review.comment}
+                        </p>
+                        <button
+                          type="button"
+                          className="flex items-center gap-1.5 mt-2 text-xs text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors cursor-pointer"
+                        >
+                          <FiThumbsUp className="text-xs" />
+                          <span>Helpful ({review.likes})</span>
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* Write a Review */}
+              <div className="mt-6 pt-6 border-t border-[var(--border)]">
+                <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Write a Review</h3>
+                <div className="space-y-3">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="text-[var(--border)] hover:text-[var(--accent)] transition-colors cursor-pointer"
+                      >
+                        <FiStar className="text-lg" />
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    rows={3}
+                    placeholder="Share your experience..."
+                    className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20 resize-none"
+                  />
+                  <button
+                    type="button"
+                    className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
+                  >
+                    <FiSend className="text-xs" />
+                    Submit Review
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
           {/* Sidebar */}
           <div className="lg:col-span-2 space-y-6">
             {/* Title & Location */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+            <motion.div variants={fadeRight} initial="hidden" animate="visible" className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
               <h1 className="text-2xl md:text-3xl font-bold text-[var(--foreground)] mb-2">
                 {destinationData.name}
               </h1>
@@ -206,10 +397,10 @@ const DestinationDetails = () => {
                   <span className="text-[var(--muted-foreground)]">({destinationData.reviews.toLocaleString()})</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Basic Information */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+            <motion.div variants={fadeRight} initial="hidden" animate="visible" className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
               <h3 className="text-lg font-bold text-[var(--foreground)] mb-4">Basic Information</h3>
               <div className="space-y-4">
                 {infoItems.map((item) => {
@@ -229,10 +420,10 @@ const DestinationDetails = () => {
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
 
             {/* Book Now */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+            <motion.div variants={fadeRight} initial="hidden" animate="visible" className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-[var(--primary)] mb-1">$1,299</div>
                 <div className="text-xs text-[var(--muted-foreground)] mb-4">per person · 7 day package</div>
@@ -243,17 +434,19 @@ const DestinationDetails = () => {
                   Add to Wishlist
                 </Button>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
 
         {/* Nearby Attractions */}
         <div className="mt-8">
-          <h2 className="text-xl font-bold text-[var(--foreground)] mb-6">Nearby Attractions</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <h2 className="text-xl font-bold text-[var(--foreground)] mb-6">Nearby Attractions</h2>
+          </motion.div>
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {destinationData.nearbyAttractions.map((attraction) => (
+              <motion.div key={attraction.name} variants={fadeUp}>
               <Card
-                key={attraction.name}
                 className="overflow-hidden border border-[var(--border)] rounded-2xl bg-[var(--card)]"
               >
                 <div className="relative h-36">
@@ -270,13 +463,14 @@ const DestinationDetails = () => {
                   <p className="text-xs text-[var(--muted-foreground)]">{attraction.distance} away</p>
                 </div>
               </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
 
         {/* Related Destinations */}
         <div className="mt-12">
-          <div className="flex items-center justify-between mb-6">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-[var(--foreground)]">Related Destinations</h2>
             <Link
               href="/explore-destinations"
@@ -284,10 +478,11 @@ const DestinationDetails = () => {
             >
               View All
             </Link>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          </motion.div>
+          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {destinationData.related.map((dest) => (
-              <Link key={dest.id} href={`/destinations/${dest.id}`}>
+              <motion.div key={dest.id} variants={fadeUp}>
+              <Link href={`/destinations/${dest.id}`}>
                 <Card className="overflow-hidden group border border-[var(--border)] rounded-2xl bg-[var(--card)] cursor-pointer">
                   <div className="relative h-44 overflow-hidden">
                     <Image
@@ -307,8 +502,9 @@ const DestinationDetails = () => {
                   </div>
                 </Card>
               </Link>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
