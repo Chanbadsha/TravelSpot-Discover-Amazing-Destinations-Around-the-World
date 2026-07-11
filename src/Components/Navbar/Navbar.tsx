@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { MdTravelExplore } from "react-icons/md";
 import { FiMenu, FiX, FiSun, FiMoon, FiUser } from "react-icons/fi";
-import { Button } from "@heroui/react";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -110,18 +109,28 @@ const Navbar = () => {
               )}
             </button>
 
-            {/* Sign In */}
-            <Button
-              className={`hidden sm:flex px-4 rounded-lg text-sm font-medium h-9 cursor-pointer ${
+            {/* Auth Links */}
+            <Link
+              href="/register"
+              className={`hidden sm:inline-flex items-center gap-1.5 px-4 rounded-lg text-sm font-medium h-9 transition-colors cursor-pointer ${
+                scrolled
+                  ? "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  : "text-white/80 hover:text-white"
+              }`}
+            >
+              Sign Up
+            </Link>
+            <Link
+              href="/login"
+              className={`hidden sm:inline-flex items-center gap-1.5 px-4 rounded-lg text-sm font-medium h-9 transition-colors cursor-pointer ${
                 scrolled
                   ? "bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]"
                   : "bg-white/15 text-white hover:bg-white/25"
               }`}
-              size="sm"
             >
               <FiUser className="text-sm" />
               <span>Sign In</span>
-            </Button>
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -183,11 +192,22 @@ const Navbar = () => {
             </li>
           ))}
         </ul>
-        <div className="px-5 pt-4 border-t border-[var(--border)]">
-          <Button className="w-full bg-[var(--primary)] text-white rounded-xl" size="lg">
+        <div className="px-5 pt-4 border-t border-[var(--border)] space-y-2">
+          <Link
+            href="/login"
+            onClick={closeMobile}
+            className="flex items-center justify-center gap-2 w-full bg-[var(--primary)] text-white rounded-xl py-3 text-sm font-semibold transition-colors hover:bg-[var(--primary-hover)]"
+          >
             <FiUser className="text-sm" />
             Sign In
-          </Button>
+          </Link>
+          <Link
+            href="/register"
+            onClick={closeMobile}
+            className="flex items-center justify-center gap-2 w-full bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-xl py-3 text-sm font-semibold transition-colors hover:bg-[var(--background)]"
+          >
+            Create Account
+          </Link>
         </div>
       </div>
     </header>
