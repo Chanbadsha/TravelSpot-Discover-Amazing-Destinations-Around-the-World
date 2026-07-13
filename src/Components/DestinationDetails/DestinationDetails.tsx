@@ -7,35 +7,39 @@ import {
   FiMapPin,
   FiStar,
   FiClock,
-  FiDollarSign,
   FiCalendar,
   FiChevronLeft,
   FiChevronRight,
   FiThumbsUp,
-  FiSend,
   FiUser,
   FiAward,
   FiGlobe,
   FiCamera,
   FiHeart,
-  FiShield,
-  FiRefreshCw,
+  FiDollarSign,
+  FiCheckCircle,
+  FiBookmark,
+  FiChevronDown,
+  FiX,
 } from "react-icons/fi";
 import {
   MdTravelExplore,
   MdAccessTime,
   MdCategory,
-  MdTerrain,
   MdVerified,
 } from "react-icons/md";
 import { motion } from "framer-motion";
+import { useSession } from "@/src/lib/auth-client";
+import { useDestinations, type SaveStatus } from "@/src/lib/DestinationContext";
 import {
   fadeUp,
   fadeLeft,
   fadeRight,
   stagger,
 } from "@/src/Components/Animations";
-import { Button, Card } from "@heroui/react";
+import { Card } from "@heroui/react";
+
+type SpotStatus = "pending" | "verified" | "cancelled";
 
 interface Creator {
   name: string;
@@ -63,6 +67,10 @@ interface Destination {
   openingHours: string;
   description: string;
   images: string[];
+  status: SpotStatus;
+  submittedBy: string;
+  submittedAt: string;
+  verifiedAt?: string;
   creator: Creator;
   nearbyAttractions: { name: string; distance: string; image: string }[];
   related: { id: number; name: string; image: string; rating: number }[];
@@ -89,6 +97,10 @@ const destinationData: Destination = {
     "https://images.unsplash.com/photo-1612698090007-5b8e6a1f3b9e?w=1200&h=800&fit=crop",
     "https://images.unsplash.com/photo-1504512485720-7d83a16ee930?w=1200&h=800&fit=crop",
   ],
+  status: "verified",
+  submittedBy: "Elena Marchetti",
+  submittedAt: "March 15, 2026",
+  verifiedAt: "March 18, 2026",
   creator: {
     name: "Elena Marchetti",
     avatar:
@@ -242,7 +254,13 @@ const ratingDistribution = [
 
 const DestinationDetails = () => {
   const [currentImage, setCurrentImage] = useState(0);
-  const [wishlisted, setWishlisted] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const { data: session } = useSession();
+  const user = session?.user;
+  const { getSavedStatus, saveDestination, removeSavedDestination, updateSavedStatus, getDestinationById } = useDestinations();
+  const destId = "1";
+  const currentStatus = user ? getSavedStatus(user.id, destId) : null;
 
   const prevImage = () =>
     setCurrentImage((p) =>
@@ -528,7 +546,7 @@ const DestinationDetails = () => {
                     type="button"
                     className="bg-(--primary) hover:bg-(--primary-hover) text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
                   >
-                    <FiSend className="text-xs" />
+                    <FiStar className="text-xs" />
                     Submit Review
                   </button>
                 </div>
@@ -545,9 +563,23 @@ const DestinationDetails = () => {
               animate="visible"
               className="bg-(--card) border border-(--border) rounded-2xl p-6"
             >
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                {destinationData.name}
-              </h1>
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                  {destinationData.name}
+                </h1>
+                {destinationData.status === "verified" && (
+                  <span className="shrink-0 inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                    <MdVerified className="text-xs" />
+                    Verified
+                  </span>
+                )}
+                {destinationData.status === "pending" && (
+                  <span className="shrink-0 inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                    <FiClock className="text-xs" />
+                    Under Review
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-1.5 text-sm text-(--muted-foreground) mb-4">
                 <FiMapPin className="text-(--primary) shrink-0" />
                 <span>{destinationData.location}</span>
@@ -562,6 +594,25 @@ const DestinationDetails = () => {
                     ({destinationData.reviews.toLocaleString()})
                   </span>
                 </div>
+              </div>
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-(--border) text-xs text-(--muted-foreground)">
+                <FiUser className="shrink-0" />
+                <span>
+                  Submitted by{" "}
+                  <strong className="text-foreground font-medium">
+                    {destinationData.submittedBy}
+                  </strong>
+                </span>
+                <span className="text-(--border)">|</span>
+                <span>{destinationData.submittedAt}</span>
+                {destinationData.verifiedAt && (
+                  <>
+                    <span className="text-(--border)">|</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">
+                      Verified {destinationData.verifiedAt}
+                    </span>
+                  </>
+                )}
               </div>
             </motion.div>
 
@@ -660,74 +711,206 @@ const DestinationDetails = () => {
               </div>
             </motion.div>
 
-            {/* Book Now */}
+            {/* Tour Guides */}
             <motion.div
               variants={fadeRight}
               initial="hidden"
               animate="visible"
               className="bg-(--card) border border-(--border) rounded-2xl p-6"
             >
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-xs text-(--muted-foreground) line-through">
-                  $1,899
-                </span>
-                <span className="text-[10px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded">
-                  -32%
-                </span>
+              <div className="flex items-center gap-2 mb-4">
+                <FiAward className="text-(--primary) text-lg" />
+                <h3 className="text-base font-bold text-foreground">
+                  Local Tour Guides
+                </h3>
               </div>
-              <div className="flex items-baseline gap-1.5 mb-1">
-                <span className="text-3xl font-bold text-foreground">
-                  $1,299
-                </span>
-                <span className="text-xs text-(--muted-foreground)">
-                  /person
-                </span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-(--muted-foreground) mb-5">
-                <FiCalendar className="text-[10px]" />
-                <span>7 day package · All taxes included</span>
-              </div>
-
-              <Button
-                className="w-full  flex  justify-center h-11 gap-2 items-center bg-(--primary) hover:bg-(--primary-hover) text-white font-semibold rounded-xl mb-2.5 transition-all cursor-pointer"
-                size="lg"
-              >
-                <FiSend className="text-sm " />
-                Book Your Trip
-              </Button>
-
-              <button
-                type="button"
-                onClick={() => setWishlisted(!wishlisted)}
-                className={`w-full rounded-xl font-medium transition-all cursor-pointer h-11 text-sm flex items-center justify-center gap-2 ${
-                  wishlisted
-                    ? "bg-red-50 dark:bg-red-900/20 text-red-500 border border-red-200 dark:border-red-800"
-                    : "bg-transparent border border-(--border) text-foreground hover:border-(--primary) hover:text-(--primary)"
-                }`}
-              >
-                <FiHeart
-                  className={`text-sm ${wishlisted ? "fill-current" : ""}`}
-                />
-                {wishlisted ? "Saved" : "Add to Wishlist"}
-              </button>
-
-              <div className="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-(--border)">
+              <div className="space-y-3">
                 {[
-                  { icon: FiShield, label: "Best Price Guarantee" },
-                  { icon: FiRefreshCw, label: "Free Cancellation" },
-                  { icon: FiClock, label: "24/7 Support" },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div key={item.label} className="text-center">
-                      <Icon className="text-sm text-(--primary) mx-auto mb-1" />
-                      <p className="text-[10px] text-(--muted-foreground) leading-tight">
-                        {item.label}
+                  {
+                    name: "Nikos Papadopoulos",
+                    languages: "English, Greek",
+                    rating: 4.9,
+                    tours: 124,
+                    image:
+                      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
+                  },
+                  {
+                    name: "Maria Kostas",
+                    languages: "English, Greek, French",
+                    rating: 4.8,
+                    tours: 98,
+                    image:
+                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face",
+                  },
+                ].map((guide) => (
+                  <div
+                    key={guide.name}
+                    className="flex items-start gap-3 pb-3 border-b border-(--border) last:border-0 last:pb-0"
+                  >
+                    <div
+                      className="w-10 h-10 rounded-full bg-cover bg-center shrink-0"
+                      style={{ backgroundImage: `url(${guide.image})` }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground">
+                        {guide.name}
                       </p>
+                      <p className="text-[11px] text-(--muted-foreground)">
+                        {guide.languages}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-0.5">
+                          <FiStar className="text-(--accent) fill-current text-[10px]" />
+                          <span className="text-[11px] font-medium text-foreground">
+                            {guide.rating}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-(--muted-foreground)">
+                          {guide.tours} tours
+                        </span>
+                      </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
+              <p className="text-[11px] text-(--muted-foreground) mt-3 leading-relaxed">
+                These are independent local guides listed for your reference.
+                Contact them directly for personalized tours.
+              </p>
+            </motion.div>
+
+            {/* Community Info */}
+            <motion.div
+              variants={fadeRight}
+              initial="hidden"
+              animate="visible"
+              className="bg-(--card) border border-(--border) rounded-2xl p-6"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <FiGlobe className="text-(--primary) text-lg" />
+                <h3 className="text-base font-bold text-foreground">
+                  Community Info
+                </h3>
+              </div>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2 text-(--muted-foreground)">
+                  <FiUser className="shrink-0" />
+                  <span>
+                    Added by{" "}
+                    <strong className="text-foreground">
+                      {destinationData.submittedBy}
+                    </strong>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-(--muted-foreground)">
+                  <FiCalendar className="shrink-0" />
+                  <span>Submitted on {destinationData.submittedAt}</span>
+                </div>
+                <div className="flex items-center gap-2 text-(--muted-foreground)">
+                  <FiCamera className="shrink-0" />
+                  <span>{destinationData.creator.photos} photos shared</span>
+                </div>
+                <div className="flex items-center gap-2 text-(--muted-foreground)">
+                  <FiHeart className="shrink-0" />
+                  <span>
+                    {destinationData.reviews.toLocaleString()} travelers found
+                    this helpful
+                  </span>
+                </div>
+                {destinationData.status === "pending" && (
+                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 mt-2">
+                    <FiClock className="shrink-0 text-sm" />
+                    <span className="text-xs">
+                      This spot is pending review by moderators.
+                    </span>
+                  </div>
+                )}
+              </div>
+              {user ? (
+                <div className="relative mt-4">
+                  {currentStatus ? (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { removeSavedDestination(user.id, destId); setShowDropdown(false); }}
+                        className={`flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 ${
+                          currentStatus === "visited"
+                            ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800"
+                            : "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
+                        }`}
+                      >
+                        {currentStatus === "visited" ? <FiCheckCircle className="text-sm" /> : <FiBookmark className="text-sm" />}
+                        {currentStatus === "visited" ? "Visited" : "Want to Visit"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowDropdown((p) => !p)}
+                        className="w-10 h-10 rounded-xl border border-(--border) flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) hover:border-(--primary) transition-all cursor-pointer shrink-0"
+                      >
+                        <FiChevronDown className={`text-sm transition-transform ${showDropdown ? "rotate-180" : ""}`} />
+                      </button>
+                      {showDropdown && (
+                        <>
+                          <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                          <div className="absolute right-0 top-full mt-1 z-20 w-44 bg-(--card) border border-(--border) rounded-xl shadow-xl overflow-hidden">
+                            <button
+                              type="button"
+                              onClick={() => { updateSavedStatus(user.id, destId, "wantToVisit"); setShowDropdown(false); }}
+                              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left transition-colors cursor-pointer ${
+                                currentStatus === "wantToVisit" ? "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20" : "text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--background)"
+                              }`}
+                            >
+                              <FiBookmark className="text-sm" /> Want to Visit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { updateSavedStatus(user.id, destId, "visited"); setShowDropdown(false); }}
+                              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left transition-colors cursor-pointer ${
+                                currentStatus === "visited" ? "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20" : "text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--background)"
+                              }`}
+                            >
+                              <FiCheckCircle className="text-sm" /> Visited
+                            </button>
+                            <div className="border-t border-(--border)" />
+                            <button
+                              type="button"
+                              onClick={() => { removeSavedDestination(user.id, destId); setShowDropdown(false); }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left text-(--error) hover:bg-(--error)/10 transition-colors cursor-pointer"
+                            >
+                              <FiX className="text-sm" /> Remove
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { saveDestination(user.id, destId, "wantToVisit"); setShowDropdown(false); }}
+                        className="flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-amber-400 hover:text-amber-500"
+                      >
+                        <FiBookmark className="text-sm" /> Want to Visit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { saveDestination(user.id, destId, "visited"); setShowDropdown(false); }}
+                        className="flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-green-400 hover:text-green-500"
+                      >
+                        <FiCheckCircle className="text-sm" /> Visited
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="w-full mt-4 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-(--primary) hover:text-(--primary) no-underline"
+                >
+                  <FiHeart className="text-sm" />
+                  Sign in to Save
+                </Link>
+              )}
             </motion.div>
           </div>
         </div>

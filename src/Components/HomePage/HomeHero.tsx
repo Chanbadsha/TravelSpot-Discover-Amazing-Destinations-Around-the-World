@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { FiMapPin, FiCalendar, FiSearch } from "react-icons/fi";
 import { MdTravelExplore } from "react-icons/md";
 import { motion } from "framer-motion";
-import { fadeUp, fadeLeft, scaleIn, stagger } from "@/src/Components/Animations";
+import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
 import { Button, InputGroup } from "@heroui/react";
 
 interface SearchFilters {
@@ -68,10 +68,10 @@ export default function HomePageHero() {
             <MdTravelExplore className="text-white text-5xl md:text-6xl" />
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-            Discover Your Next Great Adventure
+            Discover Famous Tourist Spots
           </h1>
           <p className="text-base md:text-lg text-white/80 max-w-2xl mx-auto">
-            Explore incredible destinations and create unforgettable memories
+            Explore incredible destinations, view facilities, and share your experiences with the community
           </p>
         </motion.div>
 
@@ -157,7 +157,7 @@ export default function HomePageHero() {
               size="lg"
             >
               <FiSearch className="text-lg md:hidden" />
-              <span className="hidden md:inline">Search</span>
+              <span className="hidden md:inline">Explore</span>
             </Button>
           </div>
           </form>
@@ -165,8 +165,8 @@ export default function HomePageHero() {
 
         {/* Popular Destinations */}
         <motion.div variants={fadeUp} className="mt-10 md:mt-14 text-center">
-          <p className="text-white/60 text-xs mb-4 tracking-widest uppercase font-medium">
-            Popular destinations
+            <p className="text-white/60 text-xs mb-4 tracking-widest uppercase font-medium">
+            Popular spots
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {["Bali", "Maldives", "Iceland", "Costa Rica", "Paris", "Tokyo"].map(

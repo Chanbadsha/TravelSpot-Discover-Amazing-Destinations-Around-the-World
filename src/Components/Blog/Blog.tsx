@@ -95,7 +95,8 @@ const posts: BlogPost[] = [
   },
   {
     id: 4,
-    title: "Trekking the Inca Trail: What to Expect on the Journey to Machu Picchu",
+    title:
+      "Trekking the Inca Trail: What to Expect on the Journey to Machu Picchu",
     excerpt:
       "Prepare for the adventure of a lifetime. Our detailed guide covers training tips, packing essentials, and what each day on the trail looks like.",
     image:
@@ -250,7 +251,7 @@ export default function Blog() {
     .filter(
       (p) =>
         (activeCategory === "all" || p.category === activeCategory) &&
-        matchesSearch(p)
+        matchesSearch(p),
     );
 
   const indexOfLast = currentPage * postsPerPage;
@@ -344,18 +345,26 @@ export default function Blog() {
             >
               {filtered.length + (featuredPost ? 1 : 0)} article
               {filtered.length + (featuredPost ? 1 : 0) !== 1 ? "s" : ""}
-              {activeCategory !== "all" && ` in ${blogCategories.find((c) => c.key === activeCategory)?.label}`}
+              {activeCategory !== "all" &&
+                ` in ${blogCategories.find((c) => c.key === activeCategory)?.label}`}
             </motion.p>
 
             {/* Featured Post */}
             {featuredPost && (
-              <motion.div variants={fadeUp} initial="hidden" animate="visible" className="mb-10">
+              <motion.div
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                className="mb-10"
+              >
                 <div className="relative rounded-2xl overflow-hidden bg-[var(--card)] border border-[var(--border)] group cursor-pointer">
                   <div className="grid md:grid-cols-2 gap-0">
                     <div className="relative h-64 md:h-full min-h-[280px] overflow-hidden">
                       <div
                         className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                        style={{ backgroundImage: `url(${featuredPost.image})` }}
+                        style={{
+                          backgroundImage: `url(${featuredPost.image})`,
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/50 via-transparent to-transparent" />
                       <div className="absolute top-4 left-4">
@@ -504,11 +513,13 @@ export default function Blog() {
                     >
                       {page}
                     </button>
-                  )
+                  ),
                 )}
                 <button
                   type="button"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="w-10 h-10 rounded-xl border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--primary)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
@@ -531,8 +542,8 @@ export default function Blog() {
                     key={cat.name}
                     type="button"
                     onClick={() => {
-                      const found = blogCategories.find(
-                        (c) => c.label.toLowerCase().includes(cat.name.toLowerCase())
+                      const found = blogCategories.find((c) =>
+                        c.label.toLowerCase().includes(cat.name.toLowerCase()),
                       );
                       if (found) {
                         setActiveCategory(found.key);

@@ -11,7 +11,7 @@ import {
 } from "react-icons/md";
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
-import { Card, Button } from "@heroui/react";
+import { Card } from "@heroui/react";
 
 const exploreCategories = [
   { key: "adventure", label: "Adventure", icon: MdLandscape, color: "text-orange-500" },
@@ -29,6 +29,8 @@ const featuredDestinations = [
     description: "Whitewashed buildings with breathtaking caldera views",
     image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=600&h=400&fit=crop",
     rating: 4.8,
+    status: "verified",
+    addedBy: "Elena M.",
   },
   {
     id: 2,
@@ -36,6 +38,8 @@ const featuredDestinations = [
     description: "Tropical paradise with ancient temples and lush rice terraces",
     image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&h=400&fit=crop",
     rating: 4.7,
+    status: "verified",
+    addedBy: "Wayang K.",
   },
   {
     id: 3,
@@ -43,6 +47,8 @@ const featuredDestinations = [
     description: "Dramatic coastline dotted with pastel-colored villages",
     image: "https://images.unsplash.com/photo-1612698090007-5b8e6a1f3b9e?w=600&h=400&fit=crop",
     rating: 4.9,
+    status: "verified",
+    addedBy: "Marco R.",
   },
   {
     id: 4,
@@ -50,6 +56,8 @@ const featuredDestinations = [
     description: "Turquoise lakes surrounded by towering Rocky Mountain peaks",
     image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&h=400&fit=crop",
     rating: 4.6,
+    status: "verified",
+    addedBy: "Chris T.",
   },
 ];
 
@@ -70,7 +78,7 @@ const ExploreAndFeatured = () => {
               Explore by Category
             </h2>
             <p className="text-[var(--muted-foreground)] max-w-xl mx-auto">
-              Find your perfect trip based on what you love
+              Discover spots based on what you love
             </p>
           </motion.div>
 
@@ -112,16 +120,9 @@ const ExploreAndFeatured = () => {
                 Top Destinations
               </h2>
               <p className="text-[var(--muted-foreground)] max-w-xl">
-                Handpicked places our travelers love the most
+                Most loved spots shared by the community
               </p>
             </div>
-            <Button
-              variant="primary"
-              className="hidden sm:flex bg-[var(--primary)] text-white px-6 rounded-xl"
-              size="lg"
-            >
-              View All
-            </Button>
           </motion.div>
 
           <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -133,6 +134,13 @@ const ExploreAndFeatured = () => {
                     className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
                     style={{ backgroundImage: `url(${dest.image})` }}
                   />
+                  {dest.status === "verified" && (
+                    <div className="absolute top-3 left-3">
+                      <span className="text-[10px] font-semibold bg-emerald-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                        Verified
+                      </span>
+                    </div>
+                  )}
                   <div className="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1 text-sm font-semibold text-[var(--foreground)]">
                     <FiStar className="text-[var(--accent)] fill-current text-xs" />
                     {dest.rating}
@@ -148,21 +156,16 @@ const ExploreAndFeatured = () => {
                   <p className="text-sm text-[var(--muted-foreground)] line-clamp-2">
                     {dest.description}
                   </p>
+                  <p className="text-xs text-[var(--muted-foreground)] mt-2">
+                    Added by {dest.addedBy}
+                  </p>
                 </div>
               </Card>
               </motion.div>
             ))}
           </motion.div>
 
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-8 text-center sm:hidden">
-            <Button
-              variant="primary"
-              className="bg-[var(--primary)] text-white px-8 rounded-xl w-full sm:w-auto"
-              size="lg"
-            >
-              View All
-            </Button>
-          </motion.div>
+
         </div>
       </div>
     </section>

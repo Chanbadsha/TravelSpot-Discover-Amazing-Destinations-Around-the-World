@@ -1,47 +1,43 @@
 "use client";
 
-import { FiHelpCircle, FiChevronRight } from "react-icons/fi";
-import {
-  MdTravelExplore,
-  MdOutlineFlight,
-  MdOutlineHotel,
-  MdOutlineRestaurant,
-} from "react-icons/md";
+import Link from "next/link";
+import { FiHelpCircle, FiChevronRight, FiStar, FiGlobe } from "react-icons/fi";
+import { MdTravelExplore } from "react-icons/md";
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
-import { Accordion, Button } from "@heroui/react";
+import { Accordion } from "@heroui/react";
 
 const faqs = [
   {
     id: 1,
-    question: "How do I book a trip?",
+    question: "What is TravelSpot?",
     answer:
-      "Simply use the search bar on our homepage to find your desired destination, select your dates, and browse available packages. Once you find the perfect trip, follow the checkout process to secure your booking.",
+      "TravelSpot is a free, open community platform where travelers can discover, rate, and share famous tourist spots and their facilities. It's not a booking agency - just a place for travel inspiration and information.",
   },
   {
     id: 2,
-    question: "Can I modify or cancel my booking?",
+    question: "How can I add a tourist spot?",
     answer:
-      "Yes, you can modify or cancel your booking up to 48 hours before departure. Some restrictions may apply depending on the package and provider. Visit your account dashboard or contact our support team for assistance.",
+      "Anyone can contribute! Simply create an account and use the 'Suggest a Spot' page to submit a new tourist spot with details, photos, and facilities. Your submission will be visible to the community after review.",
   },
   {
     id: 3,
-    question: "What payment methods do you accept?",
+    question: "Can I rate and review spots?",
     answer:
-      "We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers. All payments are processed securely through encrypted connections.",
+      "Yes! Every user can rate spots and leave reviews. Your ratings and comments help other travelers discover the best places to visit. You can also upvote helpful reviews from other community members.",
   },
   {
     id: 4,
-    question: "Is travel insurance included?",
+    question: "Is there any booking or payment system?",
     answer:
-      "Travel insurance is not automatically included, but we strongly recommend it. You can add comprehensive coverage during the checkout process for as little as $25 per trip.",
+      "No. TravelSpot is completely free and does not handle any bookings, payments, or reservations. We're purely an informational platform where travelers share their knowledge about tourist spots around the world.",
   },
   {
     id: 5,
-    question: "How do I contact support during my trip?",
+    question: "How do I find tour guides?",
     answer:
-      "Our support team is available 24/7 via live chat, email at support@travelspot.com, or phone at +1 (555) 123-4567. We also have an emergency hotline for urgent situations.",
+      "You can view tour guide profiles on each spot's details page. These are informational profiles shared by the community - not booking services. Contact details may be provided by the guides themselves.",
   },
 ];
 
@@ -118,9 +114,12 @@ const FaqAndFooter = () => {
             <p className="text-sm text-[var(--muted-foreground)] mb-4">
               Still have questions?
             </p>
-            <Button className="bg-[var(--primary)] text-white px-8 rounded-xl" size="lg">
-              Contact Support
-            </Button>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center bg-[var(--primary)] text-white px-8 rounded-xl h-11 text-sm font-semibold"
+            >
+              Contact Us
+            </Link>
           </motion.div>
         </div>
       </div>
@@ -136,9 +135,9 @@ const FaqAndFooter = () => {
                 <span className="text-xl font-bold text-white">TravelSpot</span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed mb-6 max-w-sm">
-                Your gateway to unforgettable adventures. We curate exceptional
-                travel experiences that go beyond the ordinary, connecting you
-                with the worlds most amazing destinations.
+                An open community platform for discovering and sharing famous
+                tourist spots around the world. No bookings, no agency — just
+                real travel inspiration from real people.
               </p>
               <div className="flex gap-3">
                 {[FaFacebook, FaTwitter, FaInstagram, FaYoutube].map((Icon, i) => (
@@ -198,13 +197,13 @@ const FaqAndFooter = () => {
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mt-10 pt-8 border-t border-gray-800">
             <div className="flex flex-wrap items-center justify-center gap-6 text-gray-500">
               <span className="flex items-center gap-1 text-xs">
-                <MdOutlineFlight className="text-base" /> Airlines Partner
+                <MdTravelExplore className="text-base" /> Community Driven
               </span>
               <span className="flex items-center gap-1 text-xs">
-                <MdOutlineHotel className="text-base" /> Hotel Network
+                <FiStar className="text-base" /> User Rated
               </span>
               <span className="flex items-center gap-1 text-xs">
-                <MdOutlineRestaurant className="text-base" /> Dining Curated
+                <FiGlobe className="text-base" /> Open & Free
               </span>
             </div>
           </motion.div>

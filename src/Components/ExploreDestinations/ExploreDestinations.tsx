@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FiSearch, FiMapPin, FiStar, FiSliders } from "react-icons/fi";
-import { MdTravelExplore } from "react-icons/md";
+import { FiSearch, FiMapPin, FiStar, FiSliders, FiClock } from "react-icons/fi";
+import { MdTravelExplore, MdVerified } from "react-icons/md";
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
 import Link from "next/link";
@@ -18,7 +18,22 @@ const categories = [
   { key: "nature", label: "Nature" },
 ];
 
-const destinations = [
+type SpotStatus = "pending" | "verified" | "cancelled";
+
+interface Destination {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  rating: number;
+  reviews: number;
+  category: string;
+  facilities: string[];
+  status: SpotStatus;
+  addedBy: string;
+}
+
+const destinations: Destination[] = [
   {
     id: 1,
     name: "Santorini, Greece",
@@ -26,8 +41,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=600&h=400&fit=crop",
     rating: 4.8,
     reviews: 1240,
-    price: 1299,
     category: "culture",
+    facilities: ["Parking", "Restaurants", "Viewpoints", "Photography Spots"],
+    status: "verified",
+    addedBy: "Elena M.",
   },
   {
     id: 2,
@@ -36,8 +53,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600&h=400&fit=crop",
     rating: 4.7,
     reviews: 980,
-    price: 899,
     category: "beach",
+    facilities: ["Temples", "Surf Spots", "Markets", "Restaurants"],
+    status: "verified",
+    addedBy: "Wayang K.",
   },
   {
     id: 3,
@@ -46,8 +65,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1612698090007-5b8e6a1f3b9e?w=600&h=400&fit=crop",
     rating: 4.9,
     reviews: 1560,
-    price: 1899,
     category: "culture",
+    facilities: ["Beaches", "Hiking Trails", "Wineries", "Boat Tours"],
+    status: "verified",
+    addedBy: "Marco R.",
   },
   {
     id: 4,
@@ -56,8 +77,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&h=400&fit=crop",
     rating: 4.6,
     reviews: 720,
-    price: 1499,
     category: "nature",
+    facilities: ["Hiking Trails", "Camping", "Wildlife Viewing", "Ski Resorts"],
+    status: "verified",
+    addedBy: "Chris T.",
   },
   {
     id: 5,
@@ -66,8 +89,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
     rating: 4.8,
     reviews: 890,
-    price: 2199,
     category: "adventure",
+    facilities: ["Bungee", "Ski Slopes", "Lake Cruises", "Wineries"],
+    status: "verified",
+    addedBy: "Kiwi A.",
   },
   {
     id: 6,
@@ -76,8 +101,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&h=400&fit=crop",
     rating: 4.7,
     reviews: 2100,
-    price: 1599,
     category: "culture",
+    facilities: ["Temples", "Shopping", "Street Food", "Museums"],
+    status: "verified",
+    addedBy: "Yuki T.",
   },
   {
     id: 7,
@@ -86,8 +113,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=600&h=400&fit=crop",
     rating: 4.9,
     reviews: 1450,
-    price: 2499,
     category: "beach",
+    facilities: ["Snorkeling", "Diving", "Resorts", "Spa"],
+    status: "verified",
+    addedBy: "Aisha M.",
   },
   {
     id: 8,
@@ -96,8 +125,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&h=400&fit=crop",
     rating: 4.8,
     reviews: 1100,
-    price: 2799,
     category: "mountain",
+    facilities: ["Skiing", "Hiking", "Cable Cars", "Mountain Lodges"],
+    status: "verified",
+    addedBy: "Hans G.",
   },
   {
     id: 9,
@@ -106,8 +137,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&h=400&fit=crop",
     rating: 4.6,
     reviews: 3200,
-    price: 1399,
     category: "food",
+    facilities: ["Museums", "Cafes", "Landmarks", "Shopping"],
+    status: "verified",
+    addedBy: "Marie L.",
   },
   {
     id: 10,
@@ -116,8 +149,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1510051640312-4e1e134b22a8?w=600&h=400&fit=crop",
     rating: 4.7,
     reviews: 670,
-    price: 1099,
     category: "nature",
+    facilities: ["Wildlife Tours", "Zip Lining", "Hot Springs", "Volcanoes"],
+    status: "verified",
+    addedBy: "Carlos M.",
   },
   {
     id: 11,
@@ -126,8 +161,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&h=400&fit=crop",
     rating: 4.8,
     reviews: 890,
-    price: 1899,
     category: "adventure",
+    facilities: ["Hiking", "Archaeological Sites", "Guided Tours", "Viewpoints"],
+    status: "verified",
+    addedBy: "Pedro S.",
   },
   {
     id: 12,
@@ -136,8 +173,10 @@ const destinations = [
     image: "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=600&h=400&fit=crop",
     rating: 4.6,
     reviews: 1780,
-    price: 1199,
     category: "culture",
+    facilities: ["Architecture", "Beaches", "Markets", "Nightlife"],
+    status: "verified",
+    addedBy: "Sofia G.",
   },
 ];
 
@@ -146,6 +185,7 @@ const ExploreDestinations = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filtered = destinations.filter((d) => {
+    if (d.status === "cancelled") return false;
     const matchesCategory = activeCategory === "all" || d.category === activeCategory;
     const matchesSearch =
       d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -171,10 +211,10 @@ const ExploreDestinations = () => {
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">
-            Discover Destinations
+            Explore Tourist Spots
           </h1>
           <p className="text-white/70 max-w-lg mx-auto">
-            Find your perfect getaway from hundreds of amazing destinations worldwide
+            Discover famous spots around the world shared by fellow travelers
           </p>
         </motion.div>
       </div>
@@ -211,9 +251,8 @@ const ExploreDestinations = () => {
         {/* Category Tabs */}
         <motion.div variants={stagger} initial="hidden" animate="visible" className="flex flex-wrap gap-2 mb-8">
           {categories.map((cat) => (
-            <motion.div variants={scaleIn}>
+            <motion.div key={cat.key} variants={scaleIn}>
             <button
-              key={cat.key}
               type="button"
               onClick={() => setActiveCategory(cat.key)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
@@ -246,8 +285,8 @@ const ExploreDestinations = () => {
         {filtered.length > 0 ? (
           <motion.div key={filtered.length} variants={stagger} initial="hidden" animate="visible" className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-16 md:pb-24">
             {filtered.map((dest) => (
-              <motion.div variants={fadeUp}>
-              <Link key={dest.id} href={`/destinations/${dest.id}`}>
+              <motion.div key={dest.id} variants={fadeUp}>
+              <Link href={`/destinations/${dest.id}`}>
                 <Card className="overflow-hidden group border border-[var(--border)] rounded-2xl bg-[var(--card)] cursor-pointer">
                   <div className="relative h-48 overflow-hidden">
                     <div
@@ -255,6 +294,20 @@ const ExploreDestinations = () => {
                       style={{ backgroundImage: `url(${dest.image})` }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute top-3 left-3 flex gap-1.5">
+                      {dest.status === "verified" && (
+                        <span className="text-[10px] font-semibold bg-emerald-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                          <MdVerified className="text-[10px]" />
+                          Verified
+                        </span>
+                      )}
+                      {dest.status === "pending" && (
+                        <span className="text-[10px] font-semibold bg-amber-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                          <FiClock className="text-[10px]" />
+                          Review
+                        </span>
+                      )}
+                    </div>
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                       <span className="text-xs font-medium text-white/90 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm capitalize">
                         {dest.category}
@@ -272,15 +325,27 @@ const ExploreDestinations = () => {
                         {dest.name}
                       </h3>
                     </div>
-                    <p className="text-xs text-[var(--muted-foreground)] line-clamp-2 mb-3">
+                    <p className="text-xs text-[var(--muted-foreground)] line-clamp-2 mb-2">
                       {dest.description}
                     </p>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {dest.facilities.slice(0, 3).map((f, i) => (
+                        <span key={i} className="text-[10px] bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-0.5 rounded-full">
+                          {f}
+                        </span>
+                      ))}
+                      {dest.facilities.length > 3 && (
+                        <span className="text-[10px] text-[var(--muted-foreground)]">
+                          +{dest.facilities.length - 3}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-[var(--muted-foreground)]">
                         {dest.reviews.toLocaleString()} reviews
                       </span>
-                      <span className="text-sm font-bold text-[var(--primary)]">
-                        ${dest.price}
+                      <span className="text-[11px] text-[var(--muted-foreground)]">
+                        by {dest.addedBy}
                       </span>
                     </div>
                   </div>

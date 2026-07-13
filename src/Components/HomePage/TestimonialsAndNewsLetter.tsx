@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FiMessageCircle, FiSend, FiStar, FiMail } from "react-icons/fi";
 import { MdFormatQuote } from "react-icons/md";
 import { motion } from "framer-motion";
-import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
+import { fadeUp, stagger } from "@/src/Components/Animations";
 import { Card, Button, InputGroup } from "@heroui/react";
 
 const testimonials = [
@@ -14,7 +14,7 @@ const testimonials = [
     role: "Adventure Traveler",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
     quote:
-      "The most incredible trip of my life! Every detail was perfectly planned. The guides were knowledgeable and the itineraries left room for spontaneous discoveries.",
+      "I found the most incredible hidden waterfall spot thanks to another traveler's post! The community here really knows the best places. No agency fluff, just real experiences.",
     rating: 5,
   },
   {
@@ -23,7 +23,7 @@ const testimonials = [
     role: "Family Vacationer",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
     quote:
-      "Traveling with kids has never been easier. They handled everything from flights to kid-friendly activities. We made memories that will last a lifetime.",
+      "The reviews and photos from other families helped us pick the perfect beach spot for our kids. Love that anyone can contribute and share their discoveries.",
     rating: 5,
   },
   {
@@ -32,7 +32,7 @@ const testimonials = [
     role: "Solo Explorer",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
     quote:
-      "As a solo traveler, safety was my biggest concern. This platform connected me with amazing group tours where I met wonderful people from around the world.",
+      "I love that this is just a free platform for sharing travel spots. No booking pressure, no hidden fees - just pure travel inspiration from real people like me.",
     rating: 5,
   },
 ];
@@ -68,9 +68,8 @@ const TestimonialsAndNewsLetter = () => {
 
           <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonials.map((t) => (
-              <motion.div variants={fadeUp}>
+              <motion.div key={t.id} variants={fadeUp}>
               <Card
-                key={t.id}
                 className="p-6 border border-[var(--border)] rounded-2xl bg-[var(--card)]"
               >
                 <MdFormatQuote className="text-3xl text-[var(--primary)]/20 mb-3" />
@@ -116,11 +115,11 @@ const TestimonialsAndNewsLetter = () => {
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-            Get Exclusive Travel Deals
+            Get Travel Inspiration
           </h2>
           <p className="text-white/80 max-w-lg mx-auto mb-8">
-            Subscribe to our newsletter and be the first to know about special
-            offers, new destinations, and travel inspiration.
+            Subscribe to our newsletter and be the first to know about new
+            spots, traveler stories, and hidden gems shared by the community.
           </p>
 
           <form
