@@ -12,5 +12,18 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
     },
-    plugins: [admin()]
+    plugins: [admin()],
+    user: {
+        additionalFields: {
+            tag: { type: "string", required: false, defaultValue: "Explorer" },
+            bio: { type: "string", required: false },
+            yearsExperience: { type: "number", required: false, defaultValue: 0 },
+        },
+    },
 });
+
+export async function getServerSession() {
+  const { headers } = await import("next/headers");
+  const headersList = await headers();
+  return auth.api.getSession({ headers: headersList });
+}
