@@ -71,15 +71,15 @@ const contactInfo = [
 const faqs = [
   {
     q: "How quickly do you respond to inquiries?",
-    a: "We typically respond within 24 hours during business days. For urgent matters, we recommend calling our support line.",
+    a: "We typically respond within 24 hours during business days. For general questions about spots or the platform, feel free to reach out anytime.",
   },
   {
-    q: "Can I book a trip over the phone?",
-    a: "Absolutely! Our travel consultants are happy to help you plan and book your perfect trip over the phone.",
+    q: "Can I suggest a new tourist spot?",
+    a: "Absolutely! Head to the 'Suggest a Spot' page to submit a new tourist spot with details, photos, and facilities. The community will be able to see and rate your contribution.",
   },
   {
-    q: "Do you offer group travel arrangements?",
-    a: "Yes, we specialize in group travel. Contact our team to discuss custom itineraries for your group.",
+    q: "How can I report inaccurate information?",
+    a: "If you find incorrect details about a spot, please use the contact form to let us know. Our community moderators will review and update the information promptly.",
   },
 ];
 
@@ -120,8 +120,7 @@ export default function Contact() {
             We&apos;d Love to Hear From You
           </h1>
           <p className="text-white/70 max-w-lg mx-auto">
-            Have a question, feedback, or just want to say hello? Reach out and
-            our team will get back to you promptly.
+            Have a question about a spot, want to report something, or just want to say hello? Reach out and we&apos;ll get back to you.
           </p>
         </motion.div>
       </div>
@@ -252,10 +251,10 @@ export default function Contact() {
                   >
                     <option value="">Select a subject</option>
                     <option value="general">General Inquiry</option>
-                    <option value="booking">Booking Question</option>
-                    <option value="support">Customer Support</option>
+                    <option value="spot">Suggest a Spot</option>
+                    <option value="support">Support</option>
                     <option value="feedback">Feedback &amp; Suggestions</option>
-                    <option value="partnership">Partnership Opportunity</option>
+                    <option value="report">Report Information</option>
                     <option value="other">Other</option>
                   </select>
                   {errors.subject && (

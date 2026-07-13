@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { authClient } from "@/src/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { FiMail, FiLock, FiLogIn } from "react-icons/fi";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { FiLock, FiLogIn, FiMail } from "react-icons/fi";
+import { z } from "zod";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -18,32 +20,29 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-const demoCredentials: LoginFormData = {
-  email: "demo@travelspot.com",
-  password: "demo123",
-};
-
 export default function LoginForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
-    setValue,
+
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log("Login submitted:", data);
-  };
-
-  const handleDemoLogin = () => {
-    setValue("email", demoCredentials.email);
-    setValue("password", demoCredentials.password);
+  const onSubmit = async (data: LoginFormData) => {
+    const result = await authClient.signIn.email(data);
+    if (result.error) {
+      toast.error(result.error.message || "Failed to sign in");
+    } else {
+      toast.success("Signed in successfully");
+      router.push("/");
+    }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-lg mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -57,10 +56,10 @@ export default function LoginForm() {
           className="text-center mb-8"
         >
           <h1 className="text-2xl font-bold text-[var(--foreground)]">
-            Welcome Back
+            Welcome Back, Explorer
           </h1>
           <p className="text-[var(--muted-foreground)] text-sm mt-2">
-            Sign in to your account
+            Sign in to continue your journey
           </p>
         </motion.div>
 
@@ -135,26 +134,20 @@ export default function LoginForm() {
               disabled={isSubmitting}
               className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-hover)] text-white font-semibold rounded-xl h-11 text-sm transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              <FiLogIn className="size-4 shrink-0" />
-              <span>Sign In</span>
+              {isSubmitting ? (
+                <>
+                  <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <FiLogIn className="size-4 shrink-0" />
+                  <span>Sign In</span>
+                </>
+              )}
             </button>
           </motion.div>
         </form>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.55 }}
-          className="mt-3"
-        >
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] active:bg-[var(--accent-hover)] text-white font-semibold rounded-xl h-11 text-sm transition-colors cursor-pointer"
-          >
-            Demo Login
-          </button>
-        </motion.div>
 
         <motion.p
           initial={{ opacity: 0 }}

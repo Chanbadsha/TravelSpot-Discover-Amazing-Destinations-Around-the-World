@@ -1,14 +1,9 @@
 "use client";
 
 import { FiGlobe, FiUsers, FiAward, FiHeart } from "react-icons/fi";
-import {
-  MdTravelExplore,
-  MdSecurity,
-  MdSupportAgent,
-  MdFlight,
-} from "react-icons/md";
+import { MdTravelExplore, MdSecurity } from "react-icons/md";
 import { motion } from "framer-motion";
-import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
+import { fadeUp, stagger } from "@/src/Components/Animations";
 import { Card } from "@heroui/react";
 import CountUp from "react-countup";
 
@@ -22,27 +17,27 @@ const stats = [
 const features = [
   {
     icon: MdTravelExplore,
-    title: "Curated Experiences",
+    title: "Community-Driven Spots",
     description:
-      "Every trip is handpicked and crafted by travel experts who know the destinations inside out.",
+      "Every tourist spot is shared by real travelers. Discover hidden gems and popular destinations through authentic community contributions.",
   },
   {
     icon: MdSecurity,
-    title: "Safe & Secure",
+    title: "Verified Information",
     description:
-      "Your safety is our priority. We partner with verified providers and offer 24/7 support.",
+      "Facilities, ratings, and reviews are crowdsourced and checked by the community to ensure you get reliable and up-to-date information.",
   },
   {
-    icon: MdSupportAgent,
-    title: "24/7 Support",
+    icon: FiUsers,
+    title: "Share Your Experience",
     description:
-      "Our dedicated support team is available around the clock to assist you before and during your trip.",
+      "Rate spots, leave reviews, share photos, and help fellow travelers discover the best places to visit around the world.",
   },
   {
-    icon: MdFlight,
-    title: "Best Flight Deals",
+    icon: FiGlobe,
+    title: "Explore Freely",
     description:
-      "We negotiate exclusive rates with airlines to bring you the most competitive prices.",
+      "No bookings, no prices, no agency. Just pure travel inspiration and helpful information from people who love to explore.",
   },
 ];
 
@@ -86,13 +81,13 @@ const StatsAndFeatures = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
             <span className="text-[var(--primary)] font-semibold text-sm tracking-widest uppercase">
-              Why Travel With Us
+              Why TravelSpot
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold text-[var(--foreground)] mt-3 mb-3">
-              Everything You Need for the Perfect Trip
+              Discover Spots, Not Bookings
             </h2>
             <p className="text-[var(--muted-foreground)] max-w-xl mx-auto">
-              We take care of every detail so you can focus on making memories
+              A free community platform where travelers share their favorite places
             </p>
           </motion.div>
 
@@ -100,9 +95,8 @@ const StatsAndFeatures = () => {
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <motion.div variants={fadeUp}>
+                <motion.div key={feature.title} variants={fadeUp}>
                 <Card
-                  key={feature.title}
                   className="p-6 border border-[var(--border)] rounded-2xl bg-[var(--card)]"
                 >
                   <div className="w-12 h-12 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center mb-4">

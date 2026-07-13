@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   FiUser,
@@ -15,6 +16,9 @@ import {
   FiEye,
   FiEyeOff,
 } from "react-icons/fi";
+import { authClient } from "@/src/lib/auth-client";
+import toast from "react-hot-toast";
+import Image from "next/image";
 
 const registerSchema = z
   .object({
@@ -22,7 +26,11 @@ const registerSchema = z
       .string()
       .min(1, "Name is required")
       .min(2, "Name must be at least 2 characters"),
-    email: z.string().min(1, "Email is required").email("Invalid email address"),
+    email: z
+      .string()
+      .min(1, "Email is required")
+      .email("Invalid email address"),
+    avatar: z.string().optional(),
     password: z
       .string()
       .min(1, "Password is required")
@@ -45,7 +53,8 @@ function getPasswordStrength(pw: string): {
   color: string;
 } {
   if (!pw) return { score: 0, label: "", color: "" };
-  if (pw.length < 6) return { score: 1, label: "Very weak", color: "var(--error)" };
+  if (pw.length < 6)
+    return { score: 1, label: "Very weak", color: "var(--error)" };
   let score = 1;
   if (pw.length >= 8) score++;
   if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
@@ -64,7 +73,9 @@ function getPasswordStrength(pw: string): {
 }
 
 export default function RegisterForm() {
+  const router = useRouter();
   const [preview, setPreview] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,14 +90,31 @@ export default function RegisterForm() {
   });
 
   const passwordValue = watch("password");
-  const strength = useMemo(() => getPasswordStrength(passwordValue || ""), [passwordValue]);
+  const strength = useMemo(
+    () => getPasswordStrength(passwordValue || ""),
+    [passwordValue],
+  );
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setPreview(reader.result as string);
-      reader.readAsDataURL(file);
+      setUploadingPhoto(true);
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const image = await fetch(
+          `https://api.imgbb.com/1/upload?key=427d7a4042e4547ce15bf490c29c5314`,
+          { method: "POST", body: formData },
+        );
+        const data = await image.json();
+        console.log(data?.data?.url);
+        if (data?.data?.url) {
+          setPreview(data?.data?.url);
+        }
+      } finally {
+        setUploadingPhoto(false);
+      }
     }
   };
 
@@ -94,17 +122,35 @@ export default function RegisterForm() {
     fileInputRef.current?.click();
   };
 
-  const onSubmit = (data: RegisterFormData) => {
-    console.log("Register submitted:", data);
+  const onSubmit = async (data: RegisterFormData) => {
+    console.log(data);
+    if (uploadingPhoto) {
+      toast.error("Please wait for the image to upload");
+      return;
+    }
+    const result = await authClient.signUp.email({
+      email: data.email,
+      password: data.password,
+      name: data.name,
+      image: preview || undefined,
+    });
+    if (result.error) {
+      toast.error(`${result.error.message}`);
+      console.log(result.error);
+    } else {
+      console.log(result.data);
+      toast.success("Account created successfully");
+      router.push("/");
+    }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="bg-[var(--card)] rounded-2xl shadow-lg border border-[var(--border)] px-8 py-10"
+        className="bg-[var(--card)] rounded-2xl shadow-lg border border-(--border) px-8 py-10"
       >
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -113,10 +159,10 @@ export default function RegisterForm() {
           className="text-center mb-8"
         >
           <h1 className="text-2xl font-bold text-[var(--foreground)]">
-            Create Account
+            Join TravelSpot
           </h1>
           <p className="text-[var(--muted-foreground)] text-sm mt-2">
-            Join us and start exploring
+            Create your account and start exploring the world
           </p>
         </motion.div>
 
@@ -131,11 +177,20 @@ export default function RegisterForm() {
             <button
               type="button"
               onClick={handleAvatarClick}
-              className="relative size-20 rounded-full bg-[var(--background)] border-2 border-dashed border-[var(--border)] hover:border-[var(--primary)] transition-colors overflow-hidden cursor-pointer group"
+              disabled={uploadingPhoto}
+              className="relative size-20 rounded-full bg-background border-2 border-dashed border-(--border) hover:border-(--primary) transition-colors overflow-hidden cursor-pointer group disabled:opacity-60 disabled:cursor-wait"
             >
-              {preview ? (
-                <img
-                  src={preview}
+              {uploadingPhoto ? (
+                <div className="flex items-center justify-center size-full">
+                  <div className="size-7 border-2 border-(--primary)/30 border-t-(--primary) rounded-full animate-spin" />
+                </div>
+              ) : preview ? (
+                <Image
+                  src={
+                    "https://i.ibb.co.com/C3KdYs59/495570867-681212604719403-4254930871176159415-n.jpg"
+                  }
+                  height={600}
+                  width={600}
                   alt="Profile preview"
                   className="size-full object-cover rounded-full"
                 />
@@ -149,6 +204,11 @@ export default function RegisterForm() {
               )}
               <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/10 transition-colors" />
             </button>
+            {uploadingPhoto && (
+              <p className="text-[10px] text-[var(--primary)] mt-1.5">
+                Uploading...
+              </p>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -181,7 +241,7 @@ export default function RegisterForm() {
                 type="text"
                 {...register("name")}
                 placeholder="John Doe"
-                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
+                className="w-full bg-[var(--background)] border border-(--border) rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
               />
             </div>
             {errors.name && (
@@ -211,7 +271,7 @@ export default function RegisterForm() {
                 type="email"
                 {...register("email")}
                 placeholder="you@example.com"
-                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
+                className="w-full bg-[var(--background)] border border-(--border) rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
               />
             </div>
             {errors.email && (
@@ -241,7 +301,7 @@ export default function RegisterForm() {
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
                 placeholder="At least 6 characters"
-                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-10 pr-10 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
+                className="w-full bg-[var(--background)] border border-(--border) rounded-xl pl-10 pr-10 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
               />
               <button
                 type="button"
@@ -249,7 +309,11 @@ export default function RegisterForm() {
                 tabIndex={-1}
                 className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
               >
-                {showPassword ? <FiEyeOff className="size-4" /> : <FiEye className="size-4" />}
+                {showPassword ? (
+                  <FiEyeOff className="size-4" />
+                ) : (
+                  <FiEye className="size-4" />
+                )}
               </button>
             </div>
             {errors.password && (
@@ -272,7 +336,9 @@ export default function RegisterForm() {
                       className="h-1.5 flex-1 rounded-full transition-colors"
                       style={{
                         backgroundColor:
-                          i <= strength.score ? strength.color : "var(--border)",
+                          i <= strength.score
+                            ? strength.color
+                            : "var(--border)",
                       }}
                     />
                   ))}
@@ -307,7 +373,7 @@ export default function RegisterForm() {
                 type={showConfirmPassword ? "text" : "password"}
                 {...register("confirmPassword")}
                 placeholder="Re-enter your password"
-                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-10 pr-10 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
+                className="w-full bg-[var(--background)] border border-(--border) rounded-xl pl-10 pr-10 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
               />
               <button
                 type="button"
@@ -339,7 +405,7 @@ export default function RegisterForm() {
               <input
                 type="checkbox"
                 {...register("terms")}
-                className="mt-0.5 size-4 rounded border-[var(--border)] text-[var(--primary)] accent-[var(--primary)] cursor-pointer"
+                className="mt-0.5 size-4 rounded border-(--border) text-[var(--primary)] accent-[var(--primary)] cursor-pointer"
               />
               <span className="text-sm text-[var(--muted-foreground)] leading-relaxed">
                 I agree to the{" "}
@@ -375,8 +441,17 @@ export default function RegisterForm() {
               disabled={isSubmitting}
               className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-hover)] text-white font-semibold rounded-xl h-11 text-sm transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              <FiUserPlus className="size-4 shrink-0" />
-              <span>Create Account</span>
+              {isSubmitting ? (
+                <>
+                  <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Creating account...</span>
+                </>
+              ) : (
+                <>
+                  <FiUserPlus className="size-4 shrink-0" />
+                  <span>Create Account</span>
+                </>
+              )}
             </button>
           </motion.div>
         </form>
