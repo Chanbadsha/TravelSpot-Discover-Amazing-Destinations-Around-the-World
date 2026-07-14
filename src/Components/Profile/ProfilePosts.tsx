@@ -32,16 +32,28 @@ type SpotStatus = "pending" | "verified" | "cancelled";
 interface Post {
   _id: string;
   name: string;
+  country: string;
+  city: string;
   location: string;
   category: string;
-  coverImage: string;
-  description: string;
-  facilities: string[];
+  bestSeason: string;
+  travelTime: string;
+  entryFee: string;
+  openingHours: string;
   rating: number;
   reviews: number;
-  status: SpotStatus;
-  createdAt: string;
+  coverImage: string;
+  facilities: string[];
+  description: string;
+  images: string[];
+  status: string;
   submittedBy: string;
+  creatorId: string;
+  nearbyAttractions: string[];
+  related: string[];
+  verifiedAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function ProfilePosts({ initialPosts = [] }) {
@@ -54,16 +66,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deletePost(id);
-      setPosts((prev) => prev.filter((p) => p._id !== id));
-      toast.success("Post deleted");
-    } catch {
-      toast.error("Failed to delete post");
-    }
-    setConfirmDelete(null);
-  };
+  const handleDelete = async (id: string) => {};
 
   const totalPages = Math.ceil(posts.length / ITEMS_PER_PAGE);
   const paginated = posts.slice(
@@ -81,7 +84,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-(--foreground)">My Posts</h1>
+            <h1 className="text-2xl font-bold text-foreground">My Posts</h1>
             <p className="text-(--muted-foreground) text-sm mt-1">
               Manage your submitted destinations.
             </p>
@@ -107,7 +110,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
           className="text-center bg-(--card) border border-(--border) rounded-2xl py-16 px-6"
         >
           <FiMapPin className="text-4xl text-(--muted-foreground) mx-auto mb-3" />
-          <h2 className="text-lg font-semibold text-(--foreground) mb-1">
+          <h2 className="text-lg font-semibold text-foreground mb-1">
             No posts yet
           </h2>
           <p className="text-sm text-(--muted-foreground) mb-5">
@@ -128,7 +131,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
             animate="visible"
             className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
-            {paginated.map((post) => (
+            {paginated.map((post: Post) => (
               <motion.div key={post._id} variants={fadeUp}>
                 <Card className="overflow-hidden group border border-(--border) rounded-2xl bg-(--card)">
                   <div className="relative h-48 overflow-hidden">
@@ -136,7 +139,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
                       className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
                       style={{ backgroundImage: `url(${post.coverImage})` }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
                     <div className="absolute top-3 left-3 flex gap-1.5">
                       {post.status === "verified" && (
                         <span className="text-[10px] font-semibold bg-emerald-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
@@ -158,7 +161,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
                       <span className="text-xs font-medium text-white/90 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm capitalize">
                         {post.category}
                       </span>
-                      <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-semibold text-(--foreground)">
+                      <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-semibold text-foreground">
                         <FiStar className="text-(--accent) fill-current text-xs" />
                         {post.rating || "New"}
                       </div>
@@ -167,7 +170,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
                   <div className="p-4">
                     <div className="flex items-start gap-1.5 mb-1">
                       <FiMapPin className="text-(--primary) mt-0.5 shrink-0 text-sm" />
-                      <h3 className="font-semibold text-sm text-(--foreground) line-clamp-1">
+                      <h3 className="font-semibold text-sm text-foreground line-clamp-1">
                         {post.name}
                       </h3>
                     </div>
@@ -253,7 +256,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--border) transition-colors disabled:opacity-30 cursor-pointer"
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-foreground hover:bg-(--border) transition-colors disabled:opacity-30 cursor-pointer"
               >
                 <FiChevronLeft className="text-sm" />
               </button>
@@ -275,7 +278,7 @@ export default function ProfilePosts({ initialPosts = [] }) {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--border) transition-colors disabled:opacity-30 cursor-pointer"
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-foreground hover:bg-(--border) transition-colors disabled:opacity-30 cursor-pointer"
               >
                 <FiChevronRight className="text-sm" />
               </button>

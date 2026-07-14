@@ -1,21 +1,21 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
-import {
-  FiMapPin,
-  FiStar,
-  FiClock,
-  FiTrendingUp,
-  FiPlus,
-  FiLoader,
-} from "react-icons/fi";
 import { useSession } from "@/src/lib/auth-client";
-import { getPostsByCreatorId } from "@/src/services/postsService";
 import { formatDate } from "@/src/lib/utils";
-import Link from "next/link";
+import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import {
+  FiClock,
+  FiLoader,
+  FiMapPin,
+  FiPlus,
+  FiStar,
+  FiTrendingUp,
+} from "react-icons/fi";
 
 type SpotStatus = "pending" | "verified" | "cancelled";
 
@@ -87,7 +87,7 @@ export default function UserDashboard({ initialPosts = [] }) {
           </div>
         )}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-(--foreground)">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Welcome back, {user?.name?.split(" ")[0] || "there"}
           </h1>
           <p className="text-(--muted-foreground) text-sm mt-1">
@@ -122,7 +122,7 @@ export default function UserDashboard({ initialPosts = [] }) {
                   <Icon className={`text-xl ${card.color}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-(--foreground)">
+                  <p className="text-2xl font-bold text-foreground">
                     {card.value.toLocaleString()}
                   </p>
                   <p className="text-xs text-(--muted-foreground)">
@@ -144,7 +144,7 @@ export default function UserDashboard({ initialPosts = [] }) {
           className="bg-(--card) border border-(--border) rounded-2xl p-5"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-(--foreground) flex items-center gap-2">
+            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
               <FiMapPin className="text-(--primary)" />
               Your Recent Posts
             </h2>
@@ -177,7 +177,7 @@ export default function UserDashboard({ initialPosts = [] }) {
               {recentPosts.map((post) => (
                 <div
                   key={post._id}
-                  className="flex items-center gap-3 p-2 rounded-xl hover:bg-(--background) transition-colors"
+                  className="flex items-center gap-3 p-2 rounded-xl hover:bg-background transition-colors"
                 >
                   <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-gray-200 dark:bg-gray-800">
                     <Image
@@ -189,7 +189,7 @@ export default function UserDashboard({ initialPosts = [] }) {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-(--foreground) truncate">
+                    <p className="text-sm font-medium text-foreground truncate">
                       {post.name}
                     </p>
                     <p className="text-xs text-(--muted-foreground)">
@@ -220,20 +220,20 @@ export default function UserDashboard({ initialPosts = [] }) {
           animate="visible"
           className="bg-(--card) border border-(--border) rounded-2xl p-5"
         >
-          <h2 className="text-base font-semibold text-(--foreground) mb-4 flex items-center gap-2">
+          <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
             <FiStar className="text-(--accent)" />
             Quick Actions
           </h2>
           <div className="space-y-3">
             <Link
               href="/suggest-spot"
-              className="flex items-center gap-4 p-3 rounded-xl bg-(--background) border border-(--border) hover:border-(--primary) transition-all group"
+              className="flex items-center gap-4 p-3 rounded-xl bg-background border border-(--border) hover:border-(--primary) transition-all group"
             >
               <div className="w-10 h-10 rounded-xl bg-(--primary)/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <FiPlus className="text-(--primary)" />
               </div>
               <div>
-                <p className="text-sm font-medium text-(--foreground)">
+                <p className="text-sm font-medium text-foreground">
                   Suggest a New Spot
                 </p>
                 <p className="text-xs text-(--muted-foreground)">
@@ -243,13 +243,13 @@ export default function UserDashboard({ initialPosts = [] }) {
             </Link>
             <Link
               href="/user/posts"
-              className="flex items-center gap-4 p-3 rounded-xl bg-(--background) border border-(--border) hover:border-(--primary) transition-all group"
+              className="flex items-center gap-4 p-3 rounded-xl bg-background border border-(--border) hover:border-(--primary) transition-all group"
             >
               <div className="w-10 h-10 rounded-xl bg-(--secondary)/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <FiMapPin className="text-(--secondary)" />
               </div>
               <div>
-                <p className="text-sm font-medium text-(--foreground)">
+                <p className="text-sm font-medium text-foreground">
                   Manage My Posts
                 </p>
                 <p className="text-xs text-(--muted-foreground)">
@@ -259,13 +259,13 @@ export default function UserDashboard({ initialPosts = [] }) {
             </Link>
             <Link
               href="/user/profile"
-              className="flex items-center gap-4 p-3 rounded-xl bg-(--background) border border-(--border) hover:border-(--primary) transition-all group"
+              className="flex items-center gap-4 p-3 rounded-xl bg-background border border-(--border) hover:border-(--primary) transition-all group"
             >
               <div className="w-10 h-10 rounded-xl bg-(--accent)/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <FiStar className="text-(--accent)" />
               </div>
               <div>
-                <p className="text-sm font-medium text-(--foreground)">
+                <p className="text-sm font-medium text-foreground">
                   View Profile
                 </p>
                 <p className="text-xs text-(--muted-foreground)">
@@ -284,7 +284,7 @@ export default function UserDashboard({ initialPosts = [] }) {
         animate="visible"
         className="mt-6 bg-(--card) border border-(--border) rounded-2xl p-5"
       >
-        <h2 className="text-base font-semibold text-(--foreground) mb-4 flex items-center gap-2">
+        <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
           <FiClock className="text-(--muted-foreground)" />
           Recent Activity
         </h2>
@@ -305,7 +305,7 @@ export default function UserDashboard({ initialPosts = [] }) {
               >
                 <div className="w-2 h-2 rounded-full bg-(--primary) mt-1.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-(--foreground)">
+                  <p className="text-sm text-foreground">
                     You submitted{" "}
                     <span className="font-medium">{post.name}</span>
                   </p>

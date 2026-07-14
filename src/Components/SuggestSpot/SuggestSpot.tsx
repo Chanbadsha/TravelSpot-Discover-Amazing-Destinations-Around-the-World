@@ -279,7 +279,7 @@ export default function SuggestSpot() {
           className="text-center bg-(--card) border border-(--border) rounded-2xl p-10 max-w-md mx-auto"
         >
           <FiLogIn className="text-5xl text-(--muted-foreground) mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-(--foreground) mb-2">
+          <h2 className="text-2xl font-bold text-foreground mb-2">
             Sign in Required
           </h2>
           <p className="text-(--muted-foreground) text-sm mb-6">
@@ -299,9 +299,9 @@ export default function SuggestSpot() {
   return (
     <div>
       {/* Hero */}
-      <div className="relative bg-gradient-to-br from-teal-900 via-teal-800 to-emerald-900 overflow-hidden">
+      <div className="relative bg-linear-to-br from-teal-900 via-teal-800 to-emerald-900 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&h=600&fit=crop')] bg-cover bg-center opacity-20" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/30 via-transparent to-black/50" />
         <motion.div
           variants={fadeUp}
           initial="hidden"
@@ -309,8 +309,8 @@ export default function SuggestSpot() {
           className="relative px-4 sm:px-6 lg:px-8 py-16 md:py-20 text-center"
         >
           <div className="flex items-center justify-center gap-2 mb-3">
-            <MdTravelExplore className="text-[var(--accent)] text-2xl" />
-            <span className="text-[var(--accent)] font-semibold text-sm tracking-widest uppercase">
+            <MdTravelExplore className="text-(--accent) text-2xl" />
+            <span className="text-(--accent) font-semibold text-sm tracking-widest uppercase">
               Contribute
             </span>
           </div>
@@ -412,7 +412,7 @@ export default function SuggestSpot() {
                             setForm((p) => ({ ...p, name: e.target.value }))
                           }
                           placeholder="e.g., Eiffel Tower"
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                           required
                         />
                       </div>
@@ -430,7 +430,7 @@ export default function SuggestSpot() {
                             setForm((p) => ({ ...p, country: e.target.value }))
                           }
                           placeholder="e.g., France"
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                           required
                         />
                       </div>
@@ -451,7 +451,7 @@ export default function SuggestSpot() {
                             setForm((p) => ({ ...p, city: e.target.value }))
                           }
                           placeholder="e.g., Paris"
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                           required
                         />
                       </div>
@@ -469,7 +469,7 @@ export default function SuggestSpot() {
                             setForm((p) => ({ ...p, location: e.target.value }))
                           }
                           placeholder="Full address or area"
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                         />
                       </div>
                     </div>
@@ -487,7 +487,7 @@ export default function SuggestSpot() {
                           onChange={(e) =>
                             setForm((p) => ({ ...p, category: e.target.value }))
                           }
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground outline-none appearance-none cursor-pointer focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground outline-none appearance-none cursor-pointer focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                           required
                         >
                           <option value="">Select a category</option>
@@ -513,7 +513,7 @@ export default function SuggestSpot() {
                               bestSeason: e.target.value,
                             }))
                           }
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground outline-none appearance-none cursor-pointer focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-11 pr-4 py-3 text-sm text-foreground outline-none appearance-none cursor-pointer focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                         >
                           <option value="">Select season</option>
                           {seasons.map((s) => (
@@ -543,7 +543,7 @@ export default function SuggestSpot() {
                             }))
                           }
                           placeholder="e.g., 2-3 hours"
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                         />
                       </div>
                     </div>
@@ -560,7 +560,7 @@ export default function SuggestSpot() {
                             setForm((p) => ({ ...p, entryFee: e.target.value }))
                           }
                           placeholder="e.g., $15 per person"
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                         />
                       </div>
                     </div>
@@ -580,7 +580,7 @@ export default function SuggestSpot() {
                             }))
                           }
                           placeholder="e.g., 9AM - 5PM"
-                          className="w-full bg-(--background) border border-(--border) rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                          className="w-full bg-background border border-(--border) rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                         />
                       </div>
                     </div>
@@ -595,7 +595,7 @@ export default function SuggestSpot() {
                       className={`px-8 py-3 rounded-xl font-semibold text-sm flex items-center gap-2 cursor-pointer transition-colors ${canGoStep2 ? "bg-(--primary) hover:bg-(--primary-hover) text-white" : "bg-(--border) text-(--muted-foreground) cursor-not-allowed"}`}
                       disabled={!canGoStep2}
                     >
-                      Next <FiChevronDown className="rotate-[-90deg] text-sm" />
+                      Next <FiChevronDown className="-rotate-90 text-sm" />
                     </button>
                   </div>
                 </motion.div>
@@ -613,7 +613,7 @@ export default function SuggestSpot() {
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="w-9 h-9 rounded-xl border border-(--border) flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) transition-colors cursor-pointer"
+                      className="w-9 h-9 rounded-xl border border-(--border) flex items-center justify-center text-(--muted-foreground) hover:text-foreground transition-colors cursor-pointer"
                     >
                       <FiArrowLeft />
                     </button>
@@ -637,7 +637,7 @@ export default function SuggestSpot() {
                       }
                       rows={6}
                       placeholder="Describe the spot in detail — what makes it special, what visitors can expect, historical or cultural significance, tips for visiting..."
-                      className="w-full bg-(--background) border border-(--border) rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20 resize-none"
+                      className="w-full bg-background border border-(--border) rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20 resize-none"
                       required
                     />
                     <div className="flex items-center justify-between mt-1.5">
@@ -667,7 +667,7 @@ export default function SuggestSpot() {
                               updateFacility(index, e.target.value)
                             }
                             placeholder="e.g., Parking, Restrooms, Guided Tours"
-                            className="flex-1 bg-(--background) border border-(--border) rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
+                            className="flex-1 bg-background border border-(--border) rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                           />
                           {form.facilities.length > 1 && (
                             <button
@@ -697,7 +697,9 @@ export default function SuggestSpot() {
                     </label>
                     {coverPreview ? (
                       <div className="relative w-full h-48 rounded-xl overflow-hidden border border-(--border) group">
-                        <img
+                        <Image
+                          height={600}
+                          width={600}
                           src={coverPreview}
                           alt="Cover preview"
                           className="w-full h-full object-cover"
@@ -749,7 +751,9 @@ export default function SuggestSpot() {
                           key={idx}
                           className="relative w-24 h-24 rounded-xl overflow-hidden border border-(--border) group"
                         >
-                          <img
+                          <Image
+                            height={600}
+                            width={600}
                             src={preview}
                             alt=""
                             className="w-full h-full object-cover"
@@ -789,7 +793,7 @@ export default function SuggestSpot() {
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="px-6 py-3 rounded-xl border border-(--border) text-foreground font-semibold text-sm hover:bg-(--background) transition-colors cursor-pointer"
+                      className="px-6 py-3 rounded-xl border border-(--border) text-foreground font-semibold text-sm hover:bg-background transition-colors cursor-pointer"
                     >
                       Back
                     </button>
@@ -819,7 +823,7 @@ export default function SuggestSpot() {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="w-9 h-9 rounded-xl border border-(--border) flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) transition-colors cursor-pointer"
+                      className="w-9 h-9 rounded-xl border border-(--border) flex items-center justify-center text-(--muted-foreground) hover:text-foreground transition-colors cursor-pointer"
                     >
                       <FiArrowLeft />
                     </button>
@@ -837,7 +841,9 @@ export default function SuggestSpot() {
                         className="relative rounded-2xl overflow-hidden bg-(--card) border border-(--border)"
                         style={{ aspectRatio: "16/10" }}
                       >
-                        <img
+                        <Image
+                          height={600}
+                          width={600}
                           src={form.coverImage}
                           alt={form.name}
                           className="w-full h-full object-cover"
@@ -866,7 +872,9 @@ export default function SuggestSpot() {
                                 className={`shrink-0 rounded-xl overflow-hidden border-2 ${i === 0 ? "border-(--primary) opacity-100" : "border-transparent opacity-60"}`}
                               >
                                 <div className="relative w-20 h-16">
-                                  <img
+                                  <Image
+                                    height={600}
+                                    width={600}
                                     src={img}
                                     alt=""
                                     className="w-full h-full object-cover"
@@ -1039,7 +1047,7 @@ export default function SuggestSpot() {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="px-6 py-3 rounded-xl border border-(--border) text-foreground font-semibold text-sm hover:bg-(--background) transition-colors cursor-pointer"
+                      className="px-6 py-3 rounded-xl border border-(--border) text-foreground font-semibold text-sm hover:bg-background transition-colors cursor-pointer"
                     >
                       Back
                     </button>
