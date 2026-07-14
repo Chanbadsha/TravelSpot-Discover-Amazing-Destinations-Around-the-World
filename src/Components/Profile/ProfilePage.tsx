@@ -8,7 +8,7 @@ import {
   FiUser, FiGlobe, FiTwitter, FiLinkedin, FiSave, FiEdit2, FiX,
   FiBookmark, FiCheckCircle,
 } from "react-icons/fi";
-import { useSession } from "@/src/lib/auth-client";
+import { useSession, updateUser } from "@/src/lib/auth-client";
 import { useDestinations } from "@/src/lib/DestinationContext";
 import toast from "react-hot-toast";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
@@ -27,11 +27,11 @@ export default function ProfilePage() {
     name: user?.name || "",
     username: user?.name?.toLowerCase().replace(/\s+/g, "") || "",
     email: user?.email || "",
-    location: "New York, USA",
-    bio: "Travel enthusiast and photography lover. Exploring the world one destination at a time.",
-    website: "https://johndoe.com",
-    twitter: "@johndoe",
-    linkedin: "linkedin.com/in/johndoe",
+    location: (user as any)?.location || "New York, USA",
+    bio: (user as any)?.bio || "",
+    website: (user as any)?.website || "",
+    twitter: (user as any)?.twitter || "",
+    linkedin: (user as any)?.linkedin || "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -39,14 +39,21 @@ export default function ProfilePage() {
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "JD";
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
-      setEditing(false);
+    try {
+      await updateUser({
+        name: form.name,
+        bio: form.bio,
+      } as any);
       toast.success("Profile updated successfully");
-    }, 600);
+      setEditing(false);
+    } catch {
+      toast.error("Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const joinedDate = user?.createdAt
