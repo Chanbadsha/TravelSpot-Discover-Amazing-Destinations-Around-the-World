@@ -37,15 +37,15 @@ const contactInfo = [
   {
     icon: FiPhone,
     label: "Phone",
-    value: "+1 (555) 123-4567",
-    detail: "Mon–Fri, 9am–6pm EST",
+    value: "+880 1700-000000",
+    detail: "Sun–Thu, 9am–6pm BST",
     color: "text-green-500",
     bg: "bg-green-500/10",
   },
   {
     icon: FiMail,
     label: "Email",
-    value: "hello@travelspot.com",
+    value: "hello@travelspotbd.com",
     detail: "We reply within 24 hours",
     color: "text-blue-500",
     bg: "bg-blue-500/10",
@@ -53,16 +53,16 @@ const contactInfo = [
   {
     icon: FiMapPin,
     label: "Office",
-    value: "350 5th Avenue, Suite 1200",
-    detail: "New York, NY 10118, USA",
+    value: "House 12, Road 5, Gulshan 1",
+    detail: "Dhaka 1212, Bangladesh",
     color: "text-purple-500",
     bg: "bg-purple-500/10",
   },
   {
     icon: FiClock,
     label: "Business Hours",
-    value: "Mon–Fri: 9:00 AM – 6:00 PM",
-    detail: "Sat: 10:00 AM – 2:00 PM",
+    value: "Sun–Thu: 9:00 AM – 6:00 PM",
+    detail: "Fri–Sat: Closed",
     color: "text-amber-500",
     bg: "bg-amber-500/10",
   },
@@ -120,7 +120,8 @@ export default function Contact() {
             We&apos;d Love to Hear From You
           </h1>
           <p className="text-white/70 max-w-lg mx-auto">
-            Have a question about a spot, want to report something, or just want to say hello? Reach out and we&apos;ll get back to you.
+            Have a question about a spot, want to report something, or just want
+            to say hello? Reach out and we&apos;ll get back to you.
           </p>
         </motion.div>
       </div>
@@ -140,7 +141,7 @@ export default function Contact() {
                 <motion.div
                   key={info.label}
                   variants={scaleIn}
-                  className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 shadow-sm"
+                  className="bg-[var(--card)] border border-(--border) rounded-2xl p-5 shadow-sm"
                 >
                   <div
                     className={`w-11 h-11 rounded-xl ${info.bg} flex items-center justify-center mb-3`}
@@ -150,7 +151,7 @@ export default function Contact() {
                   <p className="text-xs text-[var(--muted-foreground)] font-medium uppercase tracking-wider mb-0.5">
                     {info.label}
                   </p>
-                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                  <p className="text-sm font-semibold text-foreground">
                     {info.value}
                   </p>
                   <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
@@ -173,8 +174,8 @@ export default function Contact() {
             animate="visible"
             className="lg:col-span-3"
           >
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 md:p-8">
-              <h2 className="text-xl font-bold text-[var(--foreground)] mb-1">
+            <div className="bg-[var(--card)] border border-(--border) rounded-2xl p-6 md:p-8">
+              <h2 className="text-xl font-bold text-foreground mb-1">
                 Send Us a Message
               </h2>
               <p className="text-sm text-[var(--muted-foreground)] mb-6">
@@ -187,7 +188,7 @@ export default function Contact() {
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm font-medium text-[var(--foreground)] mb-1.5"
+                      className="block text-sm font-medium text-foreground mb-1.5"
                     >
                       Name
                     </label>
@@ -200,11 +201,11 @@ export default function Contact() {
                         type="text"
                         {...register("name")}
                         placeholder="Your name"
-                        className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
+                        className="w-full bg-background border border-(--border) rounded-xl pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none transition-colors focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                       />
                     </div>
                     {errors.name && (
-                      <p className="text-[var(--error)] text-xs mt-1.5">
+                      <p className="text-(--error) text-xs mt-1.5">
                         {errors.name.message}
                       </p>
                     )}
@@ -213,7 +214,7 @@ export default function Contact() {
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-sm font-medium text-[var(--foreground)] mb-1.5"
+                      className="block text-sm font-medium text-foreground mb-1.5"
                     >
                       Email
                     </label>
@@ -226,11 +227,11 @@ export default function Contact() {
                         type="email"
                         {...register("email")}
                         placeholder="you@example.com"
-                        className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
+                        className="w-full bg-background border border-(--border) rounded-xl pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none transition-colors focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                       />
                     </div>
                     {errors.email && (
-                      <p className="text-[var(--error)] text-xs mt-1.5">
+                      <p className="text-(--error) text-xs mt-1.5">
                         {errors.email.message}
                       </p>
                     )}
@@ -240,14 +241,14 @@ export default function Contact() {
                 <div>
                   <label
                     htmlFor="subject"
-                    className="block text-sm font-medium text-[var(--foreground)] mb-1.5"
+                    className="block text-sm font-medium text-foreground mb-1.5"
                   >
                     Subject
                   </label>
                   <select
                     id="subject"
                     {...register("subject")}
-                    className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20 appearance-none cursor-pointer"
+                    className="w-full bg-background border border-(--border) rounded-xl px-4 py-3 text-sm text-foreground outline-none transition-colors focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20 appearance-none cursor-pointer"
                   >
                     <option value="">Select a subject</option>
                     <option value="general">General Inquiry</option>
@@ -258,7 +259,7 @@ export default function Contact() {
                     <option value="other">Other</option>
                   </select>
                   {errors.subject && (
-                    <p className="text-[var(--error)] text-xs mt-1.5">
+                    <p className="text-(--error) text-xs mt-1.5">
                       {errors.subject.message}
                     </p>
                   )}
@@ -267,7 +268,7 @@ export default function Contact() {
                 <div>
                   <label
                     htmlFor="message"
-                    className="block text-sm font-medium text-[var(--foreground)] mb-1.5"
+                    className="block text-sm font-medium text-foreground mb-1.5"
                   >
                     Message
                   </label>
@@ -280,11 +281,11 @@ export default function Contact() {
                       rows={5}
                       {...register("message")}
                       placeholder="Tell us what's on your mind..."
-                      className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-colors focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20 resize-none"
+                      className="w-full bg-background border border-(--border) rounded-xl pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none transition-colors focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20 resize-none"
                     />
                   </div>
                   {errors.message && (
-                    <p className="text-[var(--error)] text-xs mt-1.5">
+                    <p className="text-(--error) text-xs mt-1.5">
                       {errors.message.message}
                     </p>
                   )}
@@ -293,7 +294,7 @@ export default function Contact() {
                 <Button
                   type="submit"
                   isDisabled={isSubmitting}
-                  className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold px-8 rounded-xl transition-colors cursor-pointer"
+                  className="bg-(--primary) h-10 lg:h-12 flex items-center justify-center hover:bg-(--primary-hover) text-white font-semibold px-8 rounded-xl transition-colors cursor-pointer"
                   size="lg"
                 >
                   <FiSend className="mr-2 text-sm" />
@@ -311,35 +312,33 @@ export default function Contact() {
             className="lg:col-span-2 space-y-6"
           >
             {/* Map Placeholder */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden h-64">
+            <div className="bg-[var(--card)] border border-(--border) rounded-2xl overflow-hidden h-64">
               <div className="w-full h-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900/40 dark:to-emerald-900/40 flex flex-col items-center justify-center relative">
                 <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06]">
-                  <div
-                    className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxNEE4QTgiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzR2LTRoNHY0aC00em0wIDB2LTRoLTR2NGg0em0tNCAwdi00aDR2NGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] bg-repeat"
-                  />
+                  <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxNEE4QTgiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzR2LTRoNHY0aC00em0wIDB2LTRoLTR2NGg0em0tNCAwdi00aDR2NGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] bg-repeat" />
                 </div>
                 <FiMapPin className="text-5xl text-[var(--primary)] mb-3" />
-                <p className="text-sm font-medium text-[var(--foreground)]">
-                  350 5th Avenue, Suite 1200
+                <p className="text-sm font-medium text-foreground">
+                  House 12, Road 5, Gulshan 1
                 </p>
                 <p className="text-xs text-[var(--muted-foreground)]">
-                  New York, NY 10118, USA
+                  Dhaka 1212, Bangladesh
                 </p>
               </div>
             </div>
 
             {/* Quick FAQs */}
-            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
+            <div className="bg-[var(--card)] border border-(--border) rounded-2xl p-6">
               <div className="flex items-center gap-2 mb-4">
                 <MdContactSupport className="text-xl text-[var(--primary)]" />
-                <h3 className="text-sm font-semibold text-[var(--foreground)] uppercase tracking-wider">
+                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
                   Quick Answers
                 </h3>
               </div>
               <div className="space-y-4">
                 {faqs.map((faq, idx) => (
                   <div key={idx}>
-                    <p className="text-sm font-medium text-[var(--foreground)] mb-1">
+                    <p className="text-sm font-medium text-foreground mb-1">
                       {faq.q}
                     </p>
                     <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
