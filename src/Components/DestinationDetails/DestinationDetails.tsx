@@ -1,43 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import {
+  fadeLeft,
+  fadeRight,
+  fadeUp,
+  stagger,
+} from "@/src/Components/Animations";
+import { useSession } from "@/src/lib/auth-client";
+import { useDestinations } from "@/src/lib/DestinationContext";
+import { isValidUrl, formatDate } from "@/src/lib/utils";
+import { Card } from "@heroui/react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import {
-  FiMapPin,
-  FiStar,
-  FiClock,
+  FiAward,
+  FiBookmark,
   FiCalendar,
+  FiCamera,
+  FiCheckCircle,
+  FiChevronDown,
   FiChevronLeft,
   FiChevronRight,
+  FiClock,
+  FiDollarSign,
+  FiGlobe,
+  FiHeart,
+  FiMapPin,
+  FiStar,
   FiThumbsUp,
   FiUser,
-  FiAward,
-  FiGlobe,
-  FiCamera,
-  FiHeart,
-  FiDollarSign,
-  FiCheckCircle,
-  FiBookmark,
-  FiChevronDown,
   FiX,
 } from "react-icons/fi";
 import {
-  MdTravelExplore,
   MdAccessTime,
   MdCategory,
+  MdTravelExplore,
   MdVerified,
 } from "react-icons/md";
-import { motion } from "framer-motion";
-import { useSession } from "@/src/lib/auth-client";
-import { useDestinations, type SaveStatus } from "@/src/lib/DestinationContext";
-import {
-  fadeUp,
-  fadeLeft,
-  fadeRight,
-  stagger,
-} from "@/src/Components/Animations";
-import { Card } from "@heroui/react";
 
 type SpotStatus = "pending" | "verified" | "cancelled";
 
@@ -46,6 +48,7 @@ interface Creator {
   avatar: string;
   role: string;
   bio: string;
+  tag: string;
   destinations: number;
   photos: number;
   yearsExperience: number;
@@ -53,9 +56,10 @@ interface Creator {
 }
 
 interface Destination {
-  id: number;
+  id: string;
   name: string;
   country: string;
+  coverImage: string;
   city: string;
   location: string;
   category: string;
@@ -71,121 +75,12 @@ interface Destination {
   submittedBy: string;
   submittedAt: string;
   verifiedAt?: string;
+  createdAt: string;
+  updatedAt: string;
   creator: Creator;
   nearbyAttractions: { name: string; distance: string; image: string }[];
-  related: { id: number; name: string; image: string; rating: number }[];
+  related: { id: string; name: string; image: string; rating: number }[];
 }
-
-const destinationData: Destination = {
-  id: 1,
-  name: "Santorini, Greece",
-  country: "Greece",
-  city: "Santorini",
-  location: "Cyclades island group, Aegean Sea",
-  category: "Culture & Beach",
-  bestSeason: "April - October",
-  travelTime: "5-7 days recommended",
-  entryFee: "Free (ferry/flight fees apply)",
-  rating: 4.8,
-  reviews: 1240,
-  openingHours: "Most attractions 9:00 AM - 8:00 PM",
-  description:
-    "Santorini is a stunning volcanic island in the Cyclades group of the Greek islands. Known for its dramatic views, stunning sunsets, white-washed buildings with blue domes, and its very own active volcano, Santorini is one of the most iconic destinations in the world.\n\nThe island was shaped by a massive volcanic eruption thousands of years ago, which created its distinctive crescent shape and gave birth to the caldera — a breathtaking natural wonder that draws millions of visitors each year. The charming villages of Oia and Fira cling to the cliffside, offering panoramic views of the deep blue Aegean Sea.\n\nBeyond its famous sunsets, Santorini offers exquisite local wines, fresh Mediterranean cuisine, ancient ruins at Akrotiri, and unique beaches with red, black, and white sands. Whether you're exploring the narrow cobblestone streets, sailing around the caldera, or simply relaxing with a glass of Assyrtiko wine, Santorini promises an unforgettable experience.",
-  images: [
-    "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1612698090007-5b8e6a1f3b9e?w=1200&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1504512485720-7d83a16ee930?w=1200&h=800&fit=crop",
-  ],
-  status: "verified",
-  submittedBy: "Elena Marchetti",
-  submittedAt: "March 15, 2026",
-  verifiedAt: "March 18, 2026",
-  creator: {
-    name: "Elena Marchetti",
-    avatar:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face",
-    role: "Local Travel Expert",
-    bio: "Born and raised on the Greek islands, Elena has been sharing the hidden gems of Santorini with travelers for over a decade. She personally visits every destination she features to ensure authentic, up-to-date recommendations.",
-    destinations: 24,
-    photos: 186,
-    yearsExperience: 8,
-    verified: true,
-  },
-  nearbyAttractions: [
-    {
-      name: "Oia Sunset Viewpoint",
-      distance: "2.5 km",
-      image:
-        "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=300&h=200&fit=crop",
-    },
-    {
-      name: "Akrotiri Archaeological Site",
-      distance: "8 km",
-      image:
-        "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=300&h=200&fit=crop",
-    },
-    {
-      name: "Red Beach",
-      distance: "7 km",
-      image:
-        "https://images.unsplash.com/photo-1504512485720-7d83a16ee930?w=300&h=200&fit=crop",
-    },
-    {
-      name: "Wine Tasting Tour",
-      distance: "3 km",
-      image:
-        "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=300&h=200&fit=crop",
-    },
-  ],
-  related: [
-    {
-      id: 2,
-      name: "Bali, Indonesia",
-      image:
-        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=300&fit=crop",
-      rating: 4.7,
-    },
-    {
-      id: 3,
-      name: "Amalfi Coast, Italy",
-      image:
-        "https://images.unsplash.com/photo-1612698090007-5b8e6a1f3b9e?w=400&h=300&fit=crop",
-      rating: 4.9,
-    },
-    {
-      id: 8,
-      name: "Swiss Alps, Switzerland",
-      image:
-        "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&h=300&fit=crop",
-      rating: 4.8,
-    },
-  ],
-};
-
-const infoItems = [
-  { label: "Country", value: destinationData.country, icon: MdTravelExplore },
-  { label: "City", value: destinationData.city, icon: FiMapPin },
-  { label: "Location", value: destinationData.location, icon: FiMapPin },
-  { label: "Category", value: destinationData.category, icon: MdCategory },
-  { label: "Best Season", value: destinationData.bestSeason, icon: FiCalendar },
-  {
-    label: "Travel Time",
-    value: destinationData.travelTime,
-    icon: MdAccessTime,
-  },
-  { label: "Entry Fee", value: destinationData.entryFee, icon: FiDollarSign },
-  {
-    label: "Rating",
-    value: `${destinationData.rating} / 5.0 (${destinationData.reviews.toLocaleString()} reviews)`,
-    icon: FiStar,
-  },
-  {
-    label: "Opening Hours",
-    value: destinationData.openingHours,
-    icon: FiClock,
-  },
-];
 
 interface Review {
   id: number;
@@ -252,25 +147,58 @@ const ratingDistribution = [
   { stars: 1, count: 5 },
 ];
 
-const DestinationDetails = () => {
+const globalDescription = (name: string) =>
+  `TravelSpot is your ultimate guide to discovering the world's most captivating destinations. Every place has a story to tell, and ${name} is no exception — a destination waiting to be explored, experienced, and remembered. Whether you are drawn to the rich tapestry of history and culture, the serenity of untouched natural landscapes, or the thrill of off-the-beaten-path adventures, TravelSpot brings you closer to the places that matter. Our platform is built for travelers who seek more than just a getaway — who want to connect with the soul of a destination, understand its heritage, and create lasting memories. From ancient architectural wonders and bustling local markets to tranquil coastlines and misty mountain retreats, every corner of the world holds something extraordinary. We believe that travel is not just about moving from one place to another — it is about discovering new perspectives, embracing diverse traditions, and finding inspiration in the unfamiliar. With detailed guides, authentic reviews, and a vibrant community of fellow explorers, TravelSpot empowers you to plan smarter, travel deeper, and share your journey with the world. Whether you are setting out on your very first adventure or you are a seasoned globetrotter looking for your next hidden gem, TravelSpot is here to inspire, inform, and connect you to the places that will leave a lasting mark on your soul. Let every trip be a story worth telling, and let TravelSpot be the compass that guides you there.`;
+
+const DestinationDetails = ({ destination }: { destination: Destination }) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [starRating, setStarRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
 
   const { data: session } = useSession();
   const user = session?.user;
-  const { getSavedStatus, saveDestination, removeSavedDestination, updateSavedStatus, getDestinationById } = useDestinations();
-  const destId = "1";
+  const {
+    getSavedStatus,
+    saveDestination,
+    removeSavedDestination,
+    updateSavedStatus,
+  } = useDestinations();
+  const destId = destination.id;
   const currentStatus = user ? getSavedStatus(user.id, destId) : null;
 
-  const prevImage = () =>
-    setCurrentImage((p) =>
-      p === 0 ? destinationData.images.length - 1 : p - 1,
-    );
-  const nextImage = () =>
-    setCurrentImage((p) =>
-      p === destinationData.images.length - 1 ? 0 : p + 1,
-    );
+  const galleryImages = destination.images?.length
+    ? destination.images
+    : [destination.coverImage];
+  const mainImage = galleryImages[currentImage] || galleryImages[0];
 
+  const prevImage = () =>
+    setCurrentImage((p) => (p === 0 ? galleryImages.length - 1 : p - 1));
+  const nextImage = () =>
+    setCurrentImage((p) => (p === galleryImages.length - 1 ? 0 : p + 1));
+  const infoItems = [
+    { label: "Country", value: destination.country, icon: MdTravelExplore },
+    { label: "City", value: destination.city, icon: FiMapPin },
+    { label: "Location", value: destination.location, icon: FiMapPin },
+    { label: "Category", value: destination.category, icon: MdCategory },
+    { label: "Best Season", value: destination.bestSeason, icon: FiCalendar },
+    {
+      label: "Travel Time",
+      value: destination.travelTime,
+      icon: MdAccessTime,
+    },
+    { label: "Entry Fee", value: destination.entryFee, icon: FiDollarSign },
+    {
+      label: "Rating",
+      value: `${destination.rating} / 5.0 (${destination.reviews.toLocaleString()} reviews)`,
+      icon: FiStar,
+    },
+    {
+      label: "Opening Hours",
+      value: destination.openingHours,
+      icon: FiClock,
+    },
+  ];
   return (
     <div className="w-full">
       {/* Breadcrumb */}
@@ -293,7 +221,7 @@ const DestinationDetails = () => {
           </Link>
           <span>/</span>
           <span className="text-foreground font-medium">
-            {destinationData.name}
+            {destination.name}
           </span>
         </div>
       </motion.div>
@@ -311,8 +239,8 @@ const DestinationDetails = () => {
             >
               <div className="relative aspect-16/10">
                 <Image
-                  src={destinationData.images[currentImage]}
-                  alt={destinationData.name}
+                  src={mainImage}
+                  alt={destination.name}
                   fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 60vw"
@@ -333,7 +261,7 @@ const DestinationDetails = () => {
                 <FiChevronRight className="text-xl" />
               </button>
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                {destinationData.images.map((_, i) => (
+                {galleryImages.map((_, i) => (
                   <button
                     key={i}
                     type="button"
@@ -346,9 +274,9 @@ const DestinationDetails = () => {
                   />
                 ))}
               </div>
-              <div className="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <div className="absolute  top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 text-sm font-semibold text-white">
                 <FiStar className="text-(--accent) fill-current" />
-                {destinationData.rating}
+                {destination.rating}
               </div>
             </motion.div>
 
@@ -359,7 +287,7 @@ const DestinationDetails = () => {
               animate="visible"
               className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1"
             >
-              {destinationData.images.map((img, i) => (
+              {galleryImages.map((img, i) => (
                 <button
                   key={i}
                   type="button"
@@ -393,7 +321,7 @@ const DestinationDetails = () => {
               <h2 className="text-xl font-bold text-foreground mb-4">
                 Overview
               </h2>
-              {destinationData.description.split("\n").map((para, i) => (
+              {destination.description.split("\n").map((para, i) => (
                 <p
                   key={i}
                   className="text-sm text-(--muted-foreground) leading-relaxed mb-3 last:mb-0"
@@ -401,6 +329,11 @@ const DestinationDetails = () => {
                   {para}
                 </p>
               ))}
+              {destination.description.length <= 1000 && (
+                <p className="text-sm text-(--muted-foreground) leading-relaxed mt-4 pt-4 border-t border-(--border)">
+                  {globalDescription(destination.name)}
+                </p>
+              )}
             </motion.div>
 
             {/* Reviews & Ratings */}
@@ -421,14 +354,14 @@ const DestinationDetails = () => {
               <div className="flex flex-col sm:flex-row gap-6 pb-6 border-b border-(--border) mb-6">
                 <div className="text-center sm:text-left shrink-0">
                   <div className="text-4xl font-bold text-foreground">
-                    {destinationData.rating}
+                    {destination.rating}
                   </div>
                   <div className="flex gap-0.5 mt-1 justify-center sm:justify-start">
                     {[1, 2, 3, 4, 5].map((i) => (
                       <FiStar
                         key={i}
                         className={`text-sm ${
-                          i <= Math.round(destinationData.rating)
+                          i <= Math.round(destination.rating)
                             ? "text-(--accent) fill-current"
                             : "text-(--border)"
                         }`}
@@ -436,7 +369,7 @@ const DestinationDetails = () => {
                     ))}
                   </div>
                   <div className="text-xs text-(--muted-foreground) mt-1">
-                    {destinationData.reviews.toLocaleString()} reviews
+                    {destination.reviews.toLocaleString()} reviews
                   </div>
                 </div>
                 <div className="flex-1 space-y-1.5">
@@ -453,7 +386,7 @@ const DestinationDetails = () => {
                         <div
                           className="h-full rounded-full bg-(--accent) transition-all"
                           style={{
-                            width: `${(dist.count / destinationData.reviews) * 100}%`,
+                            width: `${(dist.count / destination.reviews) * 100}%`,
                           }}
                         />
                       </div>
@@ -509,6 +442,7 @@ const DestinationDetails = () => {
                         </p>
                         <button
                           type="button"
+                          onClick={() => toast.success("Marked as helpful")}
                           className="flex items-center gap-1.5 mt-2 text-xs text-(--muted-foreground) hover:text-(--primary) transition-colors cursor-pointer"
                         >
                           <FiThumbsUp className="text-xs" />
@@ -531,19 +465,41 @@ const DestinationDetails = () => {
                       <button
                         key={i}
                         type="button"
-                        className="text-(--border) hover:text-(--accent) transition-colors cursor-pointer"
+                        onClick={() => setStarRating(i)}
+                        className={`transition-colors cursor-pointer ${
+                          i <= starRating
+                            ? "text-(--accent)"
+                            : "text-(--border) hover:text-(--accent)"
+                        }`}
                       >
-                        <FiStar className="text-lg" />
+                        <FiStar
+                          className={`text-lg ${i <= starRating ? "fill-current" : ""}`}
+                        />
                       </button>
                     ))}
                   </div>
                   <textarea
                     rows={3}
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
                     placeholder="Share your experience..."
                     className="w-full bg-background border border-(--border) rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-(--muted-foreground) outline-none transition-colors focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20 resize-none"
                   />
                   <button
                     type="button"
+                    onClick={() => {
+                      if (!starRating) {
+                        toast.error("Please select a rating");
+                        return;
+                      }
+                      if (!reviewText.trim()) {
+                        toast.error("Please write a review");
+                        return;
+                      }
+                      toast.success("Review submitted successfully");
+                      setStarRating(0);
+                      setReviewText("");
+                    }}
                     className="bg-(--primary) hover:bg-(--primary-hover) text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
                   >
                     <FiStar className="text-xs" />
@@ -565,15 +521,15 @@ const DestinationDetails = () => {
             >
               <div className="flex items-start justify-between gap-3 mb-2">
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                  {destinationData.name}
+                  {destination.name}
                 </h1>
-                {destinationData.status === "verified" && (
+                {destination.status === "verified" && (
                   <span className="shrink-0 inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold px-2.5 py-1 rounded-full">
                     <MdVerified className="text-xs" />
                     Verified
                   </span>
                 )}
-                {destinationData.status === "pending" && (
+                {destination.status === "pending" && (
                   <span className="shrink-0 inline-flex items-center gap-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[11px] font-semibold px-2.5 py-1 rounded-full">
                     <FiClock className="text-xs" />
                     Under Review
@@ -582,16 +538,16 @@ const DestinationDetails = () => {
               </div>
               <div className="flex items-center gap-1.5 text-sm text-(--muted-foreground) mb-4">
                 <FiMapPin className="text-(--primary) shrink-0" />
-                <span>{destinationData.location}</span>
+                <span>{destination.location}</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-1">
                   <FiStar className="text-(--accent) fill-current" />
                   <span className="font-semibold text-foreground">
-                    {destinationData.rating}
+                    {destination.rating}
                   </span>
                   <span className="text-(--muted-foreground)">
-                    ({destinationData.reviews.toLocaleString()})
+                    ({destination.reviews.toLocaleString()})
                   </span>
                 </div>
               </div>
@@ -600,16 +556,16 @@ const DestinationDetails = () => {
                 <span>
                   Submitted by{" "}
                   <strong className="text-foreground font-medium">
-                    {destinationData.submittedBy}
+                    {destination?.creator?.name.slice(0, 12)}..
                   </strong>
                 </span>
                 <span className="text-(--border)">|</span>
-                <span>{destinationData.submittedAt}</span>
-                {destinationData.verifiedAt && (
+                <span>{destination.submittedAt}</span>
+                {destination.verifiedAt && (
                   <>
                     <span className="text-(--border)">|</span>
                     <span className="text-emerald-600 dark:text-emerald-400">
-                      Verified {destinationData.verifiedAt}
+                      Verified On {formatDate(destination.verifiedAt)}
                     </span>
                   </>
                 )}
@@ -628,10 +584,17 @@ const DestinationDetails = () => {
                   <div
                     className="w-16 h-16 rounded-xl bg-cover bg-center"
                     style={{
-                      backgroundImage: `url(${destinationData.creator.avatar})`,
+                      backgroundImage: `url(${
+                        destination?.creator?.avatar ||
+                        "https://i.ibb.co.com/C3KdYs59/495570867-681212604719403-4254930871176159415-n.jpg"
+                      })`,
                     }}
                   />
-                  {destinationData.creator.verified && (
+                  {destination?.creator?.verified ? (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-(--primary) rounded-full flex items-center justify-center">
+                      <MdVerified className="text-white text-xs" />
+                    </div>
+                  ) : (
                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-(--primary) rounded-full flex items-center justify-center">
                       <MdVerified className="text-white text-xs" />
                     </div>
@@ -640,21 +603,22 @@ const DestinationDetails = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <h3 className="text-base font-bold text-foreground">
-                      {destinationData.creator.name}
+                      {destination?.creator?.name || "Chan Badsha Bhuiyan"}
                     </h3>
                   </div>
                   <p className="text-xs text-(--primary) font-medium">
-                    {destinationData.creator.role}
+                    {destination?.creator?.tag || "Local Travel Expert"}
                   </p>
                   <p className="text-xs text-(--muted-foreground) mt-1.5 leading-relaxed line-clamp-3">
-                    {destinationData.creator.bio}
+                    {destination?.creator?.bio ||
+                      "Touring the world with my friends"}
                   </p>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-(--border)">
                 <div className="text-center">
                   <p className="text-base font-bold text-foreground">
-                    {destinationData.creator.destinations}
+                    {destination?.creator?.destinations || 24}
                   </p>
                   <p className="text-[10px] text-(--muted-foreground)">
                     Destinations
@@ -662,7 +626,7 @@ const DestinationDetails = () => {
                 </div>
                 <div className="text-center">
                   <p className="text-base font-bold text-foreground">
-                    {destinationData.creator.photos}
+                    {destination?.creator?.photos || 186}
                   </p>
                   <p className="text-[10px] text-(--muted-foreground)">
                     Photos
@@ -670,7 +634,7 @@ const DestinationDetails = () => {
                 </div>
                 <div className="text-center">
                   <p className="text-base font-bold text-foreground">
-                    {destinationData.creator.yearsExperience}y
+                    {destination?.creator?.yearsExperience || 8}y
                   </p>
                   <p className="text-[10px] text-(--muted-foreground)">
                     Experience
@@ -798,26 +762,27 @@ const DestinationDetails = () => {
                   <span>
                     Added by{" "}
                     <strong className="text-foreground">
-                      {destinationData.submittedBy}
+                      {destination.creator.name}
                     </strong>
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-(--muted-foreground)">
                   <FiCalendar className="shrink-0" />
-                  <span>Submitted on {destinationData.submittedAt}</span>
+                  <span>Submitted on {formatDate(destination.createdAt)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-(--muted-foreground)">
                   <FiCamera className="shrink-0" />
-                  <span>{destinationData.creator.photos} photos shared</span>
+                  <span>
+                    {destination?.creator?.photos || 0} photos shared{" "}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-(--muted-foreground)">
                   <FiHeart className="shrink-0" />
                   <span>
-                    {destinationData.reviews.toLocaleString()} travelers found
-                    this helpful
+                    {destination.reviews.toLocaleString()} reviews and counting
                   </span>
                 </div>
-                {destinationData.status === "pending" && (
+                {destination.status === "pending" && (
                   <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 mt-2">
                     <FiClock className="shrink-0 text-sm" />
                     <span className="text-xs">
@@ -832,41 +797,69 @@ const DestinationDetails = () => {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => { removeSavedDestination(user.id, destId); setShowDropdown(false); }}
+                        onClick={() => {
+                          removeSavedDestination(user.id, destId);
+                          setShowDropdown(false);
+                        }}
                         className={`flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 ${
                           currentStatus === "visited"
                             ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800"
                             : "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
                         }`}
                       >
-                        {currentStatus === "visited" ? <FiCheckCircle className="text-sm" /> : <FiBookmark className="text-sm" />}
-                        {currentStatus === "visited" ? "Visited" : "Want to Visit"}
+                        {currentStatus === "visited" ? (
+                          <FiCheckCircle className="text-sm" />
+                        ) : (
+                          <FiBookmark className="text-sm" />
+                        )}
+                        {currentStatus === "visited"
+                          ? "Visited"
+                          : "Want to Visit"}
                       </button>
                       <button
                         type="button"
                         onClick={() => setShowDropdown((p) => !p)}
                         className="w-10 h-10 rounded-xl border border-(--border) flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) hover:border-(--primary) transition-all cursor-pointer shrink-0"
                       >
-                        <FiChevronDown className={`text-sm transition-transform ${showDropdown ? "rotate-180" : ""}`} />
+                        <FiChevronDown
+                          className={`text-sm transition-transform ${showDropdown ? "rotate-180" : ""}`}
+                        />
                       </button>
                       {showDropdown && (
                         <>
-                          <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
+                          <div
+                            className="fixed inset-0 z-10"
+                            onClick={() => setShowDropdown(false)}
+                          />
                           <div className="absolute right-0 top-full mt-1 z-20 w-44 bg-(--card) border border-(--border) rounded-xl shadow-xl overflow-hidden">
                             <button
                               type="button"
-                              onClick={() => { updateSavedStatus(user.id, destId, "wantToVisit"); setShowDropdown(false); }}
+                              onClick={() => {
+                                updateSavedStatus(
+                                  user.id,
+                                  destId,
+                                  "wantToVisit",
+                                );
+                                setShowDropdown(false);
+                              }}
                               className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left transition-colors cursor-pointer ${
-                                currentStatus === "wantToVisit" ? "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20" : "text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--background)"
+                                currentStatus === "wantToVisit"
+                                  ? "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20"
+                                  : "text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--background)"
                               }`}
                             >
                               <FiBookmark className="text-sm" /> Want to Visit
                             </button>
                             <button
                               type="button"
-                              onClick={() => { updateSavedStatus(user.id, destId, "visited"); setShowDropdown(false); }}
+                              onClick={() => {
+                                updateSavedStatus(user.id, destId, "visited");
+                                setShowDropdown(false);
+                              }}
                               className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left transition-colors cursor-pointer ${
-                                currentStatus === "visited" ? "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20" : "text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--background)"
+                                currentStatus === "visited"
+                                  ? "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20"
+                                  : "text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--background)"
                               }`}
                             >
                               <FiCheckCircle className="text-sm" /> Visited
@@ -874,7 +867,10 @@ const DestinationDetails = () => {
                             <div className="border-t border-(--border)" />
                             <button
                               type="button"
-                              onClick={() => { removeSavedDestination(user.id, destId); setShowDropdown(false); }}
+                              onClick={() => {
+                                removeSavedDestination(user.id, destId);
+                                setShowDropdown(false);
+                              }}
                               className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left text-(--error) hover:bg-(--error)/10 transition-colors cursor-pointer"
                             >
                               <FiX className="text-sm" /> Remove
@@ -887,14 +883,20 @@ const DestinationDetails = () => {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => { saveDestination(user.id, destId, "wantToVisit"); setShowDropdown(false); }}
+                        onClick={() => {
+                          saveDestination(user.id, destId, "wantToVisit");
+                          setShowDropdown(false);
+                        }}
                         className="flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-amber-400 hover:text-amber-500"
                       >
                         <FiBookmark className="text-sm" /> Want to Visit
                       </button>
                       <button
                         type="button"
-                        onClick={() => { saveDestination(user.id, destId, "visited"); setShowDropdown(false); }}
+                        onClick={() => {
+                          saveDestination(user.id, destId, "visited");
+                          setShowDropdown(false);
+                        }}
                         className="flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-green-400 hover:text-green-500"
                       >
                         <FiCheckCircle className="text-sm" /> Visited
@@ -934,13 +936,13 @@ const DestinationDetails = () => {
             viewport={{ once: true }}
             className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
           >
-            {destinationData.nearbyAttractions.map((attraction) => (
-              <motion.div key={attraction.name} variants={fadeUp}>
+            {destination.nearbyAttractions.map((attraction, ind) => (
+              <motion.div key={ind} variants={fadeUp}>
                 <Card className="overflow-hidden border border-(--border) rounded-2xl bg-(--card)">
                   <div className="relative h-36">
                     <Image
-                      src={attraction.image}
-                      alt={attraction.name}
+                      src={isValidUrl(attraction.image) || "/placeholder.svg"}
+                      alt={attraction?.name || ""}
                       fill
                       className="object-cover"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -986,14 +988,14 @@ const DestinationDetails = () => {
             viewport={{ once: true }}
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {destinationData.related.map((dest) => (
-              <motion.div key={dest.id} variants={fadeUp}>
+            {destination.related.map((dest, ind) => (
+              <motion.div key={ind} variants={fadeUp}>
                 <Link href={`/destinations/${dest.id}`}>
                   <Card className="overflow-hidden group border border-(--border) rounded-2xl bg-(--card) cursor-pointer">
                     <div className="relative h-44 overflow-hidden">
                       <Image
-                        src={dest.image}
-                        alt={dest.name}
+                        src={isValidUrl(dest.image) || "/placeholder.svg"}
+                        alt={dest.name || ""}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

@@ -5,6 +5,7 @@ import { fadeUp, stagger } from "@/src/Components/Animations";
 import { FiMapPin, FiStar, FiHeart, FiClock, FiTrendingUp, FiPlus } from "react-icons/fi";
 import { useSession } from "@/src/lib/auth-client";
 import { useDestinations } from "@/src/lib/DestinationContext";
+import { formatDate } from "@/src/lib/utils";
 import Link from "next/link";
 
 export default function UserDashboard() {
@@ -159,7 +160,7 @@ export default function UserDashboard() {
                   <p className="text-sm text-(--foreground)">
                     You submitted <span className="font-medium">{post.name}</span>
                   </p>
-                  <p className="text-xs text-(--muted-foreground)">{post.createdAt} &middot; {post.status}</p>
+                  <p className="text-xs text-(--muted-foreground)">{formatDate(post.createdAt)} &middot; {post.status}</p>
                 </div>
               </div>
             ))}
