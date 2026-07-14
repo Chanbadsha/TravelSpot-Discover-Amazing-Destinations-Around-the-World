@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { fadeUp } from "@/src/Components/Animations";
-import { FiMapPin, FiTag, FiSave, FiArrowLeft, FiPlus, FiX } from "react-icons/fi";
+import { FiMapPin, FiTag, FiSave, FiArrowLeft, FiPlus, FiX, FiLoader } from "react-icons/fi";
 import { MdTravelExplore } from "react-icons/md";
-import { useDestinations } from "@/src/lib/DestinationContext";
+import { getPostById } from "@/src/services/postsService";
+import { updatePost } from "@/src/services/postsCommandService";
 import toast from "react-hot-toast";
 
 const categories = [
@@ -17,84 +18,99 @@ const categories = [
 export default function ProfilePostEdit() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { getDestinationById, updateDestination } = useDestinations();
-
-  const dest = getDestinationById(id);
-
-  const [form, setForm] = useState({
-    name: dest?.name || "",
-    location: dest?.location || "",
-    category: dest?.category || "",
-    description: dest?.description || "",
-    facilities: dest?.facilities?.length ? dest.facilities : [""],
-  });
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    location: "",
+    category: "",
+    description: "",
+    facilities: [""] as string[],
+  });
 
-  if (!dest) {
+  useEffect(() => {
+    if (!id) return;
+    getPostById(id).then((data) => {
+      if (!data || (Array.isArray(data) && data.length === 0)) {
+        setNotFound(true);
+        return;
+      }
+      const p = Array.isArray(data) ? data[0] : data;
+      setForm({
+        name: (p.name as string) || "",
+        location: (p.location as string) || "",
+        category: (p.category as string) || "",
+        description: (p.description as string) || "",
+        facilities: Array.isArray(p.facilities) && (p.facilities as string[]).length
+          ? (p.facilities as string[])
+          : [""],
+      });
+    }).catch(() => setNotFound(true)).finally(() => setLoading(false));
+  }, [id]);
+
+  const addFacility = () => setForm((p) => ({ ...p, facilities: [...p.facilities, ""] }));
+  const removeFacility = (idx: number) => setForm((p) => ({ ...p, facilities: p.facilities.filter((_, i) => i !== idx) }));
+  const updateFacility = (idx: number, value: string) => setForm((p) => {
+    const updated = [...p.facilities];
+    updated[idx] = value;
+    return { ...p, facilities: updated };
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await updatePost({
+        id,
+        name: form.name,
+        location: form.location,
+        category: form.category,
+        description: form.description,
+        facilities: form.facilities.filter((f) => f.trim() !== ""),
+      });
+      toast.success("Post updated successfully");
+      router.push("/user/posts");
+    } catch {
+      toast.error("Failed to update post");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto flex items-center justify-center py-20">
+        <FiLoader className="text-2xl text-(--muted-foreground) animate-spin" />
+      </div>
+    );
+  }
+
+  if (notFound) {
     return (
       <div className="max-w-3xl mx-auto text-center py-20">
         <h2 className="text-xl font-bold text-(--foreground) mb-2">Post not found</h2>
         <p className="text-sm text-(--muted-foreground) mb-4">This destination doesn&apos;t exist or has been deleted.</p>
-        <button
-          type="button"
-          onClick={() => router.push("/user/posts")}
-          className="inline-flex items-center gap-2 bg-(--primary) hover:bg-(--primary-hover) text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
-        >
+        <button type="button" onClick={() => router.push("/user/posts")}
+          className="inline-flex items-center gap-2 bg-(--primary) hover:bg-(--primary-hover) text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors cursor-pointer">
           <FiArrowLeft /> Back to My Posts
         </button>
       </div>
     );
   }
 
-  const addFacility = () => setForm((p) => ({ ...p, facilities: [...p.facilities, ""] }));
-
-  const removeFacility = (idx: number) => {
-    setForm((p) => ({ ...p, facilities: p.facilities.filter((_, i) => i !== idx) }));
-  };
-
-  const updateFacility = (idx: number, value: string) => {
-    setForm((p) => {
-      const updated = [...p.facilities];
-      updated[idx] = value;
-      return { ...p, facilities: updated };
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    const filteredFacilities = form.facilities.filter((f) => f.trim() !== "");
-    updateDestination(id, {
-      name: form.name,
-      location: form.location,
-      category: form.category,
-      description: form.description,
-      facilities: filteredFacilities.length > 0 ? filteredFacilities : ["General"],
-    });
-    setTimeout(() => {
-      setSaving(false);
-      toast.success("Post updated successfully");
-      router.push("/user/posts");
-    }, 500);
-  };
-
   return (
     <div className="max-w-3xl mx-auto">
       <motion.div variants={fadeUp} initial="hidden" animate="visible" className="mb-6">
-        <button
-          type="button"
-          onClick={() => router.push("/user/posts")}
-          className="inline-flex items-center gap-1.5 text-sm text-(--muted-foreground) hover:text-(--foreground) transition-colors mb-3 cursor-pointer"
-        >
-          <FiArrowLeft className="text-sm" />
-          Back to My Posts
+        <button type="button" onClick={() => router.push("/user/posts")}
+          className="inline-flex items-center gap-1.5 text-sm text-(--muted-foreground) hover:text-(--foreground) transition-colors mb-3 cursor-pointer">
+          <FiArrowLeft className="text-sm" /> Back to My Posts
         </button>
         <h1 className="text-2xl font-bold text-(--foreground)">Edit Post</h1>
         <p className="text-(--muted-foreground) text-sm mt-1">Update the details of your destination.</p>
       </motion.div>
 
       <motion.form variants={fadeUp} initial="hidden" animate="visible" onSubmit={handleSubmit} className="bg-(--card) border border-(--border) rounded-2xl p-6 md:p-8 space-y-5">
-        {/* Spot Name */}
         <div>
           <label className="block text-sm font-medium text-(--foreground) mb-1.5">Spot Name *</label>
           <div className="relative">
@@ -104,7 +120,6 @@ export default function ProfilePostEdit() {
           </div>
         </div>
 
-        {/* Location */}
         <div>
           <label className="block text-sm font-medium text-(--foreground) mb-1.5">Location *</label>
           <div className="relative">
@@ -114,7 +129,6 @@ export default function ProfilePostEdit() {
           </div>
         </div>
 
-        {/* Category */}
         <div>
           <label className="block text-sm font-medium text-(--foreground) mb-1.5">Category *</label>
           <div className="relative">
@@ -129,14 +143,12 @@ export default function ProfilePostEdit() {
           </div>
         </div>
 
-        {/* Description */}
         <div>
           <label className="block text-sm font-medium text-(--foreground) mb-1.5">Description *</label>
           <textarea value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} rows={4} required
             className="w-full bg-(--background) border border-(--border) rounded-xl px-4 py-2.5 text-sm text-(--foreground) placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20 resize-none" />
         </div>
 
-        {/* Facilities */}
         <div>
           <label className="block text-sm font-medium text-(--foreground) mb-1.5">Facilities & Amenities</label>
           <div className="space-y-2">
@@ -156,12 +168,10 @@ export default function ProfilePostEdit() {
           </div>
           <button type="button" onClick={addFacility}
             className="mt-2 flex items-center gap-1.5 text-sm text-(--primary) hover:text-(--primary-hover) font-medium transition-colors cursor-pointer">
-            <FiPlus className="text-xs" />
-            Add Facility
+            <FiPlus className="text-xs" /> Add Facility
           </button>
         </div>
 
-        {/* Submit */}
         <div className="flex items-center justify-end gap-3 pt-2 border-t border-(--border)">
           <button type="button" onClick={() => router.push("/user/posts")}
             className="px-5 py-2.5 rounded-xl text-sm font-medium text-(--muted-foreground) hover:text-(--foreground) border border-(--border) hover:bg-(--background) transition-colors cursor-pointer">
@@ -170,7 +180,7 @@ export default function ProfilePostEdit() {
           <button type="submit" disabled={saving}
             className="flex items-center gap-2 bg-(--primary) hover:bg-(--primary-hover) text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors cursor-pointer disabled:opacity-50">
             {saving ? (
-              <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+              <><FiLoader className="text-sm animate-spin" /> Saving...</>
             ) : (
               <><FiSave className="text-sm" /> Save Changes</>
             )}

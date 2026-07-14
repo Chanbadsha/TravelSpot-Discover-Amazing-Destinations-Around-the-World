@@ -4,4 +4,4 @@ export const authClient = createAuthClient({
     baseURL: process.env.BETTER_AUTH_URL as string,
     plugins: [adminClient()],
 })
-export const { signIn, signUp, useSession, signOut } = authClient
+export const { signIn, signUp, useSession, signOut, updateUser } = authClient

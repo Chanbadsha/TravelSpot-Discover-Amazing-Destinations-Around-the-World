@@ -1,7 +1,20 @@
 "use client";
 
 import { useState } from "react";
+<<<<<<< HEAD
 import { FiSearch, FiMapPin, FiStar, FiSliders, FiClock, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+=======
+import {
+  FiSearch,
+  FiMapPin,
+  FiStar,
+  FiSliders,
+  FiClock,
+  FiChevronLeft,
+  FiChevronRight,
+  FiX,
+} from "react-icons/fi";
+>>>>>>> main
 import { MdTravelExplore, MdVerified } from "react-icons/md";
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
@@ -26,6 +39,7 @@ interface Destination {
   name: string;
   description: string;
   coverImage: string;
+  submittedBy: string;
   image: string[];
   rating: number;
   reviews: number;
@@ -37,13 +51,34 @@ interface Destination {
 
 const ExploreDestinations = ({
   destinations,
+  initialLocation = "",
+  initialCategory = "all",
+  initialDate = "",
 }: {
   destinations: Destination[];
+  initialLocation?: string;
+  initialCategory?: string;
+  initialDate?: string;
 }) => {
+<<<<<<< HEAD
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
+=======
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [searchQuery, setSearchQuery] = useState(initialLocation);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
+
+  const hasActiveFilters = searchQuery || activeCategory !== "all";
+
+  const clearAll = () => {
+    setSearchQuery("");
+    setActiveCategory("all");
+    setCurrentPage(1);
+  };
+>>>>>>> main
 
   const filtered = destinations.filter((d) => {
     if (d.status === "cancelled") return false;
@@ -58,7 +93,11 @@ const ExploreDestinations = ({
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
+<<<<<<< HEAD
     currentPage * ITEMS_PER_PAGE
+=======
+    currentPage * ITEMS_PER_PAGE,
+>>>>>>> main
   );
 
   return (
@@ -102,13 +141,11 @@ const ExploreDestinations = ({
           className="-mt-7 mb-8 relative z-10"
         >
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-lg p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
-                <InputGroup className="w-full">
-                  <InputGroup.Prefix>
-                    <FiSearch className="text-gray-400 dark:text-gray-500 text-lg shrink-0" />
-                  </InputGroup.Prefix>
-                  <InputGroup.Input
+                <div className="relative group">
+                  <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg pointer-events-none transition-colors group-focus-within:text-[var(--primary)]" />
+                  <input
                     type="text"
                     placeholder="Search destinations..."
                     value={searchQuery}
@@ -116,12 +153,26 @@ const ExploreDestinations = ({
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
+<<<<<<< HEAD
                     className="w-full bg-transparent text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none"
+=======
+                    className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-11 pr-4 py-3.5 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
+>>>>>>> main
                   />
-                </InputGroup>
+                </div>
               </div>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="flex items-center gap-1.5 px-4 py-3.5 rounded-xl border border-[var(--border)] text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--primary)] transition-all cursor-pointer shrink-0"
+                >
+                  <FiX className="text-base" />
+                  <span className="hidden sm:inline">Clear</span>
+                </button>
+              )}
               <Button
-                className="bg-[var(--primary)] text-white px-6 rounded-xl shrink-0"
+                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-[17px] rounded-xl shrink-0 transition-all cursor-pointer"
                 size="lg"
               >
                 <FiSearch className="sm:hidden" />
@@ -142,7 +193,14 @@ const ExploreDestinations = ({
             <motion.div key={cat.key} variants={scaleIn}>
               <button
                 type="button"
+<<<<<<< HEAD
                 onClick={() => { setActiveCategory(cat.key); setCurrentPage(1); }}
+=======
+                onClick={() => {
+                  setActiveCategory(cat.key);
+                  setCurrentPage(1);
+                }}
+>>>>>>> main
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
                   activeCategory === cat.key
                     ? "bg-[var(--primary)] text-white shadow-md"
@@ -248,7 +306,7 @@ const ExploreDestinations = ({
                           {dest.reviews.toLocaleString()} reviews
                         </span>
                         <span className="text-[11px] text-[var(--muted-foreground)]">
-                          by {dest.addedBy}
+                          by {dest.submittedBy}
                         </span>
                       </div>
                     </div>

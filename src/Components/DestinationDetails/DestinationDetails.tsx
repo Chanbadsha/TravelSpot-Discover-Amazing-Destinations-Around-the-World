@@ -884,7 +884,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                       <button
                         type="button"
                         onClick={() => {
-                          saveDestination(user.id, destId, "wantToVisit");
+                          saveDestination(user.id, destId, "wantToVisit", { name: destination.name, image: destination.coverImage, location: destination.location });
                           setShowDropdown(false);
                         }}
                         className="flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-amber-400 hover:text-amber-500"
@@ -894,7 +894,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                       <button
                         type="button"
                         onClick={() => {
-                          saveDestination(user.id, destId, "visited");
+                          saveDestination(user.id, destId, "visited", { name: destination.name, image: destination.coverImage, location: destination.location });
                           setShowDropdown(false);
                         }}
                         className="flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-green-400 hover:text-green-500"

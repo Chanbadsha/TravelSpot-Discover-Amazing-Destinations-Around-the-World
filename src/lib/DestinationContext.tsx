@@ -25,6 +25,9 @@ export interface SavedDestination {
   destinationId: string;
   status: SaveStatus;
   savedAt: string;
+  destinationName?: string;
+  destinationImage?: string;
+  destinationLocation?: string;
 }
 
 export interface SavedCounts {
@@ -41,7 +44,7 @@ interface DestinationContextType {
   getUserDestinations: (userId: string) => Destination[];
   getDestinationById: (id: string) => Destination | undefined;
   savedDestinations: Record<string, SavedDestination[]>;
-  saveDestination: (userId: string, destinationId: string, status: SaveStatus) => void;
+  saveDestination: (userId: string, destinationId: string, status: SaveStatus, destInfo?: { name: string; image: string; location: string }) => void;
   removeSavedDestination: (userId: string, destinationId: string) => void;
   updateSavedStatus: (userId: string, destinationId: string, status: SaveStatus) => void;
   getUserSavedDestinations: (userId: string) => SavedDestination[];
@@ -129,18 +132,18 @@ export function DestinationProvider({ children }: { children: ReactNode }) {
     [destinations]
   );
 
-  const saveDestination = useCallback((userId: string, destinationId: string, status: SaveStatus) => {
+  const saveDestination = useCallback((userId: string, destinationId: string, status: SaveStatus, destInfo?: { name: string; image: string; location: string }) => {
     syncSaved((prev) => {
       const userSaved = prev[userId] || [];
       const existing = userSaved.findIndex((s) => s.destinationId === destinationId);
       if (existing >= 0) {
         const updated = [...userSaved];
-        updated[existing] = { ...updated[existing], status };
+        updated[existing] = { ...updated[existing], status, ...destInfo };
         return { ...prev, [userId]: updated };
       }
       return {
         ...prev,
-        [userId]: [...userSaved, { destinationId, status, savedAt: new Date().toISOString().split("T")[0] }],
+        [userId]: [...userSaved, { destinationId, status, savedAt: new Date().toISOString().split("T")[0], ...destInfo }],
       };
     });
   }, [syncSaved]);
@@ -171,7 +174,21 @@ export function DestinationProvider({ children }: { children: ReactNode }) {
       const saved = savedDestinations[userId] || [];
       return saved.map((s) => ({
         ...s,
-        destination: destinations.find((d) => d.id === s.destinationId),
+        destination: destinations.find((d) => d.id === s.destinationId) || (s.destinationName ? {
+          id: s.destinationId,
+          name: s.destinationName,
+          image: s.destinationImage || "",
+          location: s.destinationLocation || "",
+          category: "",
+          description: "",
+          facilities: [],
+          status: "pending" as SpotStatus,
+          userId: "",
+          submittedBy: "",
+          rating: 0,
+          reviews: 0,
+          createdAt: "",
+        } : undefined),
       }));
     },
     [savedDestinations, destinations]

@@ -1,51 +1,108 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
 import {
   FiMail, FiCalendar, FiMapPin, FiStar, FiHeart, FiCamera,
   FiUser, FiGlobe, FiTwitter, FiLinkedin, FiSave, FiEdit2, FiX,
-  FiBookmark, FiCheckCircle,
+  FiBookmark, FiCheckCircle, FiLoader,
 } from "react-icons/fi";
-import { useSession } from "@/src/lib/auth-client";
+import { useSession, updateUser } from "@/src/lib/auth-client";
+import { getUserById } from "@/src/services/usersService";
+import { getPostsByCreatorId } from "@/src/services/postsService";
 import { useDestinations } from "@/src/lib/DestinationContext";
 import toast from "react-hot-toast";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
+
+interface UserData {
+  name: string;
+  email: string;
+  image?: string;
+  bio?: string;
+  tag?: string;
+  yearsExperience?: number;
+  location?: string;
+  website?: string;
+  twitter?: string;
+  linkedin?: string;
+}
 
 export default function ProfilePage() {
   const { data: session } = useSession();
   const user = session?.user;
-  const { getUserDestinations, getSavedCounts, getUserSavedDestinationsWithData } = useDestinations();
-  const myPosts = user ? getUserDestinations(user.id) : [];
+  const { getSavedCounts, getUserSavedDestinationsWithData } = useDestinations();
   const savedCounts = user ? getSavedCounts(user.id) : { total: 0, visited: 0, wantToVisit: 0 };
   const savedWithData = user ? getUserSavedDestinationsWithData(user.id) : [];
 
+  const [profileData, setProfileData] = useState<UserData | null>(null);
+  const [myPosts, setMyPosts] = useState<{ id: string; name: string; createdAt: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    Promise.all([
+      getUserById(user.id).catch(() => null),
+      getPostsByCreatorId(user.id).catch(() => []),
+    ]).then(([userData, posts]) => {
+      if (userData) setProfileData(userData as UserData);
+      if (Array.isArray(posts)) {
+        setMyPosts(posts.map((p: Record<string, unknown>) => ({
+          id: (p._id as string) || (p.id as string) || "",
+          name: (p.name as string) || "",
+          createdAt: (p.createdAt as string) || "",
+        })));
+      }
+    }).finally(() => setLoading(false));
+  }, [user?.id]);
+
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [savedTab, setSavedTab] = useState<"all" | "wantToVisit" | "visited">("all");
   const [form, setForm] = useState({
     name: user?.name || "",
     username: user?.name?.toLowerCase().replace(/\s+/g, "") || "",
     email: user?.email || "",
-    location: "New York, USA",
-    bio: "Travel enthusiast and photography lover. Exploring the world one destination at a time.",
-    website: "https://johndoe.com",
-    twitter: "@johndoe",
-    linkedin: "linkedin.com/in/johndoe",
+    location: (user as any)?.location || "New York, USA",
+    bio: (user as any)?.bio || "",
+    website: (user as any)?.website || "",
+    twitter: (user as any)?.twitter || "",
+    linkedin: (user as any)?.linkedin || "",
   });
-  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (profileData) {
+      setForm((p) => ({
+        ...p,
+        name: profileData.name || p.name,
+        bio: profileData.bio || p.bio,
+        location: profileData.location || p.location,
+        website: profileData.website || p.website,
+        twitter: profileData.twitter || p.twitter,
+        linkedin: profileData.linkedin || p.linkedin,
+      }));
+    }
+  }, [profileData]);
 
   const initials = user
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "JD";
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
-      setEditing(false);
+    try {
+      await updateUser({
+        name: form.name,
+        bio: form.bio,
+      } as any);
       toast.success("Profile updated successfully");
-    }, 600);
+      setEditing(false);
+    } catch {
+      toast.error("Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const joinedDate = user?.createdAt
@@ -79,14 +136,26 @@ export default function ProfilePage() {
     return s.status === savedTab;
   });
 
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto flex items-center justify-center min-h-[50vh]">
+        <FiLoader className="text-2xl text-(--muted-foreground) animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto">
       {/* Profile Header */}
       <motion.div variants={fadeUp} initial="hidden" animate="visible" className="bg-(--card) border border-(--border) rounded-2xl p-6 sm:p-8 mb-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <div className="relative group">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-3xl font-bold">
-              {initials}
+            <div className="relative group">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+              {user?.image ? (
+                <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             <button type="button" className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-(--primary) text-white flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
               <FiCamera className="text-xs" />
@@ -148,7 +217,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-3 pt-1">
                   <button type="submit" disabled={saving}
                     className="flex items-center gap-2 bg-(--primary) hover:bg-(--primary-hover) text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50">
-                    {saving ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</> : <><FiSave className="text-sm" /> Save Changes</>}
+                    {saving ? <><GlobalLoader variant="spinner" size="sm" /> Saving...</> : <><FiSave className="text-sm" /> Save Changes</>}
                   </button>
                   <button type="button" onClick={() => setEditing(false)}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-(--muted-foreground) hover:text-(--foreground) border border-(--border) hover:bg-(--background) transition-colors cursor-pointer">
@@ -229,19 +298,12 @@ export default function ProfilePage() {
             Saved Spots
           </h2>
 
-          {/* Tabs */}
           <div className="flex items-center gap-1 mb-4 bg-(--background) rounded-xl p-1">
             {(["all", "wantToVisit", "visited"] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setSavedTab(tab)}
+              <button key={tab} type="button" onClick={() => setSavedTab(tab)}
                 className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-all cursor-pointer ${
-                  savedTab === tab
-                    ? "bg-(--primary) text-white shadow-sm"
-                    : "text-(--muted-foreground) hover:text-(--foreground)"
-                }`}
-              >
+                  savedTab === tab ? "bg-(--primary) text-white shadow-sm" : "text-(--muted-foreground) hover:text-(--foreground)"
+                }`}>
                 {tab === "all" ? "All" : tab === "wantToVisit" ? "Want to Visit" : "Visited"}
               </button>
             ))}

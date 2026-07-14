@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiGrid, FiLogOut, FiChevronDown } from "react-icons/fi";
 import { authClient } from "@/src/lib/auth-client";
 import toast from "react-hot-toast";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 interface AvatarDropdownProps {
   user: {
@@ -100,7 +101,7 @@ export default function AvatarDropdown({ user }: AvatarDropdownProps) {
               >
                 {signingOut ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-gray-500/30 border-t-gray-500 rounded-full animate-spin" />
+                    <GlobalLoader variant="spinner" size="sm" />
                     Signing out...
                   </>
                 ) : (

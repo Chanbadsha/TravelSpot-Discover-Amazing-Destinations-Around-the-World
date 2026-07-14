@@ -99,8 +99,12 @@ export default function DashboardShellLayout({
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="flex flex-col items-center"
           >
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 text-white text-xl font-bold flex items-center justify-center mb-3 shadow-lg shadow-teal-500/20">
-              {initials}
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 text-white text-xl font-bold flex items-center justify-center mb-3 shadow-lg shadow-teal-500/20 overflow-hidden">
+              {user?.image ? (
+                <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             <p className="text-white text-sm font-semibold">
               {user?.name || "John Doe"}

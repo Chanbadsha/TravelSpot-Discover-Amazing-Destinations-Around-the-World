@@ -17,6 +17,7 @@ import {
 import { MdHeadsetMic, MdContactSupport } from "react-icons/md";
 import { fadeUp, stagger, scaleIn } from "@/src/Components/Animations";
 import { Button } from "@heroui/react";
+import toast from "react-hot-toast";
 
 const contactFormSchema = z.object({
   name: z
@@ -94,7 +95,7 @@ export default function Contact() {
   });
 
   const onSubmit = (data: ContactFormData) => {
-    console.log("Contact form submitted:", data);
+    toast.success("Message sent successfully! We'll get back to you soon.");
     reset();
   };
 

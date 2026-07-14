@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { fadeUp } from "@/src/Components/Animations";
 import { FiUser, FiMail, FiMapPin, FiCamera, FiSave, FiGlobe, FiLinkedin, FiTwitter } from "react-icons/fi";
 import toast from "react-hot-toast";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 export default function ProfileEdit() {
   const [form, setForm] = useState({
@@ -206,7 +207,7 @@ export default function ProfileEdit() {
           >
             {saving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <GlobalLoader variant="spinner" size="sm" />
                 Saving...
               </>
             ) : (

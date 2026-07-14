@@ -6,6 +6,7 @@ import { fadeUp } from "@/src/Components/Animations";
 import { FiSearch, FiTrash2, FiUserPlus, FiX, FiChevronLeft, FiChevronRight, FiShield, FiClock, FiCheck, FiLock } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { authClient } from "@/src/lib/auth-client";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 interface User {
   id: string;
@@ -484,7 +485,7 @@ function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: U
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 bg-(--background) border border-(--border) text-(--foreground) rounded-xl py-2.5 text-sm font-medium hover:bg-(--border) transition-colors cursor-pointer">Cancel</button>
             <button type="submit" disabled={loading} className="flex-1 bg-(--primary) hover:bg-(--primary-hover) text-white rounded-xl py-2.5 text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2">
-              {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Creating...</> : "Add User"}
+              {loading ? <><GlobalLoader variant="spinner" size="sm" /> Creating...</> : "Add User"}
             </button>
           </div>
         </form>

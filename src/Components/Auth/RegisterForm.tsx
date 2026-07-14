@@ -19,6 +19,7 @@ import {
 import { authClient } from "@/src/lib/auth-client";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 const registerSchema = z
   .object({
@@ -103,15 +104,18 @@ export default function RegisterForm() {
         const formData = new FormData();
         formData.append("image", file);
 
-        const image = await fetch(
-          `https://api.imgbb.com/1/upload?key=427d7a4042e4547ce15bf490c29c5314`,
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API_URL}`,
           { method: "POST", body: formData },
         );
-        const data = await image.json();
-        console.log(data?.data?.url);
+        const data = await res.json();
         if (data?.data?.url) {
-          setPreview(data?.data?.url);
+          setPreview(data.data.url);
+        } else {
+          toast.error("Failed to upload image");
         }
+      } catch {
+        toast.error("Failed to upload image");
       } finally {
         setUploadingPhoto(false);
       }
@@ -123,7 +127,6 @@ export default function RegisterForm() {
   };
 
   const onSubmit = async (data: RegisterFormData) => {
-    console.log(data);
     if (uploadingPhoto) {
       toast.error("Please wait for the image to upload");
       return;
@@ -138,7 +141,6 @@ export default function RegisterForm() {
       toast.error(`${result.error.message}`);
       console.log(result.error);
     } else {
-      console.log(result.data);
       toast.success("Account created successfully");
       router.push("/");
     }
@@ -181,14 +183,10 @@ export default function RegisterForm() {
               className="relative size-20 rounded-full bg-background border-2 border-dashed border-(--border) hover:border-(--primary) transition-colors overflow-hidden cursor-pointer group disabled:opacity-60 disabled:cursor-wait"
             >
               {uploadingPhoto ? (
-                <div className="flex items-center justify-center size-full">
-                  <div className="size-7 border-2 border-(--primary)/30 border-t-(--primary) rounded-full animate-spin" />
-                </div>
+                <GlobalLoader variant="spinner" size="md" />
               ) : preview ? (
                 <Image
-                  src={
-                    "https://i.ibb.co.com/C3KdYs59/495570867-681212604719403-4254930871176159415-n.jpg"
-                  }
+                  src={preview}
                   height={600}
                   width={600}
                   alt="Profile preview"
@@ -443,7 +441,7 @@ export default function RegisterForm() {
             >
               {isSubmitting ? (
                 <>
-                  <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <GlobalLoader variant="spinner" size="sm" />
                   <span>Creating account...</span>
                 </>
               ) : (
