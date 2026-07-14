@@ -5,7 +5,8 @@ import { FiMessageCircle, FiSend, FiStar, FiMail } from "react-icons/fi";
 import { MdFormatQuote } from "react-icons/md";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
-import { Card, Button, InputGroup } from "@heroui/react";
+import { Card, Button } from "@heroui/react";
+import toast from "react-hot-toast";
 
 const testimonials = [
   {
@@ -42,7 +43,7 @@ const TestimonialsAndNewsLetter = () => {
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Subscribe:", email);
+    toast.success("Subscribed successfully! Check your inbox.");
     setEmail("");
   };
 
@@ -124,28 +125,26 @@ const TestimonialsAndNewsLetter = () => {
 
           <form
             onSubmit={handleSubscribe}
-            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+            className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
           >
             <div className="flex-1">
-              <InputGroup className="w-full">
-                <InputGroup.Prefix>
-                  <FiMail className="text-gray-400 dark:text-gray-500 text-lg shrink-0" />
-                </InputGroup.Prefix>
-                <InputGroup.Input
+              <div className="relative group">
+                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none transition-colors group-focus-within:text-[var(--accent)]" />
+                <input
                   type="email"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setEmail(e.target.value)
                   }
-                  className="w-full bg-white text-gray-900 placeholder:text-gray-400 outline-none rounded-xl"
+                  className="w-full bg-white/95 backdrop-blur-sm border-2 border-transparent focus:border-[var(--accent)] rounded-xl pl-12 pr-4 py-3.5 text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:ring-4 focus:ring-[var(--accent)]/20 shadow-lg shadow-black/5"
                   required
                 />
-              </InputGroup>
+              </div>
             </div>
             <Button
               type="submit"
-              className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-semibold px-6 py-6 transition-colors rounded-xl shrink-0 cursor-pointer"
+              className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-semibold px-8 py-[17px] transition-all rounded-xl shrink-0 cursor-pointer shadow-lg shadow-[var(--accent)]/25 hover:shadow-[var(--accent)]/40 hover:scale-[1.02] active:scale-[0.98]"
               size="lg"
             >
               <FiSend className="text-lg sm:hidden" />

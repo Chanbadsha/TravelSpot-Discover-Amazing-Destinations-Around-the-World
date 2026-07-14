@@ -5,7 +5,7 @@ import { FiMapPin, FiCalendar, FiSearch, FiChevronLeft, FiChevronRight } from "r
 import { MdTravelExplore } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
-import { Button, InputGroup } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
 interface SearchFilters {

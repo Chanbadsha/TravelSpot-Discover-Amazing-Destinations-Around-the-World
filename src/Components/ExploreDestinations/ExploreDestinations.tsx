@@ -9,6 +9,7 @@ import {
   FiClock,
   FiChevronLeft,
   FiChevronRight,
+  FiX,
 } from "react-icons/fi";
 import { MdTravelExplore, MdVerified } from "react-icons/md";
 import { motion } from "framer-motion";
@@ -59,6 +60,14 @@ const ExploreDestinations = ({
   const [searchQuery, setSearchQuery] = useState(initialLocation);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
+
+  const hasActiveFilters = searchQuery || activeCategory !== "all";
+
+  const clearAll = () => {
+    setSearchQuery("");
+    setActiveCategory("all");
+    setCurrentPage(1);
+  };
 
   const filtered = destinations.filter((d) => {
     if (d.status === "cancelled") return false;
@@ -133,6 +142,16 @@ const ExploreDestinations = ({
                   />
                 </div>
               </div>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="flex items-center gap-1.5 px-4 py-3.5 rounded-xl border border-[var(--border)] text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--primary)] transition-all cursor-pointer shrink-0"
+                >
+                  <FiX className="text-base" />
+                  <span className="hidden sm:inline">Clear</span>
+                </button>
+              )}
               <Button
                 className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-[17px] rounded-xl shrink-0 transition-all cursor-pointer"
                 size="lg"
