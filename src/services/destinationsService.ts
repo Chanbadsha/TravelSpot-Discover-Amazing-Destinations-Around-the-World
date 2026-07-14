@@ -9,7 +9,7 @@ export const getDestinationById = async (id: string) => {
 };
 
 export const getDestinationsByUserId = async (userId: string) => {
-  return await serverFetch("destinations", { userId });
+  return await serverFetch("places/user", { userId });
 };
 
 export const getDestinationsByCategory = async (category: string) => {

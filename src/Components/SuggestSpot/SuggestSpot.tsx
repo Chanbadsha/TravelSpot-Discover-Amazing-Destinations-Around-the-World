@@ -53,21 +53,33 @@ const categories = [
 const seasons = ["Spring", "Summer", "Autumn", "Winter", "Year-round"];
 
 const allPlaceIds = [
-  "6a55343a82047d8970853008", "6a55343a82047d8970853009", "6a55344782047d897085300b",
-  "6a55344782047d897085300c", "6a5534c982047d897085300e", "6a5534c982047d897085300f",
-  "6a5534f782047d8970853011", "6a5534f782047d8970853012", "6a55350282047d8970853014",
-  "6a55350282047d8970853015", "6a55352c82047d8970853017", "6a55352c82047d8970853018",
-  "6a55352c82047d8970853019", "6a560e94a10b08d976247ded", "6a560e94a10b08d976247dee",
-  "6a560e94a10b08d976247def", "6a560e94a10b08d976247df0", "6a560e9ca10b08d976247df2",
-  "6a560e9ca10b08d976247df3", "6a560e9ca10b08d976247df4", "6a560e9ca10b08d976247df5",
+  "6a55343a82047d8970853008",
+  "6a55343a82047d8970853009",
+  "6a55344782047d897085300b",
+  "6a55344782047d897085300c",
+  "6a5534c982047d897085300e",
+  "6a5534c982047d897085300f",
+  "6a5534f782047d8970853011",
+  "6a5534f782047d8970853012",
+  "6a55350282047d8970853014",
+  "6a55350282047d8970853015",
+  "6a55352c82047d8970853017",
+  "6a55352c82047d8970853018",
+  "6a55352c82047d8970853019",
+  "6a560e94a10b08d976247ded",
+  "6a560e94a10b08d976247dee",
+  "6a560e94a10b08d976247def",
+  "6a560e94a10b08d976247df0",
+  "6a560e9ca10b08d976247df2",
+  "6a560e9ca10b08d976247df3",
+  "6a560e9ca10b08d976247df4",
+  "6a560e9ca10b08d976247df5",
 ];
 
 function shuffleAndPick(arr: string[], count: number): string[] {
   const shuffled = [...arr].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 }
-
-
 
 type UploadStatus = "idle" | "uploading" | "done" | "error";
 
@@ -91,6 +103,7 @@ export default function SuggestSpot() {
     description: "",
     facilities: [""],
     coverImage: "",
+    status: "pending",
     images: [] as string[],
     nearbyAttractions: [] as string[],
     related: [] as string[],
@@ -110,8 +123,6 @@ export default function SuggestSpot() {
     aspect: number;
     target: "cover" | "gallery";
   } | null>(null);
-
-
 
   const uploadToImgBB = useCallback(async (file: File): Promise<string> => {
     const fd = new FormData();
@@ -197,8 +208,6 @@ export default function SuggestSpot() {
       return { ...p, facilities: f };
     });
 
-
-
   const canGoStep2 = form.name && form.country && form.city && form.category;
   const canGoStep3 = form.coverImage && form.description.trim().length >= 500;
 
@@ -221,6 +230,7 @@ export default function SuggestSpot() {
         facilities: form.facilities.filter((f) => f.trim() !== ""),
         coverImage: form.coverImage,
         images: form.images,
+        status: "pending",
         nearbyAttractions: shuffleAndPick(allPlaceIds, pickCount),
         related: shuffleAndPick(allPlaceIds, pickCount),
         submittedBy: user.name || "Anonymous",
@@ -241,6 +251,7 @@ export default function SuggestSpot() {
         facilities: [""],
         coverImage: "",
         images: [],
+        status: "pending",
         nearbyAttractions: [],
         related: [],
       });
@@ -774,8 +785,6 @@ export default function SuggestSpot() {
                     />
                   </div>
 
-
-
                   <div className="flex justify-between pt-4">
                     <button
                       type="button"
@@ -1022,56 +1031,6 @@ export default function SuggestSpot() {
                           )}
                         </div>
                       </div>
-
-                      {/* Nearby Attractions */}
-                      {form.nearbyAttractions.length > 0 && (
-                        <div className="bg-(--card) border border-(--border) rounded-2xl p-6">
-                          <h3 className="text-base font-bold text-foreground mb-3">
-                            Nearby Attractions
-                          </h3>
-                          <ul className="space-y-2">
-                            {form.nearbyAttractions.map((id) => {
-                              const p = allPlaces.find((x) => x._id === id);
-                              return p ? (
-                                <li
-                                  key={id}
-                                  className="flex items-center gap-2 text-sm"
-                                >
-                                  <FiMapPin className="text-(--primary) shrink-0 text-xs" />
-                                  <span className="text-foreground font-medium">
-                                    {p.name}
-                                  </span>
-                                </li>
-                              ) : null;
-                            })}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* Related Spots */}
-                      {form.related.length > 0 && (
-                        <div className="bg-(--card) border border-(--border) rounded-2xl p-6">
-                          <h3 className="text-base font-bold text-foreground mb-3">
-                            Related Spots
-                          </h3>
-                          <ul className="space-y-2">
-                            {form.related.map((id) => {
-                              const p = allPlaces.find((x) => x._id === id);
-                              return p ? (
-                                <li
-                                  key={id}
-                                  className="flex items-center gap-2 text-sm"
-                                >
-                                  <MdTravelExplore className="text-(--accent) shrink-0 text-xs" />
-                                  <span className="text-foreground font-medium">
-                                    {p.name}
-                                  </span>
-                                </li>
-                              ) : null;
-                            })}
-                          </ul>
-                        </div>
-                      )}
                     </div>
                   </div>
 

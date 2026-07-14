@@ -1,27 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
 import {
   FiMail, FiCalendar, FiMapPin, FiStar, FiHeart, FiCamera,
   FiUser, FiGlobe, FiTwitter, FiLinkedin, FiSave, FiEdit2, FiX,
-  FiBookmark, FiCheckCircle,
+  FiBookmark, FiCheckCircle, FiLoader,
 } from "react-icons/fi";
 import { useSession, updateUser } from "@/src/lib/auth-client";
+import { getUserById } from "@/src/services/usersService";
+import { getPostsByCreatorId } from "@/src/services/postsService";
 import { useDestinations } from "@/src/lib/DestinationContext";
 import toast from "react-hot-toast";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
+interface UserData {
+  name: string;
+  email: string;
+  image?: string;
+  bio?: string;
+  tag?: string;
+  yearsExperience?: number;
+  location?: string;
+  website?: string;
+  twitter?: string;
+  linkedin?: string;
+}
+
 export default function ProfilePage() {
   const { data: session } = useSession();
   const user = session?.user;
-  const { getUserDestinations, getSavedCounts, getUserSavedDestinationsWithData } = useDestinations();
-  const myPosts = user ? getUserDestinations(user.id) : [];
+  const { getSavedCounts, getUserSavedDestinationsWithData } = useDestinations();
   const savedCounts = user ? getSavedCounts(user.id) : { total: 0, visited: 0, wantToVisit: 0 };
   const savedWithData = user ? getUserSavedDestinationsWithData(user.id) : [];
 
+  const [profileData, setProfileData] = useState<UserData | null>(null);
+  const [myPosts, setMyPosts] = useState<{ id: string; name: string; createdAt: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    Promise.all([
+      getUserById(user.id).catch(() => null),
+      getPostsByCreatorId(user.id).catch(() => []),
+    ]).then(([userData, posts]) => {
+      if (userData) setProfileData(userData as UserData);
+      if (Array.isArray(posts)) {
+        setMyPosts(posts.map((p: Record<string, unknown>) => ({
+          id: (p._id as string) || (p.id as string) || "",
+          name: (p.name as string) || "",
+          createdAt: (p.createdAt as string) || "",
+        })));
+      }
+    }).finally(() => setLoading(false));
+  }, [user?.id]);
+
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [savedTab, setSavedTab] = useState<"all" | "wantToVisit" | "visited">("all");
   const [form, setForm] = useState({
     name: user?.name || "",
@@ -33,7 +69,20 @@ export default function ProfilePage() {
     twitter: (user as any)?.twitter || "",
     linkedin: (user as any)?.linkedin || "",
   });
-  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (profileData) {
+      setForm((p) => ({
+        ...p,
+        name: profileData.name || p.name,
+        bio: profileData.bio || p.bio,
+        location: profileData.location || p.location,
+        website: profileData.website || p.website,
+        twitter: profileData.twitter || p.twitter,
+        linkedin: profileData.linkedin || p.linkedin,
+      }));
+    }
+  }, [profileData]);
 
   const initials = user
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -86,6 +135,14 @@ export default function ProfilePage() {
     if (savedTab === "all") return true;
     return s.status === savedTab;
   });
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto flex items-center justify-center min-h-[50vh]">
+        <FiLoader className="text-2xl text-(--muted-foreground) animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -241,19 +298,12 @@ export default function ProfilePage() {
             Saved Spots
           </h2>
 
-          {/* Tabs */}
           <div className="flex items-center gap-1 mb-4 bg-(--background) rounded-xl p-1">
             {(["all", "wantToVisit", "visited"] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setSavedTab(tab)}
+              <button key={tab} type="button" onClick={() => setSavedTab(tab)}
                 className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-all cursor-pointer ${
-                  savedTab === tab
-                    ? "bg-(--primary) text-white shadow-sm"
-                    : "text-(--muted-foreground) hover:text-(--foreground)"
-                }`}
-              >
+                  savedTab === tab ? "bg-(--primary) text-white shadow-sm" : "text-(--muted-foreground) hover:text-(--foreground)"
+                }`}>
                 {tab === "all" ? "All" : tab === "wantToVisit" ? "Want to Visit" : "Visited"}
               </button>
             ))}

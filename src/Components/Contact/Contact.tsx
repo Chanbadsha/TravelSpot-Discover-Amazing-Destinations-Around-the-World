@@ -95,7 +95,6 @@ export default function Contact() {
   });
 
   const onSubmit = (data: ContactFormData) => {
-    console.log("Contact form submitted:", data);
     toast.success("Message sent successfully! We'll get back to you soon.");
     reset();
   };
@@ -122,7 +121,8 @@ export default function Contact() {
             We&apos;d Love to Hear From You
           </h1>
           <p className="text-white/70 max-w-lg mx-auto">
-            Have a question about a spot, want to report something, or just want to say hello? Reach out and we&apos;ll get back to you.
+            Have a question about a spot, want to report something, or just want
+            to say hello? Reach out and we&apos;ll get back to you.
           </p>
         </motion.div>
       </div>
@@ -316,9 +316,7 @@ export default function Contact() {
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden h-64">
               <div className="w-full h-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900/40 dark:to-emerald-900/40 flex flex-col items-center justify-center relative">
                 <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06]">
-                  <div
-                    className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxNEE4QTgiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzR2LTRoNHY0aC00em0wIDB2LTRoLTR2NGg0em0tNCAwdi00aDR2NGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] bg-repeat"
-                  />
+                  <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxNEE4QTgiIGZpbGwtb3BhY2l0eT0iMC40Ij48cGF0aCBkPSJNMzYgMzR2LTRoNHY0aC00em0wIDB2LTRoLTR2NGg0em0tNCAwdi00aDR2NGgtNHoiLz48L2c+PC9nPjwvc3ZnPg==')] bg-repeat" />
                 </div>
                 <FiMapPin className="text-5xl text-[var(--primary)] mb-3" />
                 <p className="text-sm font-medium text-[var(--foreground)]">

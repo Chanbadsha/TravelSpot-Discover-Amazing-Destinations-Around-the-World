@@ -1,40 +1,84 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { fadeUp } from "@/src/Components/Animations";
-import { FiMapPin, FiEdit2, FiTrash2, FiPlus, FiClock, FiCheck, FiX, FiEye } from "react-icons/fi";
-import { useDestinations, type SpotStatus } from "@/src/lib/DestinationContext";
+import { fadeUp, stagger } from "@/src/Components/Animations";
+import {
+  FiMapPin,
+  FiStar,
+  FiClock,
+  FiPlus,
+  FiLoader,
+  FiEdit2,
+  FiTrash2,
+  FiCheck,
+  FiX,
+  FiEye,
+  FiChevronLeft,
+  FiChevronRight,
+} from "react-icons/fi";
+import { MdVerified } from "react-icons/md";
 import { formatDate } from "@/src/lib/utils";
 import { useSession } from "@/src/lib/auth-client";
+import { getPostsByCreatorId } from "@/src/services/postsService";
+import { deletePost } from "@/src/services/postsCommandService";
+import { Card } from "@heroui/react";
 import toast from "react-hot-toast";
 
-const statusBadge = (status: SpotStatus) => {
-  switch (status) {
-    case "verified": return "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400";
-    case "pending": return "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400";
-    case "cancelled": return "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400";
-  }
-};
+type SpotStatus = "pending" | "verified" | "cancelled";
 
-export default function ProfilePosts() {
+interface Post {
+  _id: string;
+  name: string;
+  location: string;
+  category: string;
+  coverImage: string;
+  description: string;
+  facilities: string[];
+  rating: number;
+  reviews: number;
+  status: SpotStatus;
+  createdAt: string;
+  submittedBy: string;
+}
+
+export default function ProfilePosts({ initialPosts = [] }) {
   const { data: session } = useSession();
   const user = session?.user;
-  const { getUserDestinations, deleteDestination } = useDestinations();
+
+  const [posts, setPosts] = useState(initialPosts);
+  const [loading, setLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
 
-  const myPosts = user ? getUserDestinations(user.id) : [];
-
-  const handleDelete = (id: string) => {
-    deleteDestination(id);
-    toast.success("Post deleted");
+  const handleDelete = async (id: string) => {
+    try {
+      await deletePost(id);
+      setPosts((prev) => prev.filter((p) => p._id !== id));
+      toast.success("Post deleted");
+    } catch {
+      toast.error("Failed to delete post");
+    }
     setConfirmDelete(null);
   };
 
+  const totalPages = Math.ceil(posts.length / ITEMS_PER_PAGE);
+  const paginated = posts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <motion.div variants={fadeUp} initial="hidden" animate="visible" className="mb-6">
+    <div className="max-w-7xl mx-auto">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="mb-6"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-(--foreground)">My Posts</h1>
@@ -46,16 +90,26 @@ export default function ProfilePosts() {
             href="/suggest-spot"
             className="inline-flex items-center gap-2 bg-(--primary) hover:bg-(--primary-hover) text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
           >
-            <FiPlus />
-            New Post
+            <FiPlus /> New Post
           </Link>
         </div>
       </motion.div>
 
-      {myPosts.length === 0 ? (
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="text-center bg-(--card) border border-(--border) rounded-2xl py-16 px-6">
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <FiLoader className="text-2xl text-(--muted-foreground) animate-spin" />
+        </div>
+      ) : posts.length === 0 ? (
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          className="text-center bg-(--card) border border-(--border) rounded-2xl py-16 px-6"
+        >
           <FiMapPin className="text-4xl text-(--muted-foreground) mx-auto mb-3" />
-          <h2 className="text-lg font-semibold text-(--foreground) mb-1">No posts yet</h2>
+          <h2 className="text-lg font-semibold text-(--foreground) mb-1">
+            No posts yet
+          </h2>
           <p className="text-sm text-(--muted-foreground) mb-5">
             You haven&apos;t submitted any destinations yet.
           </p>
@@ -63,81 +117,171 @@ export default function ProfilePosts() {
             href="/suggest-spot"
             className="inline-flex items-center gap-2 bg-(--primary) hover:bg-(--primary-hover) text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
           >
-            <FiPlus />
-            Suggest a Spot
+            <FiPlus /> Suggest a Spot
           </Link>
         </motion.div>
       ) : (
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="space-y-3">
-          {myPosts.map((post) => (
-            <div key={post.id} className="bg-(--card) border border-(--border) rounded-2xl p-4 flex items-center gap-4 hover:shadow-sm transition-shadow">
-              {/* Thumbnail */}
-              <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-200 dark:bg-gray-800">
-                <img src={post.image} alt={post.name} className="w-full h-full object-cover" />
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <h3 className="text-sm font-semibold text-(--foreground) truncate">{post.name}</h3>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${statusBadge(post.status)}`}>
-                    {post.status}
-                  </span>
-                </div>
-                <p className="text-xs text-(--muted-foreground)">{post.location}</p>
-                <div className="flex items-center gap-3 mt-1 text-[11px] text-(--muted-foreground)">
-                  <span>{post.category}</span>
-                  <span className="flex items-center gap-1">
-                    <FiClock className="text-[10px]" />
-                    {formatDate(post.createdAt)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-1 shrink-0">
-                <Link
-                  href={`/destinations/${post.id}`}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--secondary) hover:bg-(--secondary)/10 transition-colors"
-                >
-                  <FiEye className="text-sm" />
-                </Link>
-                <Link
-                  href={`/user/posts/${post.id}/edit`}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--primary) hover:bg-(--primary)/10 transition-colors"
-                >
-                  <FiEdit2 className="text-sm" />
-                </Link>
-                {confirmDelete === post.id ? (
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(post.id)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-(--success) hover:bg-(--success)/10 transition-colors cursor-pointer"
-                    >
-                      <FiCheck className="text-sm" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirmDelete(null)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--border) transition-colors cursor-pointer"
-                    >
-                      <FiX className="text-sm" />
-                    </button>
+        <>
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+            className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            {paginated.map((post) => (
+              <motion.div key={post._id} variants={fadeUp}>
+                <Card className="overflow-hidden group border border-(--border) rounded-2xl bg-(--card)">
+                  <div className="relative h-48 overflow-hidden">
+                    <div
+                      className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
+                      style={{ backgroundImage: `url(${post.coverImage})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute top-3 left-3 flex gap-1.5">
+                      {post.status === "verified" && (
+                        <span className="text-[10px] font-semibold bg-emerald-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                          <MdVerified className="text-[10px]" /> Verified
+                        </span>
+                      )}
+                      {post.status === "pending" && (
+                        <span className="text-[10px] font-semibold bg-amber-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                          <FiClock className="text-[10px]" /> Review
+                        </span>
+                      )}
+                      {post.status === "cancelled" && (
+                        <span className="text-[10px] font-semibold bg-red-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
+                          Cancelled
+                        </span>
+                      )}
+                    </div>
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                      <span className="text-xs font-medium text-white/90 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm capitalize">
+                        {post.category}
+                      </span>
+                      <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-semibold text-(--foreground)">
+                        <FiStar className="text-(--accent) fill-current text-xs" />
+                        {post.rating || "New"}
+                      </div>
+                    </div>
                   </div>
-                ) : (
+                  <div className="p-4">
+                    <div className="flex items-start gap-1.5 mb-1">
+                      <FiMapPin className="text-(--primary) mt-0.5 shrink-0 text-sm" />
+                      <h3 className="font-semibold text-sm text-(--foreground) line-clamp-1">
+                        {post.name}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-(--muted-foreground) line-clamp-2 mb-2">
+                      {post.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {post.facilities.slice(0, 3).map((f, i) => (
+                        <span
+                          key={i}
+                          className="text-[10px] bg-(--primary)/10 text-(--primary) px-2 py-0.5 rounded-full"
+                        >
+                          {f}
+                        </span>
+                      ))}
+                      {post.facilities.length > 3 && (
+                        <span className="text-[10px] text-(--muted-foreground)">
+                          +{post.facilities.length - 3}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-(--muted-foreground)">
+                        {formatDate(post.createdAt)}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        {confirmDelete === post._id ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(post._id)}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-(--success) hover:bg-(--success)/10 transition-colors cursor-pointer"
+                            >
+                              <FiCheck className="text-xs" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDelete(null)}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:bg-(--border) transition-colors cursor-pointer"
+                            >
+                              <FiX className="text-xs" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href={`/destinations/${post._id}`}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--secondary) hover:bg-(--secondary)/10 transition-colors"
+                            >
+                              <FiEye className="text-xs" />
+                            </Link>
+                            <Link
+                              href={`/user/posts/${post._id}/edit`}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--primary) hover:bg-(--primary)/10 transition-colors"
+                            >
+                              <FiEdit2 className="text-xs" />
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmDelete(post._id)}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--error) hover:bg-(--error)/10 transition-colors cursor-pointer"
+                            >
+                              <FiTrash2 className="text-xs" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {totalPages > 1 && (
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className="flex items-center justify-center gap-2 mt-8 pb-4"
+            >
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--border) transition-colors disabled:opacity-30 cursor-pointer"
+              >
+                <FiChevronLeft className="text-sm" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
                   <button
+                    key={page}
                     type="button"
-                    onClick={() => setConfirmDelete(post.id)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--error) hover:bg-(--error)/10 transition-colors cursor-pointer"
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-9 h-9 rounded-lg text-sm font-medium transition-all cursor-pointer ${page === currentPage ? "bg-(--primary) text-white" : "bg-(--card) border border-(--border) text-(--muted-foreground) hover:border-(--primary) hover:text-(--primary)"}`}
                   >
-                    <FiTrash2 className="text-sm" />
+                    {page}
                   </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </motion.div>
+                ),
+              )}
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--border) transition-colors disabled:opacity-30 cursor-pointer"
+              >
+                <FiChevronRight className="text-sm" />
+              </button>
+            </motion.div>
+          )}
+        </>
       )}
     </div>
   );

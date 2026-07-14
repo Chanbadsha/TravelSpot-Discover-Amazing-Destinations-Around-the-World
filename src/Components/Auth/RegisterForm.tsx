@@ -127,7 +127,6 @@ export default function RegisterForm() {
   };
 
   const onSubmit = async (data: RegisterFormData) => {
-    console.log(data);
     if (uploadingPhoto) {
       toast.error("Please wait for the image to upload");
       return;
@@ -142,7 +141,6 @@ export default function RegisterForm() {
       toast.error(`${result.error.message}`);
       console.log(result.error);
     } else {
-      console.log(result.data);
       toast.success("Account created successfully");
       router.push("/");
     }
