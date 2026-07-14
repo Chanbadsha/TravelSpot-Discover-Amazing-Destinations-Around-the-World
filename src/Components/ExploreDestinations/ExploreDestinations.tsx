@@ -46,11 +46,17 @@ interface Destination {
 
 const ExploreDestinations = ({
   destinations,
+  initialLocation = "",
+  initialCategory = "all",
+  initialDate = "",
 }: {
   destinations: Destination[];
+  initialLocation?: string;
+  initialCategory?: string;
+  initialDate?: string;
 }) => {
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [searchQuery, setSearchQuery] = useState(initialLocation);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
 
@@ -111,13 +117,11 @@ const ExploreDestinations = ({
           className="-mt-7 mb-8 relative z-10"
         >
           <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-lg p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
-                <InputGroup className="w-full">
-                  <InputGroup.Prefix>
-                    <FiSearch className="text-gray-400 dark:text-gray-500 text-lg shrink-0" />
-                  </InputGroup.Prefix>
-                  <InputGroup.Input
+                <div className="relative group">
+                  <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg pointer-events-none transition-colors group-focus-within:text-[var(--primary)]" />
+                  <input
                     type="text"
                     placeholder="Search destinations..."
                     value={searchQuery}
@@ -125,12 +129,12 @@ const ExploreDestinations = ({
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="w-full bg-transparent text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none"
+                    className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-11 pr-4 py-3.5 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
                   />
-                </InputGroup>
+                </div>
               </div>
               <Button
-                className="bg-[var(--primary)] text-white px-6 rounded-xl shrink-0"
+                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-[17px] rounded-xl shrink-0 transition-all cursor-pointer"
                 size="lg"
               >
                 <FiSearch className="sm:hidden" />
