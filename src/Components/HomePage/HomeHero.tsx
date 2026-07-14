@@ -238,22 +238,14 @@ export default function HomePageHero({
               <div className="relative group">
                 <select
                   value={filters.category}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    handleInputChange("category", val);
-                    if (val !== "all") {
-                      router.push(`/explore-destinations?category=${val}`);
-                    }
-                  }}
+                  onChange={(e) => handleInputChange("category", e.target.value)}
                   className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl pl-4 pr-10 py-3.5 text-gray-900 dark:text-gray-100 outline-none appearance-none cursor-pointer transition-all focus:border-teal-500 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-500/20 dark:focus:ring-teal-400/20"
                 >
-                  {categories
-                    .filter((c) => c.key !== "all")
-                    .map((cat) => (
-                      <option key={cat.key} value={cat.key}>
-                        {cat.label}
-                      </option>
-                    ))}
+                  {categories.map((cat) => (
+                    <option key={cat.key} value={cat.key}>
+                      {cat.label}
+                    </option>
+                  ))}
                 </select>
                 <svg
                   className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 transition-colors group-focus-within:text-teal-500"

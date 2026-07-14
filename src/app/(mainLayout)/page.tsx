@@ -13,10 +13,15 @@ const HomePage = async () => {
     .filter(Boolean)
     .slice(0, 8);
 
+  const topDestinations = [...destinations]
+    .filter((d: { status?: string }) => d.status !== "cancelled")
+    .sort((a: { rating?: number }, b: { rating?: number }) => (b.rating ?? 0) - (a.rating ?? 0))
+    .slice(0, 4);
+
   return (
     <div>
       <HomePageHero popularDestinations={popularNames} />
-      <ExploreAndFeatured />
+      <ExploreAndFeatured topDestinations={topDestinations} />
       <StatsAndFeatures />
       <TestimonialsAndNewsLetter />
       <FaqAndFooter />
