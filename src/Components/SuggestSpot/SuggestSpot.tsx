@@ -18,6 +18,7 @@ import Link from "next/link";
 import { fadeUp } from "@/src/Components/Animations";
 import { useDestinations } from "@/src/lib/DestinationContext";
 import { useSession } from "@/src/lib/auth-client";
+import AuthLoader from "@/src/Components/UI/AuthLoader";
 import toast from "react-hot-toast";
 
 const categories = [
@@ -97,11 +98,7 @@ export default function SuggestSpot() {
   };
 
   if (isPending) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="size-8 border-2 border-(--primary)/30 border-t-(--primary) rounded-full animate-spin" />
-      </div>
-    );
+    return <AuthLoader fullScreen />;
   }
 
   if (!session) {

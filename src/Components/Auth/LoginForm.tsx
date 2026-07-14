@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { FiLock, FiLogIn, FiMail } from "react-icons/fi";
 import { z } from "zod";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -136,7 +137,7 @@ export default function LoginForm() {
             >
               {isSubmitting ? (
                 <>
-                  <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <GlobalLoader variant="spinner" size="sm" />
                   <span>Signing in...</span>
                 </>
               ) : (

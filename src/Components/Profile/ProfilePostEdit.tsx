@@ -8,6 +8,7 @@ import { FiMapPin, FiTag, FiSave, FiArrowLeft, FiPlus, FiX } from "react-icons/f
 import { MdTravelExplore } from "react-icons/md";
 import { useDestinations } from "@/src/lib/DestinationContext";
 import toast from "react-hot-toast";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 const categories = [
   "Adventure", "Beach", "Mountain", "Culture",
@@ -170,7 +171,7 @@ export default function ProfilePostEdit() {
           <button type="submit" disabled={saving}
             className="flex items-center gap-2 bg-(--primary) hover:bg-(--primary-hover) text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors cursor-pointer disabled:opacity-50">
             {saving ? (
-              <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+              <><GlobalLoader variant="spinner" size="sm" /> Saving...</>
             ) : (
               <><FiSave className="text-sm" /> Save Changes</>
             )}

@@ -8,6 +8,7 @@ import { MdTravelExplore } from "react-icons/md";
 import { FiMenu, FiX, FiSun, FiMoon, FiUser } from "react-icons/fi";
 import { useSession, authClient } from "@/src/lib/auth-client";
 import AvatarDropdown from "./AvatarDropdown";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -85,7 +86,7 @@ const Navbar = () => {
 
             {/* Auth State */}
             {isPending ? (
-              <div className="w-8 h-8 rounded-full bg-gray-800 animate-pulse" />
+              <GlobalLoader variant="spinner" size="sm" />
             ) : user ? (
               <AvatarDropdown
                 user={{

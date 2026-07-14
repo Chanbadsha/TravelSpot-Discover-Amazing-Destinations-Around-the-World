@@ -11,6 +11,7 @@ import {
 import { useSession } from "@/src/lib/auth-client";
 import { useDestinations } from "@/src/lib/DestinationContext";
 import toast from "react-hot-toast";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -148,7 +149,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-3 pt-1">
                   <button type="submit" disabled={saving}
                     className="flex items-center gap-2 bg-(--primary) hover:bg-(--primary-hover) text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors cursor-pointer disabled:opacity-50">
-                    {saving ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</> : <><FiSave className="text-sm" /> Save Changes</>}
+                    {saving ? <><GlobalLoader variant="spinner" size="sm" /> Saving...</> : <><FiSave className="text-sm" /> Save Changes</>}
                   </button>
                   <button type="button" onClick={() => setEditing(false)}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-(--muted-foreground) hover:text-(--foreground) border border-(--border) hover:bg-(--background) transition-colors cursor-pointer">

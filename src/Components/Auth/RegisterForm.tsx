@@ -19,6 +19,7 @@ import {
 import { authClient } from "@/src/lib/auth-client";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 const registerSchema = z
   .object({
@@ -181,9 +182,7 @@ export default function RegisterForm() {
               className="relative size-20 rounded-full bg-background border-2 border-dashed border-(--border) hover:border-(--primary) transition-colors overflow-hidden cursor-pointer group disabled:opacity-60 disabled:cursor-wait"
             >
               {uploadingPhoto ? (
-                <div className="flex items-center justify-center size-full">
-                  <div className="size-7 border-2 border-(--primary)/30 border-t-(--primary) rounded-full animate-spin" />
-                </div>
+                <GlobalLoader variant="spinner" size="md" />
               ) : preview ? (
                 <Image
                   src={
@@ -443,7 +442,7 @@ export default function RegisterForm() {
             >
               {isSubmitting ? (
                 <>
-                  <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <GlobalLoader variant="spinner" size="sm" />
                   <span>Creating account...</span>
                 </>
               ) : (

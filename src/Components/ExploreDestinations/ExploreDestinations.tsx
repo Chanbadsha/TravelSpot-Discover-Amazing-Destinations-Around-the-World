@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { FiSearch, FiMapPin, FiStar, FiSliders, FiClock, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import {
+  FiSearch,
+  FiMapPin,
+  FiStar,
+  FiSliders,
+  FiClock,
+  FiChevronLeft,
+  FiChevronRight,
+} from "react-icons/fi";
 import { MdTravelExplore, MdVerified } from "react-icons/md";
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
@@ -26,6 +34,7 @@ interface Destination {
   name: string;
   description: string;
   coverImage: string;
+  submittedBy: string;
   image: string[];
   rating: number;
   reviews: number;
@@ -58,7 +67,7 @@ const ExploreDestinations = ({
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   return (
@@ -142,7 +151,10 @@ const ExploreDestinations = ({
             <motion.div key={cat.key} variants={scaleIn}>
               <button
                 type="button"
-                onClick={() => { setActiveCategory(cat.key); setCurrentPage(1); }}
+                onClick={() => {
+                  setActiveCategory(cat.key);
+                  setCurrentPage(1);
+                }}
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
                   activeCategory === cat.key
                     ? "bg-[var(--primary)] text-white shadow-md"
@@ -248,7 +260,7 @@ const ExploreDestinations = ({
                           {dest.reviews.toLocaleString()} reviews
                         </span>
                         <span className="text-[11px] text-[var(--muted-foreground)]">
-                          by {dest.addedBy}
+                          by {dest.submittedBy}
                         </span>
                       </div>
                     </div>
