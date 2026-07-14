@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FiSearch, FiMapPin, FiStar, FiSliders, FiClock } from "react-icons/fi";
+import { FiSearch, FiMapPin, FiStar, FiSliders, FiClock, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { MdTravelExplore, MdVerified } from "react-icons/md";
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
@@ -42,6 +42,8 @@ const ExploreDestinations = ({
 }) => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
 
   const filtered = destinations.filter((d) => {
     if (d.status === "cancelled") return false;
@@ -52,6 +54,12 @@ const ExploreDestinations = ({
       d.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginated = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div>
@@ -104,9 +112,10 @@ const ExploreDestinations = ({
                     type="text"
                     placeholder="Search destinations..."
                     value={searchQuery}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setSearchQuery(e.target.value)
-                    }
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setSearchQuery(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     className="w-full bg-transparent text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none"
                   />
                 </InputGroup>
@@ -133,7 +142,7 @@ const ExploreDestinations = ({
             <motion.div key={cat.key} variants={scaleIn}>
               <button
                 type="button"
-                onClick={() => setActiveCategory(cat.key)}
+                onClick={() => { setActiveCategory(cat.key); setCurrentPage(1); }}
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
                   activeCategory === cat.key
                     ? "bg-[var(--primary)] text-white shadow-md"
@@ -175,7 +184,7 @@ const ExploreDestinations = ({
             animate="visible"
             className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-16 md:pb-24"
           >
-            {filtered.map((dest, ind) => (
+            {paginated.map((dest, ind) => (
               <motion.div key={ind} variants={fadeUp}>
                 <Link href={`/destinations/${dest._id}`}>
                   <Card className="overflow-hidden group border border-[var(--border)] rounded-2xl bg-[var(--card)] cursor-pointer">
@@ -268,19 +277,28 @@ const ExploreDestinations = ({
         )}
 
         {/* Pagination */}
-        {filtered.length > 0 && (
+        {totalPages > 1 && (
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="visible"
             className="flex items-center justify-center gap-2 pb-16 md:pb-24"
           >
-            {[1, 2, 3].map((page) => (
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--border)] transition-colors disabled:opacity-30 cursor-pointer"
+            >
+              <FiChevronLeft className="text-sm" />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
                 type="button"
+                onClick={() => setCurrentPage(page)}
                 className={`w-9 h-9 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                  page === 1
+                  page === currentPage
                     ? "bg-[var(--primary)] text-white"
                     : "bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
                 }`}
@@ -290,9 +308,11 @@ const ExploreDestinations = ({
             ))}
             <button
               type="button"
-              className="px-4 h-9 rounded-lg text-sm font-medium bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-all cursor-pointer"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--border)] transition-colors disabled:opacity-30 cursor-pointer"
             >
-              Next
+              <FiChevronRight className="text-sm" />
             </button>
           </motion.div>
         )}
