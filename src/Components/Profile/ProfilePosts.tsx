@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { fadeUp } from "@/src/Components/Animations";
 import { FiMapPin, FiEdit2, FiTrash2, FiPlus, FiClock, FiCheck, FiX, FiEye } from "react-icons/fi";
 import { useDestinations, type SpotStatus } from "@/src/lib/DestinationContext";
+import { formatDate } from "@/src/lib/utils";
 import { useSession } from "@/src/lib/auth-client";
 import toast from "react-hot-toast";
 
@@ -88,7 +89,7 @@ export default function ProfilePosts() {
                   <span>{post.category}</span>
                   <span className="flex items-center gap-1">
                     <FiClock className="text-[10px]" />
-                    {post.createdAt}
+                    {formatDate(post.createdAt)}
                   </span>
                 </div>
               </div>

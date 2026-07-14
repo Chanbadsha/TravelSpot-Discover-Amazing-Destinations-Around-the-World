@@ -1,44 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import {
+  fadeLeft,
+  fadeRight,
+  fadeUp,
+  stagger,
+} from "@/src/Components/Animations";
+import { useSession } from "@/src/lib/auth-client";
+import { useDestinations } from "@/src/lib/DestinationContext";
+import { isValidUrl, formatDate } from "@/src/lib/utils";
+import { Card } from "@heroui/react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import {
-  FiMapPin,
-  FiStar,
-  FiClock,
+  FiAward,
+  FiBookmark,
   FiCalendar,
+  FiCamera,
+  FiCheckCircle,
+  FiChevronDown,
   FiChevronLeft,
   FiChevronRight,
+  FiClock,
+  FiDollarSign,
+  FiGlobe,
+  FiHeart,
+  FiMapPin,
+  FiStar,
   FiThumbsUp,
   FiUser,
-  FiAward,
-  FiGlobe,
-  FiCamera,
-  FiHeart,
-  FiDollarSign,
-  FiCheckCircle,
-  FiBookmark,
-  FiChevronDown,
   FiX,
 } from "react-icons/fi";
 import {
-  MdTravelExplore,
   MdAccessTime,
   MdCategory,
+  MdTravelExplore,
   MdVerified,
 } from "react-icons/md";
-import { motion } from "framer-motion";
-import { useSession } from "@/src/lib/auth-client";
-import { useDestinations, type SaveStatus } from "@/src/lib/DestinationContext";
-import toast from "react-hot-toast";
-import {
-  fadeUp,
-  fadeLeft,
-  fadeRight,
-  stagger,
-} from "@/src/Components/Animations";
-import { Card } from "@heroui/react";
 
 type SpotStatus = "pending" | "verified" | "cancelled";
 
@@ -47,6 +48,7 @@ interface Creator {
   avatar: string;
   role: string;
   bio: string;
+  tag: string;
   destinations: number;
   photos: number;
   yearsExperience: number;
@@ -73,98 +75,12 @@ interface Destination {
   submittedBy: string;
   submittedAt: string;
   verifiedAt?: string;
+  createdAt: string;
+  updatedAt: string;
   creator: Creator;
   nearbyAttractions: { name: string; distance: string; image: string }[];
   related: { id: string; name: string; image: string; rating: number }[];
 }
-
-// const destinations: Destination = {
-//   id: "1",
-//   name: "Santorini, Greece",
-//   country: "Greece",
-//   city: "Santorini",
-//   location: "Cyclades island group, Aegean Sea",
-//   category: "Culture & Beach",
-//   bestSeason: "April - October",
-//   travelTime: "5-7 days recommended",
-//   entryFee: "Free (ferry/flight fees apply)",
-//   rating: 4.8,
-//   reviews: 1240,
-//   coverImage: "destinations/1.jpg",
-//   openingHours: "Most attractions 9:00 AM - 8:00 PM",
-//   description:
-//     "Santorini is a stunning volcanic island in the Cyclades group of the Greek islands. Known for its dramatic views, stunning sunsets, white-washed buildings with blue domes, and its very own active volcano, Santorini is one of the most iconic destinations in the world.\n\nThe island was shaped by a massive volcanic eruption thousands of years ago, which created its distinctive crescent shape and gave birth to the caldera — a breathtaking natural wonder that draws millions of visitors each year. The charming villages of Oia and Fira cling to the cliffside, offering panoramic views of the deep blue Aegean Sea.\n\nBeyond its famous sunsets, Santorini offers exquisite local wines, fresh Mediterranean cuisine, ancient ruins at Akrotiri, and unique beaches with red, black, and white sands. Whether you're exploring the narrow cobblestone streets, sailing around the caldera, or simply relaxing with a glass of Assyrtiko wine, Santorini promises an unforgettable experience.",
-//   images: [
-//     "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1200&h=800&fit=crop",
-//     "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1200&h=800&fit=crop",
-//     "https://images.unsplash.com/photo-1612698090007-5b8e6a1f3b9e?w=1200&h=800&fit=crop",
-//     "https://images.unsplash.com/photo-1504512485720-7d83a16ee930?w=1200&h=800&fit=crop",
-//   ],
-//   status: "verified",
-//   submittedBy: "Elena Marchetti",
-//   submittedAt: "March 15, 2026",
-//   verifiedAt: "March 18, 2026",
-//   creator: {
-//     name: "Elena Marchetti",
-//     avatar:
-//       "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&h=120&fit=crop&crop=face",
-//     role: "Local Travel Expert",
-//     bio: "Born and raised on the Greek islands, Elena has been sharing the hidden gems of Santorini with travelers for over a decade. She personally visits every destination she features to ensure authentic, up-to-date recommendations.",
-//     destinations: 24,
-//     photos: 186,
-//     yearsExperience: 8,
-//     verified: true,
-//   },
-//   nearbyAttractions: [
-//     {
-//       name: "Oia Sunset Viewpoint",
-//       distance: "2.5 km",
-//       image:
-//         "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=300&h=200&fit=crop",
-//     },
-//     {
-//       name: "Akrotiri Archaeological Site",
-//       distance: "8 km",
-//       image:
-//         "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=300&h=200&fit=crop",
-//     },
-//     {
-//       name: "Red Beach",
-//       distance: "7 km",
-//       image:
-//         "https://images.unsplash.com/photo-1504512485720-7d83a16ee930?w=300&h=200&fit=crop",
-//     },
-//     {
-//       name: "Wine Tasting Tour",
-//       distance: "3 km",
-//       image:
-//         "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=300&h=200&fit=crop",
-//     },
-//   ],
-//   related: [
-//     {
-//       id: "2",
-//       name: "Bali, Indonesia",
-//       image:
-//         "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&h=300&fit=crop",
-//       rating: 4.7,
-//     },
-//     {
-//       id: "3",
-//       name: "Amalfi Coast, Italy",
-//       image:
-//         "https://images.unsplash.com/photo-1612698090007-5b8e6a1f3b9e?w=400&h=300&fit=crop",
-//       rating: 4.9,
-//     },
-//     {
-//       id: "8",
-//       name: "Swiss Alps, Switzerland",
-//       image:
-//         "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&h=300&fit=crop",
-//       rating: 4.8,
-//     },
-//   ],
-// };
 
 interface Review {
   id: number;
@@ -230,6 +146,9 @@ const ratingDistribution = [
   { stars: 2, count: 20 },
   { stars: 1, count: 5 },
 ];
+
+const globalDescription = (name: string) =>
+  `TravelSpot is your ultimate guide to discovering the world's most captivating destinations. Every place has a story to tell, and ${name} is no exception — a destination waiting to be explored, experienced, and remembered. Whether you are drawn to the rich tapestry of history and culture, the serenity of untouched natural landscapes, or the thrill of off-the-beaten-path adventures, TravelSpot brings you closer to the places that matter. Our platform is built for travelers who seek more than just a getaway — who want to connect with the soul of a destination, understand its heritage, and create lasting memories. From ancient architectural wonders and bustling local markets to tranquil coastlines and misty mountain retreats, every corner of the world holds something extraordinary. We believe that travel is not just about moving from one place to another — it is about discovering new perspectives, embracing diverse traditions, and finding inspiration in the unfamiliar. With detailed guides, authentic reviews, and a vibrant community of fellow explorers, TravelSpot empowers you to plan smarter, travel deeper, and share your journey with the world. Whether you are setting out on your very first adventure or you are a seasoned globetrotter looking for your next hidden gem, TravelSpot is here to inspire, inform, and connect you to the places that will leave a lasting mark on your soul. Let every trip be a story worth telling, and let TravelSpot be the compass that guides you there.`;
 
 const DestinationDetails = ({ destination }: { destination: Destination }) => {
   const [currentImage, setCurrentImage] = useState(0);
@@ -355,7 +274,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                   />
                 ))}
               </div>
-              <div className="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <div className="absolute  top-3 right-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 text-sm font-semibold text-white">
                 <FiStar className="text-(--accent) fill-current" />
                 {destination.rating}
               </div>
@@ -410,6 +329,11 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                   {para}
                 </p>
               ))}
+              {destination.description.length <= 1000 && (
+                <p className="text-sm text-(--muted-foreground) leading-relaxed mt-4 pt-4 border-t border-(--border)">
+                  {globalDescription(destination.name)}
+                </p>
+              )}
             </motion.div>
 
             {/* Reviews & Ratings */}
@@ -632,7 +556,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                 <span>
                   Submitted by{" "}
                   <strong className="text-foreground font-medium">
-                    {destination.submittedBy}
+                    {destination?.creator?.name.slice(0, 12)}..
                   </strong>
                 </span>
                 <span className="text-(--border)">|</span>
@@ -641,7 +565,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                   <>
                     <span className="text-(--border)">|</span>
                     <span className="text-emerald-600 dark:text-emerald-400">
-                      Verified {destination.verifiedAt}
+                      Verified On {formatDate(destination.verifiedAt)}
                     </span>
                   </>
                 )}
@@ -660,10 +584,17 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                   <div
                     className="w-16 h-16 rounded-xl bg-cover bg-center"
                     style={{
-                      backgroundImage: `url(${destination?.creator?.avatar})`,
+                      backgroundImage: `url(${
+                        destination?.creator?.avatar ||
+                        "https://i.ibb.co.com/C3KdYs59/495570867-681212604719403-4254930871176159415-n.jpg"
+                      })`,
                     }}
                   />
-                  {destination?.creator?.verified && (
+                  {destination?.creator?.verified ? (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-(--primary) rounded-full flex items-center justify-center">
+                      <MdVerified className="text-white text-xs" />
+                    </div>
+                  ) : (
                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-(--primary) rounded-full flex items-center justify-center">
                       <MdVerified className="text-white text-xs" />
                     </div>
@@ -672,21 +603,22 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <h3 className="text-base font-bold text-foreground">
-                      {destination?.creator?.name}
+                      {destination?.creator?.name || "Chan Badsha Bhuiyan"}
                     </h3>
                   </div>
                   <p className="text-xs text-(--primary) font-medium">
-                    {destination?.creator?.role}
+                    {destination?.creator?.tag || "Local Travel Expert"}
                   </p>
                   <p className="text-xs text-(--muted-foreground) mt-1.5 leading-relaxed line-clamp-3">
-                    {destination?.creator?.bio}
+                    {destination?.creator?.bio ||
+                      "Touring the world with my friends"}
                   </p>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-(--border)">
                 <div className="text-center">
                   <p className="text-base font-bold text-foreground">
-                    {destination?.creator?.destinations}
+                    {destination?.creator?.destinations || 24}
                   </p>
                   <p className="text-[10px] text-(--muted-foreground)">
                     Destinations
@@ -694,7 +626,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                 </div>
                 <div className="text-center">
                   <p className="text-base font-bold text-foreground">
-                    {destination?.creator?.photos}
+                    {destination?.creator?.photos || 186}
                   </p>
                   <p className="text-[10px] text-(--muted-foreground)">
                     Photos
@@ -702,7 +634,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                 </div>
                 <div className="text-center">
                   <p className="text-base font-bold text-foreground">
-                    {destination?.creator?.yearsExperience}y
+                    {destination?.creator?.yearsExperience || 8}y
                   </p>
                   <p className="text-[10px] text-(--muted-foreground)">
                     Experience
@@ -830,17 +762,19 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                   <span>
                     Added by{" "}
                     <strong className="text-foreground">
-                      {destination.submittedBy}
+                      {destination.creator.name}
                     </strong>
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-(--muted-foreground)">
                   <FiCalendar className="shrink-0" />
-                  <span>Submitted on {destination.submittedAt}</span>
+                  <span>Submitted on {formatDate(destination.createdAt)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-(--muted-foreground)">
                   <FiCamera className="shrink-0" />
-                  <span>{destination?.creator?.photos} photos shared</span>
+                  <span>
+                    {destination?.creator?.photos || 0} photos shared{" "}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-(--muted-foreground)">
                   <FiHeart className="shrink-0" />
@@ -1002,13 +936,13 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
             viewport={{ once: true }}
             className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
           >
-            {destination.nearbyAttractions.map((attraction) => (
-              <motion.div key={attraction.name} variants={fadeUp}>
+            {destination.nearbyAttractions.map((attraction, ind) => (
+              <motion.div key={ind} variants={fadeUp}>
                 <Card className="overflow-hidden border border-(--border) rounded-2xl bg-(--card)">
                   <div className="relative h-36">
                     <Image
-                      src={attraction.image}
-                      alt={attraction.name}
+                      src={isValidUrl(attraction.image) || "/placeholder.svg"}
+                      alt={attraction?.name || ""}
                       fill
                       className="object-cover"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -1054,14 +988,14 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
             viewport={{ once: true }}
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {destination.related.map((dest) => (
-              <motion.div key={dest.id} variants={fadeUp}>
+            {destination.related.map((dest, ind) => (
+              <motion.div key={ind} variants={fadeUp}>
                 <Link href={`/destinations/${dest.id}`}>
                   <Card className="overflow-hidden group border border-(--border) rounded-2xl bg-(--card) cursor-pointer">
                     <div className="relative h-44 overflow-hidden">
                       <Image
-                        src={dest.image}
-                        alt={dest.name}
+                        src={isValidUrl(dest.image) || "/placeholder.svg"}
+                        alt={dest.name || ""}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
