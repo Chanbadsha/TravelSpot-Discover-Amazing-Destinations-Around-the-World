@@ -13,7 +13,8 @@ const testimonials = [
     id: 1,
     name: "Sarah Johnson",
     role: "Adventure Traveler",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
     quote:
       "I found the most incredible hidden waterfall spot thanks to another traveler's post! The community here really knows the best places. No agency fluff, just real experiences.",
     rating: 5,
@@ -22,7 +23,8 @@ const testimonials = [
     id: 2,
     name: "Michael Chen",
     role: "Family Vacationer",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
     quote:
       "The reviews and photos from other families helped us pick the perfect beach spot for our kids. Love that anyone can contribute and share their discoveries.",
     rating: 5,
@@ -31,7 +33,8 @@ const testimonials = [
     id: 3,
     name: "Emma Williams",
     role: "Solo Explorer",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
     quote:
       "I love that this is just a free platform for sharing travel spots. No booking pressure, no hidden fees - just pure travel inspiration from real people like me.",
     rating: 5,
@@ -52,7 +55,13 @@ const TestimonialsAndNewsLetter = () => {
       {/* Testimonials Section */}
       <div className="py-16 md:py-24 bg-[var(--background)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-12">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
             <div className="flex items-center justify-center gap-2 mb-4">
               <FiMessageCircle className="text-[var(--primary)] text-2xl" />
               <span className="text-[var(--primary)] font-semibold text-sm tracking-widest uppercase">
@@ -67,39 +76,43 @@ const TestimonialsAndNewsLetter = () => {
             </p>
           </motion.div>
 
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
             {testimonials.map((t) => (
               <motion.div key={t.id} variants={fadeUp}>
-              <Card
-                className="p-6 border border-[var(--border)] rounded-2xl bg-[var(--card)]"
-              >
-                <MdFormatQuote className="text-3xl text-[var(--primary)]/20 mb-3" />
-                <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-5 line-clamp-4">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <FiStar
-                      key={i}
-                      className="text-[var(--accent)] fill-current text-sm"
+                <Card className="p-6 border border-[var(--border)] rounded-2xl bg-[var(--card)]">
+                  <MdFormatQuote className="text-3xl text-[var(--primary)]/20 mb-3" />
+                  <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mb-5 line-clamp-4">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div className="flex gap-1 mb-4">
+                    {Array.from({ length: t.rating }).map((_, i) => (
+                      <FiStar
+                        key={i}
+                        className="text-[var(--accent)] fill-current text-sm"
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-3 mt-auto">
+                    <div
+                      className="w-10 h-10 rounded-full bg-cover bg-center shrink-0"
+                      style={{ backgroundImage: `url(${t.avatar})` }}
                     />
-                  ))}
-                </div>
-                <div className="flex items-center gap-3 mt-auto">
-                  <div
-                    className="w-10 h-10 rounded-full bg-cover bg-center shrink-0"
-                    style={{ backgroundImage: `url(${t.avatar})` }}
-                  />
-                  <div>
-                    <div className="text-sm font-semibold text-[var(--foreground)]">
-                      {t.name}
-                    </div>
-                    <div className="text-xs text-[var(--muted-foreground)]">
-                      {t.role}
+                    <div>
+                      <div className="text-sm font-semibold text-[var(--foreground)]">
+                        {t.name}
+                      </div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        {t.role}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
               </motion.div>
             ))}
           </motion.div>
@@ -108,7 +121,13 @@ const TestimonialsAndNewsLetter = () => {
 
       {/* Newsletter Section */}
       <div className="py-16 md:py-24 bg-[var(--primary)]">
-        <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        >
           <div className="flex items-center justify-center gap-2 mb-4">
             <FiMail className="text-white/80 text-2xl" />
             <span className="text-white/80 font-semibold text-sm tracking-widest uppercase">

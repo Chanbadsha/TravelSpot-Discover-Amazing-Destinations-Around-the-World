@@ -25,13 +25,20 @@ export default function UserDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <motion.div variants={fadeUp} initial="hidden" animate="visible" className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-(--foreground)">
-          Welcome back, {user?.name?.split(" ")[0] || "there"}
-        </h1>
-        <p className="text-(--muted-foreground) text-sm mt-1">
-          Here&apos;s an overview of your activity on TravelSpot.
-        </p>
+      <motion.div variants={fadeUp} initial="hidden" animate="visible" className="mb-8 flex items-center gap-4">
+        {user?.image && (
+          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-(--border)">
+            <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-(--foreground)">
+            Welcome back, {user?.name?.split(" ")[0] || "there"}
+          </h1>
+          <p className="text-(--muted-foreground) text-sm mt-1">
+            Here&apos;s an overview of your activity on TravelSpot.
+          </p>
+        </div>
       </motion.div>
 
       {/* Stats Grid */}

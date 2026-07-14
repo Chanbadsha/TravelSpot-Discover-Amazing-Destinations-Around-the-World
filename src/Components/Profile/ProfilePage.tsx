@@ -92,9 +92,13 @@ export default function ProfilePage() {
       {/* Profile Header */}
       <motion.div variants={fadeUp} initial="hidden" animate="visible" className="bg-(--card) border border-(--border) rounded-2xl p-6 sm:p-8 mb-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <div className="relative group">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-3xl font-bold">
-              {initials}
+            <div className="relative group">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white text-3xl font-bold overflow-hidden">
+              {user?.image ? (
+                <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             <button type="button" className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-(--primary) text-white flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
               <FiCamera className="text-xs" />
