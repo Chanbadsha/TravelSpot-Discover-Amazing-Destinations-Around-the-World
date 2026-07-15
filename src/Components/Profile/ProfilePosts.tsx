@@ -29,7 +29,7 @@ import toast from "react-hot-toast";
 
 type SpotStatus = "pending" | "verified" | "cancelled";
 
-interface Post {
+export interface Post {
   _id: string;
   name: string;
   country: string;
@@ -56,7 +56,7 @@ interface Post {
   updatedAt: string;
 }
 
-export default function ProfilePosts({ initialPosts = [] }) {
+export default function ProfilePosts({ initialPosts = [] }: { initialPosts?: Post[] }) {
   const { data: session } = useSession();
   const user = session?.user;
 

@@ -25,11 +25,16 @@ export const serverMutation = async (path: string, data: unknown) => {
 
 export const serverFetch = async (path: string, query: Record<string, string> = {}, options: RequestInit = {}) => {
   try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      throw new Error("NEXT_PUBLIC_API_URL is not set");
+    }
+
     const queryString = new URLSearchParams(query).toString();
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/${path}?${queryString}`,
-      options,
+      `${apiUrl}/${path}?${queryString}`,
+      { ...options, next: { revalidate: 0 } },
     );
 
     const result = await response.json();
@@ -40,7 +45,8 @@ export const serverFetch = async (path: string, query: Record<string, string> = 
 
     return result;
   } catch (error) {
-    return [];
+    console.error(`[serverFetch] ${path}:`, (error as Error).message);
+    return { data: [], error: (error as Error).message };
   }
 };
 

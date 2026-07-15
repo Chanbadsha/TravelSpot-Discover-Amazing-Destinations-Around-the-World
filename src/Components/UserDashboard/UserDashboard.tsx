@@ -8,18 +8,11 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  FiClock,
-  FiLoader,
-  FiMapPin,
-  FiPlus,
-  FiStar,
-  FiTrendingUp,
-} from "react-icons/fi";
+import { FiClock, FiMapPin, FiPlus, FiStar, FiTrendingUp } from "react-icons/fi";
 
 type SpotStatus = "pending" | "verified" | "cancelled";
 
-interface Post {
+export interface Post {
   _id: string;
   name: string;
   location: string;
@@ -28,11 +21,10 @@ interface Post {
   createdAt: string;
 }
 
-export default function UserDashboard({ initialPosts = [] }) {
+export default function UserDashboard({ initialPosts = [] }: { initialPosts?: Post[] }) {
   const { data: session } = useSession();
   const user = session?.user;
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [loading, setLoading] = useState(false);
+  const [posts] = useState<Post[]>(initialPosts);
 
   const statsCards = [
     {
@@ -103,36 +95,30 @@ export default function UserDashboard({ initialPosts = [] }) {
         animate="visible"
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
       >
-        {loading ? (
-          <div className="col-span-full flex items-center justify-center py-8">
-            <FiLoader className="text-2xl text-(--muted-foreground) animate-spin" />
-          </div>
-        ) : (
-          statsCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <motion.div
-                key={card.label}
-                variants={fadeUp}
-                className="bg-(--card) border border-(--border) rounded-2xl p-5 flex items-center gap-4"
+        {statsCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <motion.div
+              key={card.label}
+              variants={fadeUp}
+              className="bg-(--card) border border-(--border) rounded-2xl p-5 flex items-center gap-4"
+            >
+              <div
+                className={`w-12 h-12 rounded-xl ${card.bg} flex items-center justify-center shrink-0`}
               >
-                <div
-                  className={`w-12 h-12 rounded-xl ${card.bg} flex items-center justify-center shrink-0`}
-                >
-                  <Icon className={`text-xl ${card.color}`} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {card.value.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-(--muted-foreground)">
-                    {card.label}
-                  </p>
-                </div>
-              </motion.div>
-            );
-          })
-        )}
+                <Icon className={`text-xl ${card.color}`} />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">
+                  {card.value.toLocaleString()}
+                </p>
+                <p className="text-xs text-(--muted-foreground)">
+                  {card.label}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -155,11 +141,7 @@ export default function UserDashboard({ initialPosts = [] }) {
               View all
             </Link>
           </div>
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <FiLoader className="text-xl text-(--muted-foreground) animate-spin" />
-            </div>
-          ) : recentPosts.length === 0 ? (
+          {recentPosts.length === 0 ? (
             <div className="text-center py-8">
               <FiMapPin className="text-3xl text-(--muted-foreground) mx-auto mb-2" />
               <p className="text-sm text-(--muted-foreground) mb-3">
@@ -288,11 +270,7 @@ export default function UserDashboard({ initialPosts = [] }) {
           <FiClock className="text-(--muted-foreground)" />
           Recent Activity
         </h2>
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <FiLoader className="text-xl text-(--muted-foreground) animate-spin" />
-          </div>
-        ) : posts.length === 0 ? (
+        {posts.length === 0 ? (
           <p className="text-sm text-(--muted-foreground) text-center py-6">
             No activity yet. Start by suggesting a spot!
           </p>
