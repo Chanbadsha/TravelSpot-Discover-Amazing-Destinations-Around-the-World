@@ -2,38 +2,37 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
-import {
-  FiMail,
-  FiCalendar,
-  FiMapPin,
-  FiStar,
-  FiHeart,
-  FiCamera,
-  FiUser,
-  FiGlobe,
-  FiTwitter,
-  FiLinkedin,
-  FiSave,
-  FiEdit2,
-  FiX,
-  FiBookmark,
-  FiCheckCircle,
-  FiLoader,
-} from "react-icons/fi";
-import {
-  useSession,
-  updateUser as updateUserAuth,
-} from "@/src/lib/auth-client";
-import { getUserById } from "@/src/services/usersService";
-import { updateUser as updateUserApi } from "@/src/services/usersCommandService";
-import { getPostsByCreatorId } from "@/src/services/postsService";
-import { useDestinations } from "@/src/lib/DestinationContext";
-import toast from "react-hot-toast";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
+import {
+  updateUser as updateUserAuth,
+  useSession,
+} from "@/src/lib/auth-client";
+import { useDestinations } from "@/src/lib/DestinationContext";
+import { getPostsByCreatorId } from "@/src/services/postsService";
+import { updateUser as updateUserApi } from "@/src/services/usersCommandService";
+import { getUserById } from "@/src/services/usersService";
+import { motion } from "framer-motion";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import {
+  FiBookmark,
+  FiCalendar,
+  FiCamera,
+  FiCheckCircle,
+  FiEdit2,
+  FiGlobe,
+  FiHeart,
+  FiLinkedin,
+  FiLoader,
+  FiMail,
+  FiMapPin,
+  FiSave,
+  FiStar,
+  FiTwitter,
+  FiX,
+} from "react-icons/fi";
 
 async function uploadImage(file: File): Promise<string> {
   const formData = new FormData();

@@ -1,43 +1,38 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  FiMapPin,
-  FiCamera,
-  FiSend,
-  FiTag,
-  FiPlus,
-  FiX,
-  FiClock,
-  FiLogIn,
-  FiGlobe,
-  FiSun,
-  FiDollarSign,
-  FiImage,
-  FiChevronDown,
-  FiLoader,
-  FiTrash2,
-  FiStar,
-  FiCheck,
-  FiArrowLeft,
-  FiCalendar,
-  FiUser,
-} from "react-icons/fi";
-import {
-  MdTravelExplore,
-  MdCategory,
-  MdAccessTime,
-  MdVerified,
-} from "react-icons/md";
-import Image from "next/image";
-import Link from "next/link";
 import { fadeUp } from "@/src/Components/Animations";
-import { useSession } from "@/src/lib/auth-client";
-import { addDestination } from "@/src/services/destinationsCommandService";
 import AuthLoader from "@/src/Components/UI/AuthLoader";
 import CropModal from "@/src/Components/UI/CropModal";
+import { useSession } from "@/src/lib/auth-client";
+import { addDestination } from "@/src/services/destinationsCommandService";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { useCallback, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  FiArrowLeft,
+  FiCalendar,
+  FiCamera,
+  FiCheck,
+  FiChevronDown,
+  FiClock,
+  FiDollarSign,
+  FiGlobe,
+  FiImage,
+  FiLoader,
+  FiLogIn,
+  FiMapPin,
+  FiPlus,
+  FiSend,
+  FiStar,
+  FiSun,
+  FiTag,
+  FiTrash2,
+  FiUser,
+  FiX,
+} from "react-icons/fi";
+import { MdAccessTime, MdCategory, MdTravelExplore } from "react-icons/md";
 
 const categories = [
   "Adventure",

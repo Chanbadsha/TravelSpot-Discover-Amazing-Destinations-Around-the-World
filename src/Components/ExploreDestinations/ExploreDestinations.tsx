@@ -125,11 +125,11 @@ const ExploreDestinations = ({
           animate="visible"
           className="-mt-7 mb-8 relative z-10"
         >
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-lg p-4 sm:p-6">
+          <div className="bg-(--card) border border-(--border) rounded-2xl shadow-lg p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1">
                 <div className="relative group">
-                  <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg pointer-events-none transition-colors group-focus-within:text-[var(--primary)]" />
+                  <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-lg pointer-events-none transition-colors group-focus-within:text-(--primary)" />
                   <input
                     type="text"
                     placeholder="Search destinations..."
@@ -138,7 +138,7 @@ const ExploreDestinations = ({
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-11 pr-4 py-3.5 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
+                    className="w-full bg-background border border-(--border) rounded-xl pl-11 pr-4 py-3.5 text-foreground placeholder:text-(--muted-foreground) outline-none transition-all focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20"
                   />
                 </div>
               </div>
@@ -146,7 +146,7 @@ const ExploreDestinations = ({
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="flex items-center gap-1.5 px-4 py-3.5 rounded-xl border border-[var(--border)] text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:border-[var(--primary)] transition-all cursor-pointer shrink-0"
+                  className="flex items-center gap-1.5 px-4 py-3.5 rounded-xl border border-(--border) text-sm text-(--muted-foreground) hover:text-foreground hover:border-(--primary) transition-all cursor-pointer shrink-0"
                 >
                   <FiX className="text-base" />
                   <span className="hidden sm:inline">Clear</span>
@@ -154,8 +154,13 @@ const ExploreDestinations = ({
               )}
               <Button
                 type="button"
-                onClick={() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-[17px] rounded-xl shrink-0 transition-all cursor-pointer"
+                onClick={() =>
+                  resultsRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  })
+                }
+                className="bg-(--primary) hover:bg-(--primary-hover) text-white px-6 py-4.25 rounded-xl shrink-0 transition-all cursor-pointer"
                 size="lg"
               >
                 <FiSearch className="sm:hidden" />
@@ -182,8 +187,8 @@ const ExploreDestinations = ({
                 }}
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
                   activeCategory === cat.key
-                    ? "bg-[var(--primary)] text-white shadow-md"
-                    : "bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                    ? "bg-(--primary) text-white shadow-md"
+                    : "bg-(--card) border border-(--border) text-(--muted-foreground) hover:border-(--primary) hover:text-(--primary)"
                 }`}
               >
                 {cat.label}
@@ -200,13 +205,13 @@ const ExploreDestinations = ({
           animate="visible"
           className="flex items-center justify-between mb-6"
         >
-          <p className="text-sm text-[var(--muted-foreground)]">
+          <p className="text-sm text-(--muted-foreground)">
             {filtered.length} destination{filtered.length !== 1 ? "s" : ""}{" "}
             found
           </p>
           <button
             type="button"
-            className="flex items-center gap-1.5 text-sm text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-sm text-(--muted-foreground) hover:text-(--primary) transition-colors cursor-pointer"
           >
             <FiSliders />
             Filters
@@ -225,13 +230,13 @@ const ExploreDestinations = ({
             {paginated.map((dest, ind) => (
               <motion.div key={ind} variants={fadeUp}>
                 <Link href={`/destinations/${dest._id}`}>
-                  <Card className="overflow-hidden group border border-[var(--border)] rounded-2xl bg-[var(--card)] cursor-pointer">
+                  <Card className="overflow-hidden group border border-(--border) rounded-2xl bg-(--card) cursor-pointer">
                     <div className="relative h-48 overflow-hidden">
                       <div
                         className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
                         style={{ backgroundImage: `url(${dest.coverImage})` }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
                       <div className="absolute top-3 left-3 flex gap-1.5">
                         {dest.status === "verified" && (
                           <span className="text-[10px] font-semibold bg-emerald-500/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
@@ -250,42 +255,42 @@ const ExploreDestinations = ({
                         <span className="text-xs font-medium text-white/90 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm capitalize">
                           {dest.category}
                         </span>
-                        <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-semibold text-[var(--foreground)]">
-                          <FiStar className="text-[var(--accent)] fill-current text-xs" />
+                        <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-semibold text-foreground">
+                          <FiStar className="text-(--accent) fill-current text-xs" />
                           {dest.rating}
                         </div>
                       </div>
                     </div>
                     <div className="p-4">
                       <div className="flex items-start gap-1.5 mb-1">
-                        <FiMapPin className="text-[var(--primary)] mt-0.5 shrink-0 text-sm" />
-                        <h3 className="font-semibold text-sm text-[var(--foreground)]">
+                        <FiMapPin className="text-(--primary) mt-0.5 shrink-0 text-sm" />
+                        <h3 className="font-semibold text-sm text-foreground">
                           {dest.name}
                         </h3>
                       </div>
-                      <p className="text-xs text-[var(--muted-foreground)] line-clamp-2 mb-2">
+                      <p className="text-xs text-(--muted-foreground) line-clamp-2 mb-2">
                         {dest.description}
                       </p>
                       <div className="flex flex-wrap gap-1 mb-2">
                         {dest.facilities.slice(0, 3).map((f, i) => (
                           <span
                             key={i}
-                            className="text-[10px] bg-[var(--primary)]/10 text-[var(--primary)] px-2 py-0.5 rounded-full"
+                            className="text-[10px] bg-(--primary)/10 text-(--primary) px-2 py-0.5 rounded-full"
                           >
                             {f}
                           </span>
                         ))}
                         {dest.facilities.length > 3 && (
-                          <span className="text-[10px] text-[var(--muted-foreground)]">
+                          <span className="text-[10px] text-(--muted-foreground)">
                             +{dest.facilities.length - 3}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-[var(--muted-foreground)]">
+                        <span className="text-xs text-(--muted-foreground)">
                           {dest.reviews.toLocaleString()} reviews
                         </span>
-                        <span className="text-[11px] text-[var(--muted-foreground)]">
+                        <span className="text-[11px] text-(--muted-foreground)">
                           by {dest.submittedBy}
                         </span>
                       </div>
@@ -303,11 +308,11 @@ const ExploreDestinations = ({
             animate="visible"
             className="text-center py-16"
           >
-            <MdTravelExplore className="text-5xl text-[var(--muted-foreground)]/30 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-1">
+            <MdTravelExplore className="text-5xl text-(--muted-foreground)/30 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-1">
               No destinations found
             </h3>
-            <p className="text-sm text-[var(--muted-foreground)]">
+            <p className="text-sm text-(--muted-foreground)">
               Try adjusting your search or filter to find what you&apos;re
               looking for
             </p>
@@ -326,7 +331,7 @@ const ExploreDestinations = ({
               type="button"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--border)] transition-colors disabled:opacity-30 cursor-pointer"
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-foreground hover:bg-(--border) transition-colors disabled:opacity-30 cursor-pointer"
             >
               <FiChevronLeft className="text-sm" />
             </button>
@@ -337,8 +342,8 @@ const ExploreDestinations = ({
                 onClick={() => setCurrentPage(page)}
                 className={`w-9 h-9 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                   page === currentPage
-                    ? "bg-[var(--primary)] text-white"
-                    : "bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                    ? "bg-(--primary) text-white"
+                    : "bg-(--card) border border-(--border) text-(--muted-foreground) hover:border-(--primary) hover:text-(--primary)"
                 }`}
               >
                 {page}
@@ -348,7 +353,7 @@ const ExploreDestinations = ({
               type="button"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--border)] transition-colors disabled:opacity-30 cursor-pointer"
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-foreground hover:bg-(--border) transition-colors disabled:opacity-30 cursor-pointer"
             >
               <FiChevronRight className="text-sm" />
             </button>

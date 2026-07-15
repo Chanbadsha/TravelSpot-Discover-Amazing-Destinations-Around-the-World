@@ -1,20 +1,13 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useSession } from "@/src/lib/auth-client";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, type ReactNode } from "react";
+import { FiChevronLeft, FiGrid, FiMenu, FiX } from "react-icons/fi";
 import { MdTravelExplore } from "react-icons/md";
-import {
-  FiGrid,
-  FiUser,
-  FiMapPin,
-  FiMenu,
-  FiX,
-  FiChevronLeft,
-} from "react-icons/fi";
-import { useSession } from "@/src/lib/auth-client";
-import Image from "next/image";
 
 interface NavLink {
   href: string;
