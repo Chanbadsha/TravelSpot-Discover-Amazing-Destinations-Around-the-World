@@ -22,6 +22,7 @@ import {
   deleteDestination as deleteDestinationApi,
   updateDestination,
 } from "@/src/services/destinationsCommandService";
+import Image from "next/image";
 
 type Status = "Pending" | "Approved" | "Rejected";
 
@@ -64,7 +65,10 @@ function mapToBackendStatus(status: Status): string {
 }
 
 function mapBackendDestination(item: Record<string, unknown>): Destination {
-  const location = [item.city, item.country].filter(Boolean).join(", ") || (item.location as string) || "";
+  const location =
+    [item.city, item.country].filter(Boolean).join(", ") ||
+    (item.location as string) ||
+    "";
   const creatorObj = item.creator as Record<string, unknown> | null | undefined;
   const creatorName = creatorObj?.name as string | undefined;
   return {
@@ -83,7 +87,9 @@ function mapBackendDestination(item: Record<string, unknown>): Destination {
       "",
     rejectedAt:
       mapBackendStatus((item.status as string) || "") === "Rejected"
-        ? new Date((item.updatedAt as string) || (item.createdAt as string)).toLocaleString("en-US", {
+        ? new Date(
+            (item.updatedAt as string) || (item.createdAt as string),
+          ).toLocaleString("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -95,7 +101,9 @@ function mapBackendDestination(item: Record<string, unknown>): Destination {
   };
 }
 
-function normalizeDestinationsResponse(res: unknown): Record<string, unknown>[] {
+function normalizeDestinationsResponse(
+  res: unknown,
+): Record<string, unknown>[] {
   if (Array.isArray(res)) return res;
   if (
     res &&
@@ -158,11 +166,23 @@ export default function AdminDestinations() {
     const res = await verifyDestination(id);
     if (res && (res as Record<string, unknown>).success !== false) {
       setDestinations((prev) =>
-        prev.map((d) => (d.id === id ? { ...d, status: "Approved" as Status, rejectedAt: undefined, rejectReason: undefined } : d)),
+        prev.map((d) =>
+          d.id === id
+            ? {
+                ...d,
+                status: "Approved" as Status,
+                rejectedAt: undefined,
+                rejectReason: undefined,
+              }
+            : d,
+        ),
       );
       toast.success("Destination approved");
     } else {
-      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to approve destination");
+      toast.error(
+        ((res as Record<string, unknown>)?.message as string) ||
+          "Failed to approve destination",
+      );
     }
     setViewingDest(null);
   };
@@ -171,11 +191,16 @@ export default function AdminDestinations() {
     const res = await updateDestination({ id, status: "pending" });
     if (res && (res as Record<string, unknown>).success !== false) {
       setDestinations((prev) =>
-        prev.map((d) => (d.id === id ? { ...d, status: "Pending" as Status } : d)),
+        prev.map((d) =>
+          d.id === id ? { ...d, status: "Pending" as Status } : d,
+        ),
       );
       toast.success("Destination sent back to review");
     } else {
-      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to update destination");
+      toast.error(
+        ((res as Record<string, unknown>)?.message as string) ||
+          "Failed to update destination",
+      );
     }
     setViewingDest(null);
   };
@@ -194,13 +219,21 @@ export default function AdminDestinations() {
       setDestinations((prev) =>
         prev.map((d) =>
           d.id === rejectTarget.id
-            ? { ...d, status: "Rejected" as Status, rejectedAt: now, rejectReason: rejectReason || undefined }
+            ? {
+                ...d,
+                status: "Rejected" as Status,
+                rejectedAt: now,
+                rejectReason: rejectReason || undefined,
+              }
             : d,
         ),
       );
       toast.success("Destination rejected");
     } else {
-      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to reject destination");
+      toast.error(
+        ((res as Record<string, unknown>)?.message as string) ||
+          "Failed to reject destination",
+      );
     }
     setViewingDest(null);
     setRejectTarget(null);
@@ -214,7 +247,10 @@ export default function AdminDestinations() {
       setDestinations((prev) => prev.filter((d) => d.id !== deleteTarget.id));
       toast.success("Destination deleted");
     } else {
-      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to delete destination");
+      toast.error(
+        ((res as Record<string, unknown>)?.message as string) ||
+          "Failed to delete destination",
+      );
     }
     setViewingDest(null);
     setDeleteTarget(null);
@@ -303,7 +339,9 @@ export default function AdminDestinations() {
             className="bg-(--card) border border-(--border) rounded-2xl overflow-hidden hover:shadow-md transition-shadow"
           >
             <div className="relative h-36 bg-gray-200 dark:bg-gray-800">
-              <img
+              <Image
+                height={600}
+                width={600}
                 src={dest.image}
                 alt={dest.name}
                 className="w-full h-full object-cover"

@@ -16,6 +16,7 @@ import {
   FiChevronLeft,
 } from "react-icons/fi";
 import { useSession } from "@/src/lib/auth-client";
+import Image from "next/image";
 
 export default function DashboardShellLayout({
   children,
@@ -56,6 +57,7 @@ export default function DashboardShellLayout({
     { href: "/admin/users", label: "Users", icon: FiUsers },
     { href: "/admin/destinations", label: "Destinations", icon: FiMapPin },
     { href: "/admin/moderators", label: "Moderators", icon: FiShield },
+    { href: "/admin/profile", label: "My Profile", icon: FiUser },
   ];
 
   return (
@@ -101,7 +103,13 @@ export default function DashboardShellLayout({
           >
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 text-white text-xl font-bold flex items-center justify-center mb-3 shadow-lg shadow-teal-500/20 overflow-hidden">
               {user?.image ? (
-                <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                <Image
+                  height={600}
+                  width={600}
+                  src={user.image}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 initials
               )}

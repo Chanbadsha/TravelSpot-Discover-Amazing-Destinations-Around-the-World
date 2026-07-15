@@ -13,6 +13,7 @@ import {
 import { MdTravelExplore, MdMenuBook } from "react-icons/md";
 import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
 import { Button, Card } from "@heroui/react";
+import Image from "next/image";
 
 const blogCategories = [
   { key: "all", label: "All Posts" },
@@ -384,7 +385,9 @@ export default function Blog() {
                         {featuredPost.excerpt}
                       </p>
                       <div className="flex items-center gap-3 mt-auto">
-                        <img
+                        <Image
+                          height={600}
+                          width={600}
                           src={featuredPost.author.avatar}
                           alt={featuredPost.author.name}
                           className="w-9 h-9 rounded-full object-cover"
@@ -442,7 +445,9 @@ export default function Blog() {
                           {post.excerpt}
                         </p>
                         <div className="flex items-center gap-3">
-                          <img
+                          <Image
+                            height={600}
+                            width={600}
                             src={post.author.avatar}
                             alt={post.author.name}
                             className="w-8 h-8 rounded-full object-cover"
