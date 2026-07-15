@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { fadeUp } from "@/src/Components/Animations";
-import { FiSearch, FiTrash2, FiUserPlus, FiX, FiChevronLeft, FiChevronRight, FiShield, FiClock, FiCheck, FiLock } from "react-icons/fi";
+import { FiSearch, FiTrash2, FiUserPlus, FiX, FiChevronLeft, FiChevronRight, FiShield, FiClock, FiCheck, FiLock, FiEdit2 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { authClient } from "@/src/lib/auth-client";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 import { getUsers } from "@/src/services/usersService";
-import { deleteUser as deleteUserApi, suspendUser, unsuspendUser, setUserRole } from "@/src/services/usersCommandService";
+import { deleteUser as deleteUserApi, suspendUser, unsuspendUser, setUserRole, updateUser } from "@/src/services/usersCommandService";
 
 interface User {
   id: string;
@@ -66,6 +66,8 @@ export default function AdminUsers() {
   const [suspendReason, setSuspendReason] = useState("");
   const [unsuspendTarget, setUnsuspendTarget] = useState<User | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [editTarget, setEditTarget] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", email: "" });
 
   useEffect(() => {
     let mounted = true;
@@ -120,7 +122,7 @@ export default function AdminUsers() {
 
   const confirmSuspend = async () => {
     if (!suspendTarget) return;
-    const res = await suspendUser(suspendTarget.id);
+    const res = await suspendUser(suspendTarget.id, suspendReason || undefined);
     if (res && (res as Record<string, unknown>).success !== false) {
       const now = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
       setUsers((prev) => prev.map((u) => (u.id === suspendTarget.id ? { ...u, status: "Suspended", suspendedAt: now, suspendReason: suspendReason || undefined } : u)));
@@ -142,6 +144,19 @@ export default function AdminUsers() {
       toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to reactivate user");
     }
     setUnsuspendTarget(null);
+  };
+
+  const confirmEdit = async () => {
+    if (!editTarget) return;
+    const res = await updateUser({ id: editTarget.id, name: editForm.name, email: editForm.email });
+    if (res && (res as Record<string, unknown>).success !== false) {
+      setUsers((prev) => prev.map((u) => (u.id === editTarget.id ? { ...u, name: editForm.name, email: editForm.email } : u)));
+      toast.success("User updated");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to update user");
+    }
+    setEditTarget(null);
+    setEditForm({ name: "", email: "" });
   };
 
   if (loading) {
@@ -262,6 +277,14 @@ export default function AdminUsers() {
                   <td className="px-5 py-3.5 text-(--muted-foreground) text-xs">{user.joined}</td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        onClick={() => { setEditTarget(user); setEditForm({ name: user.name, email: user.email }); }}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--primary) hover:bg-(--primary)/10 transition-colors cursor-pointer"
+                        title="Edit user"
+                      >
+                        <FiEdit2 className="text-sm" />
+                      </button>
                       <button
                         type="button"
                         onClick={() => setEditingUser(editingUser?.id === user.id ? null : user)}
@@ -464,6 +487,41 @@ export default function AdminUsers() {
                 <FiTrash2 /> Delete
               </button>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {editTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => { setEditTarget(null); setEditForm({ name: "", email: "" }); }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-(--card) border border-(--border) rounded-2xl p-6 w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-(--foreground)">Edit User</h2>
+              <button type="button" onClick={() => { setEditTarget(null); setEditForm({ name: "", email: "" }); }} className="w-8 h-8 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--foreground) hover:bg-(--border) transition-colors cursor-pointer">
+                <FiX className="text-lg" />
+              </button>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); confirmEdit(); }} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-(--foreground) mb-1">Full Name</label>
+                <input type="text" value={editForm.name} onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))} required className="w-full bg-(--background) border border-(--border) rounded-xl px-4 py-2.5 text-sm text-(--foreground) placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-(--foreground) mb-1">Email</label>
+                <input type="email" value={editForm.email} onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))} required className="w-full bg-(--background) border border-(--border) rounded-xl px-4 py-2.5 text-sm text-(--foreground) placeholder:text-(--muted-foreground) outline-none focus:border-(--primary) focus:ring-2 focus:ring-(--ring)/20" />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => { setEditTarget(null); setEditForm({ name: "", email: "" }); }} className="flex-1 bg-(--background) border border-(--border) text-(--foreground) rounded-xl py-2.5 text-sm font-medium hover:bg-(--border) transition-colors cursor-pointer">Cancel</button>
+                <button type="submit" className="flex-1 bg-(--primary) hover:bg-(--primary-hover) text-white rounded-xl py-2.5 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2">
+                  <FiCheck /> Save
+                </button>
+              </div>
+            </form>
           </motion.div>
         </div>
       )}
