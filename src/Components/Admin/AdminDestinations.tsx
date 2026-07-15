@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { fadeUp } from "@/src/Components/Animations";
 import {
@@ -14,6 +14,14 @@ import {
   FiClock,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
+import { getDestinations } from "@/src/services/destinationsService";
+import {
+  verifyDestination,
+  rejectDestination as rejectDestinationApi,
+  deleteDestination as deleteDestinationApi,
+  updateDestination,
+} from "@/src/services/destinationsCommandService";
 
 type Status = "Pending" | "Approved" | "Rejected";
 
@@ -30,103 +38,79 @@ interface Destination {
   rejectReason?: string;
 }
 
-const initialDestinations: Destination[] = [
-  {
-    id: "1",
-    name: "Santorini Sunset Point",
-    location: "Santorini, Greece",
-    category: "Beach",
-    status: "Pending",
-    submittedBy: "Alice J.",
-    date: "2026-07-10",
-    image:
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=100&h=100&fit=crop",
-  },
-  {
-    id: "2",
-    name: "Machu Picchu",
-    location: "Cusco, Peru",
-    category: "Historical",
-    status: "Approved",
-    submittedBy: "Bob S.",
-    date: "2026-07-08",
-    image:
-      "https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=100&h=100&fit=crop",
-  },
-  {
-    id: "3",
-    name: "Northern Lights Deck",
-    location: "Tromsø, Norway",
-    category: "Nature",
-    status: "Pending",
-    submittedBy: "Charlie B.",
-    date: "2026-07-05",
-    image:
-      "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=100&h=100&fit=crop",
-  },
-  {
-    id: "4",
-    name: "Grand Canyon Skywalk",
-    location: "Arizona, USA",
-    category: "Adventure",
-    status: "Approved",
-    submittedBy: "Diana R.",
-    date: "2026-07-03",
-    image:
-      "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=100&h=100&fit=crop",
-  },
-  {
-    id: "5",
-    name: "Tokyo Street Food Tour",
-    location: "Tokyo, Japan",
-    category: "Food & Wine",
-    status: "Rejected",
-    submittedBy: "Eve A.",
-    date: "2026-06-28",
-    image:
-      "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=100&h=100&fit=crop",
-    rejectedAt: "2026-07-01 14:30",
-  },
-  {
-    id: "6",
-    name: "Bali Rice Terraces",
-    location: "Ubud, Bali",
-    category: "Nature",
-    status: "Pending",
-    submittedBy: "Frank M.",
-    date: "2026-06-25",
-    image:
-      "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=100&h=100&fit=crop",
-  },
-  {
-    id: "7",
-    name: "Dubai Marina Walk",
-    location: "Dubai, UAE",
-    category: "Urban",
-    status: "Approved",
-    submittedBy: "Grace L.",
-    date: "2026-06-20",
-    image:
-      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=100&h=100&fit=crop",
-  },
-  {
-    id: "8",
-    name: "Swiss Alps Hiking Trail",
-    location: "Interlaken, Switzerland",
-    category: "Mountain",
-    status: "Pending",
-    submittedBy: "Henry W.",
-    date: "2026-06-18",
-    image:
-      "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=100&h=100&fit=crop",
-  },
-];
-
 const ITEMS_PER_PAGE = 6;
 
+function mapBackendStatus(status: string): Status {
+  switch (status.toLowerCase()) {
+    case "verified":
+      return "Approved";
+    case "cancelled":
+    case "rejected":
+      return "Rejected";
+    default:
+      return "Pending";
+  }
+}
+
+function mapToBackendStatus(status: Status): string {
+  switch (status) {
+    case "Approved":
+      return "verified";
+    case "Rejected":
+      return "cancelled";
+    default:
+      return "pending";
+  }
+}
+
+function mapBackendDestination(item: Record<string, unknown>): Destination {
+  const location = [item.city, item.country].filter(Boolean).join(", ") || (item.location as string) || "";
+  const creatorObj = item.creator as Record<string, unknown> | null | undefined;
+  const creatorName = creatorObj?.name as string | undefined;
+  return {
+    id: (item._id as string) || (item.id as string) || "",
+    name: (item.name as string) || "",
+    location,
+    category: (item.category as string) || "",
+    status: mapBackendStatus((item.status as string) || "pending"),
+    submittedBy: creatorName || (item.submittedBy as string) || "Unknown",
+    date: item.createdAt
+      ? new Date(item.createdAt as string).toISOString().split("T")[0]
+      : "",
+    image:
+      (item.coverImage as string) ||
+      ((item.images as string[])?.[0] as string) ||
+      "",
+    rejectedAt:
+      mapBackendStatus((item.status as string) || "") === "Rejected"
+        ? new Date((item.updatedAt as string) || (item.createdAt as string)).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : undefined,
+    rejectReason: (item.rejectionReason as string) || undefined,
+  };
+}
+
+function normalizeDestinationsResponse(res: unknown): Record<string, unknown>[] {
+  if (Array.isArray(res)) return res;
+  if (
+    res &&
+    typeof res === "object" &&
+    "data" in (res as Record<string, unknown>) &&
+    Array.isArray((res as Record<string, unknown>).data)
+  ) {
+    return (res as Record<string, unknown>).data as Record<string, unknown>[];
+  }
+  return [];
+}
+
 export default function AdminDestinations() {
-  const [destinations, setDestinations] =
-    useState<Destination[]>(initialDestinations);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
@@ -134,6 +118,27 @@ export default function AdminDestinations() {
   const [rejectTarget, setRejectTarget] = useState<Destination | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Destination | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await getDestinations();
+        if (!mounted) return;
+        const list = normalizeDestinationsResponse(res);
+        setDestinations(list.map(mapBackendDestination));
+      } catch {
+        if (!mounted) return;
+        toast.error("Failed to load destinations");
+        setDestinations([]);
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const filtered = destinations.filter((d) => {
     const matchesSearch =
@@ -149,39 +154,68 @@ export default function AdminDestinations() {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  const updateStatus = (
-    id: string,
-    status: Status,
-    extra?: Partial<Destination>,
-  ) => {
-    setDestinations((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, status, ...extra } : d)),
-    );
-    toast.success(`Destination ${status.toLowerCase()}`);
+  const handleApprove = async (id: string) => {
+    const res = await verifyDestination(id);
+    if (res && (res as Record<string, unknown>).success !== false) {
+      setDestinations((prev) =>
+        prev.map((d) => (d.id === id ? { ...d, status: "Approved" as Status, rejectedAt: undefined, rejectReason: undefined } : d)),
+      );
+      toast.success("Destination approved");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to approve destination");
+    }
+    setViewingDest(null);
+  };
+
+  const handleSetPending = async (id: string) => {
+    const res = await updateDestination({ id, status: "pending" });
+    if (res && (res as Record<string, unknown>).success !== false) {
+      setDestinations((prev) =>
+        prev.map((d) => (d.id === id ? { ...d, status: "Pending" as Status } : d)),
+      );
+      toast.success("Destination sent back to review");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to update destination");
+    }
+    setViewingDest(null);
+  };
+
+  const confirmReject = async () => {
+    if (!rejectTarget) return;
+    const res = await rejectDestinationApi(rejectTarget.id, rejectReason);
+    if (res && (res as Record<string, unknown>).success !== false) {
+      const now = new Date().toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      setDestinations((prev) =>
+        prev.map((d) =>
+          d.id === rejectTarget.id
+            ? { ...d, status: "Rejected" as Status, rejectedAt: now, rejectReason: rejectReason || undefined }
+            : d,
+        ),
+      );
+      toast.success("Destination rejected");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to reject destination");
+    }
     setViewingDest(null);
     setRejectTarget(null);
     setRejectReason("");
   };
 
-  const confirmReject = () => {
-    if (!rejectTarget) return;
-    const now = new Date().toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    updateStatus(rejectTarget.id, "Rejected", {
-      rejectedAt: now,
-      rejectReason: rejectReason || undefined,
-    });
-  };
-
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
-    setDestinations((prev) => prev.filter((d) => d.id !== deleteTarget.id));
-    toast.success("Destination deleted");
+    const res = await deleteDestinationApi(deleteTarget.id);
+    if (res && (res as Record<string, unknown>).success !== false) {
+      setDestinations((prev) => prev.filter((d) => d.id !== deleteTarget.id));
+      toast.success("Destination deleted");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to delete destination");
+    }
     setViewingDest(null);
     setDeleteTarget(null);
   };
@@ -196,6 +230,14 @@ export default function AdminDestinations() {
         return "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400";
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <GlobalLoader variant="pulse" size="md" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -317,7 +359,7 @@ export default function AdminDestinations() {
                     <>
                       <button
                         type="button"
-                        onClick={() => updateStatus(dest.id, "Approved")}
+                        onClick={() => handleApprove(dest.id)}
                         className="w-7 h-7 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--success) hover:bg-(--success)/10 transition-colors cursor-pointer"
                         title="Approve"
                       >
@@ -337,7 +379,7 @@ export default function AdminDestinations() {
                     <>
                       <button
                         type="button"
-                        onClick={() => updateStatus(dest.id, "Approved")}
+                        onClick={() => handleApprove(dest.id)}
                         className="w-7 h-7 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-(--success) hover:bg-(--success)/10 transition-colors cursor-pointer"
                         title="Approve"
                       >
@@ -345,7 +387,7 @@ export default function AdminDestinations() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => updateStatus(dest.id, "Pending")}
+                        onClick={() => handleSetPending(dest.id)}
                         className="w-7 h-7 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer"
                         title="Send back to review"
                       >
@@ -357,7 +399,7 @@ export default function AdminDestinations() {
                     <>
                       <button
                         type="button"
-                        onClick={() => updateStatus(dest.id, "Pending")}
+                        onClick={() => handleSetPending(dest.id)}
                         className="w-7 h-7 rounded-lg flex items-center justify-center text-(--muted-foreground) hover:text-amber-500 hover:bg-amber-500/10 transition-colors cursor-pointer"
                         title="Send back to review"
                       >
@@ -651,7 +693,7 @@ export default function AdminDestinations() {
                 <>
                   <button
                     type="button"
-                    onClick={() => updateStatus(viewingDest.id, "Approved")}
+                    onClick={() => handleApprove(viewingDest.id)}
                     className="flex-1 bg-(--success) hover:bg-green-600 text-white rounded-xl py-2.5 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2"
                   >
                     <FiCheck /> Approve
@@ -669,7 +711,7 @@ export default function AdminDestinations() {
                 <>
                   <button
                     type="button"
-                    onClick={() => updateStatus(viewingDest.id, "Pending")}
+                    onClick={() => handleSetPending(viewingDest.id)}
                     className="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-2.5 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2"
                   >
                     <FiClock /> Send to Review
@@ -687,14 +729,14 @@ export default function AdminDestinations() {
                 <>
                   <button
                     type="button"
-                    onClick={() => updateStatus(viewingDest.id, "Approved")}
+                    onClick={() => handleApprove(viewingDest.id)}
                     className="flex-1 bg-(--success) hover:bg-green-600 text-white rounded-xl py-2.5 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2"
                   >
                     <FiCheck /> Approve
                   </button>
                   <button
                     type="button"
-                    onClick={() => updateStatus(viewingDest.id, "Pending")}
+                    onClick={() => handleSetPending(viewingDest.id)}
                     className="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-xl py-2.5 text-sm font-semibold transition-colors cursor-pointer flex items-center justify-center gap-2"
                   >
                     <FiClock /> Send to Review

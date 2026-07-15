@@ -8,6 +8,7 @@ import { FiGrid, FiLogOut, FiChevronDown } from "react-icons/fi";
 import { authClient } from "@/src/lib/auth-client";
 import toast from "react-hot-toast";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
+import Image from "next/image";
 
 interface AvatarDropdownProps {
   user: {
@@ -59,12 +60,20 @@ export default function AvatarDropdown({ user }: AvatarDropdownProps) {
       >
         <div className="w-8 h-8 rounded-full bg-teal-500/20 text-teal-400 text-xs font-bold flex items-center justify-center">
           {user.image ? (
-            <img src={user.image} alt="" className="w-full h-full rounded-full object-cover" />
+            <Image
+              height={600}
+              width={600}
+              src={user.image}
+              alt=""
+              className="w-full h-full rounded-full object-cover"
+            />
           ) : (
             initials
           )}
         </div>
-        <FiChevronDown className={`text-gray-400 text-xs transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+        <FiChevronDown
+          className={`text-gray-400 text-xs transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       <AnimatePresence>
@@ -77,13 +86,15 @@ export default function AvatarDropdown({ user }: AvatarDropdownProps) {
             className="absolute right-0 top-full mt-2 w-56 bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden z-50"
           >
             <div className="px-4 py-3 border-b border-gray-800">
-              <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+              <p className="text-sm font-semibold text-white truncate">
+                {user.name}
+              </p>
               <p className="text-xs text-gray-500 truncate">{user.email}</p>
             </div>
 
             <div className="p-1.5">
               <Link
-                href="/user"
+                href={`${user.role === "admin" ? "/admin" : "/user"}`}
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
               >

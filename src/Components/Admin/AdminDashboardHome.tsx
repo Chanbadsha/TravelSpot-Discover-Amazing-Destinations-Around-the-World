@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
 import { FiUsers, FiMapPin, FiClock, FiShield, FiTrendingUp, FiEye } from "react-icons/fi";
 import { getUsers } from "@/src/services/usersService";
+import { getDestinations } from "@/src/services/destinationsService";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 function getInitials(name: string) {
@@ -24,16 +25,26 @@ function timeAgo(dateStr: string) {
   return new Date(dateStr).toISOString().split("T")[0];
 }
 
-const pendingDestinations = [
-  { name: "Santorini Sunset Point", location: "Santorini, Greece", category: "Beach", submittedBy: "Alice J." },
-  { name: "Machu Picchu", location: "Cusco, Peru", category: "Historical", submittedBy: "Bob S." },
-  { name: "Northern Lights Viewing Deck", location: "Tromsø, Norway", category: "Nature", submittedBy: "Charlie B." },
-];
+function normalizeResponse(res: unknown): Record<string, unknown>[] {
+  if (Array.isArray(res)) return res;
+  if (
+    res &&
+    typeof res === "object" &&
+    "data" in (res as Record<string, unknown>) &&
+    Array.isArray((res as Record<string, unknown>).data)
+  ) {
+    return (res as Record<string, unknown>).data as Record<string, unknown>[];
+  }
+  return [];
+}
 
 export default function AdminDashboardHome() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [moderatorCount, setModeratorCount] = useState(0);
+  const [totalDestinations, setTotalDestinations] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
   const [recentUsers, setRecentUsers] = useState<{ name: string; email: string; role: string; joined: string; avatar: string; image?: string | null }[]>([]);
+  const [pendingDestinations, setPendingDestinations] = useState<{ name: string; location: string; category: string; submittedBy: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,12 +52,14 @@ export default function AdminDashboardHome() {
     (async () => {
       setLoading(true);
       try {
-        const res = await getUsers();
+        const [usersRes, destsRes] = await Promise.all([getUsers(), getDestinations()]);
         if (!mounted) return;
-        const list = Array.isArray(res) ? res : ((res as Record<string, unknown>)?.data || []) as Record<string, unknown>[];
-        setTotalUsers(list.length);
-        setModeratorCount(list.filter((u) => String(u.role || "").toLowerCase() === "moderator").length);
-        const sorted = [...list].sort((a, b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime());
+
+        // Users
+        const userList = normalizeResponse(usersRes);
+        setTotalUsers(userList.length);
+        setModeratorCount(userList.filter((u) => String(u.role || "").toLowerCase() === "moderator").length);
+        const sorted = [...userList].sort((a, b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime());
         const recent = sorted.slice(0, 5).map((item) => {
           const name = (item.name as string) || "Unknown";
           const image = item.image as string | null | undefined;
@@ -60,11 +73,32 @@ export default function AdminDashboardHome() {
           };
         });
         setRecentUsers(recent);
+
+        // Destinations
+        const destList = normalizeResponse(destsRes);
+        setTotalDestinations(destList.length);
+        const pending = destList.filter((d) => String(d.status || "").toLowerCase() === "pending");
+        setPendingCount(pending.length);
+        const recentPending = pending.slice(0, 3).map((item) => {
+          const creatorObj = item.creator as Record<string, unknown> | null | undefined;
+          const creatorName = creatorObj?.name as string | undefined;
+          const location = [item.city, item.country].filter(Boolean).join(", ") || (item.location as string) || "";
+          return {
+            name: (item.name as string) || "",
+            location,
+            category: (item.category as string) || "",
+            submittedBy: creatorName || (item.submittedBy as string) || "Unknown",
+          };
+        });
+        setPendingDestinations(recentPending);
       } catch {
         if (!mounted) return;
         setTotalUsers(0);
         setModeratorCount(0);
+        setTotalDestinations(0);
+        setPendingCount(0);
         setRecentUsers([]);
+        setPendingDestinations([]);
       }
       if (mounted) setLoading(false);
     })();
@@ -81,8 +115,8 @@ export default function AdminDashboardHome() {
 
   const statsCards = [
     { label: "Total Users", value: totalUsers, icon: FiUsers, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { label: "Total Destinations", value: 847, icon: FiMapPin, color: "text-teal-500", bg: "bg-teal-500/10" },
-    { label: "Pending Reviews", value: 36, icon: FiClock, color: "text-amber-500", bg: "bg-amber-500/10" },
+    { label: "Total Destinations", value: totalDestinations, icon: FiMapPin, color: "text-teal-500", bg: "bg-teal-500/10" },
+    { label: "Pending Reviews", value: pendingCount, icon: FiClock, color: "text-amber-500", bg: "bg-amber-500/10" },
     { label: "Moderators", value: moderatorCount, icon: FiShield, color: "text-purple-500", bg: "bg-purple-500/10" },
   ];
 
@@ -192,14 +226,17 @@ export default function AdminDashboardHome() {
                 </div>
               </div>
             ))}
+            {pendingDestinations.length === 0 && (
+              <p className="text-sm text-(--muted-foreground) text-center py-4">No pending destinations</p>
+            )}
           </div>
           <div className="mt-3 pt-3 border-t border-(--border)">
             <div className="flex items-center justify-between text-xs text-(--muted-foreground)">
               <span className="flex items-center gap-1">
                 <FiTrendingUp className="text-(--success)" />
-                12% increase this week
+                Awaiting review
               </span>
-              <span>{pendingDestinations.length} pending</span>
+              <span>{pendingCount} pending</span>
             </div>
           </div>
         </motion.div>
