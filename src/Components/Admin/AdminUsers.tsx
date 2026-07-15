@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { fadeUp } from "@/src/Components/Animations";
 import { FiSearch, FiTrash2, FiUserPlus, FiX, FiChevronLeft, FiChevronRight, FiShield, FiClock, FiCheck, FiLock } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { authClient } from "@/src/lib/auth-client";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
+import { getUsers } from "@/src/services/usersService";
+import { deleteUser as deleteUserApi, suspendUser, unsuspendUser, setUserRole } from "@/src/services/usersCommandService";
 
 interface User {
   id: string;
@@ -16,25 +18,45 @@ interface User {
   status: "Active" | "Suspended";
   joined: string;
   avatar: string;
+  image?: string | null;
   suspendedAt?: string;
   suspendReason?: string;
 }
 
-const initialUsers: User[] = [
-  { id: "1", name: "Alice Johnson", email: "alice@example.com", role: "User", status: "Active", joined: "2026-01-15", avatar: "AJ" },
-  { id: "2", name: "Bob Smith", email: "bob@example.com", role: "Moderator", status: "Active", joined: "2025-11-20", avatar: "BS" },
-  { id: "3", name: "Charlie Brown", email: "charlie@example.com", role: "User", status: "Active", joined: "2026-03-08", avatar: "CB" },
-  { id: "4", name: "Diana Ross", email: "diana@example.com", role: "User", status: "Suspended", joined: "2025-09-12", avatar: "DR", suspendedAt: "Jul 10, 2026, 02:30 PM" },
-  { id: "5", name: "Eve Adams", email: "eve@example.com", role: "Moderator", status: "Active", joined: "2025-07-04", avatar: "EA" },
-  { id: "6", name: "Frank Miller", email: "frank@example.com", role: "User", status: "Active", joined: "2026-05-22", avatar: "FM" },
-  { id: "7", name: "Grace Lee", email: "grace@example.com", role: "User", status: "Active", joined: "2026-02-14", avatar: "GL" },
-  { id: "8", name: "Henry Wilson", email: "henry@example.com", role: "User", status: "Suspended", joined: "2025-10-30", avatar: "HW", suspendedAt: "Jul 8, 2026, 11:15 AM" },
-];
-
 const ITEMS_PER_PAGE = 5;
 
+function getInitials(name: string) {
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+}
+
+function mapBackendUser(item: Record<string, unknown>): User {
+  const name = (item.name as string) || "Unknown";
+  const image = item.image as string | null | undefined;
+  return {
+    id: (item._id as string) || (item.id as string) || "",
+    name,
+    email: (item.email as string) || "",
+    role: (String(item.role || "user").charAt(0).toUpperCase() + String(item.role || "user").slice(1)) as User["role"],
+    status: item.banned ? "Suspended" : "Active",
+    joined: item.createdAt ? new Date(item.createdAt as string).toISOString().split("T")[0] : "",
+    avatar: image || getInitials(name),
+    image,
+    suspendedAt: item.bannedAt ? new Date(item.bannedAt as string).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : undefined,
+    suspendReason: (item.bannedReason as string) || undefined,
+  };
+}
+
+function normalizeUsersResponse(res: unknown): Record<string, unknown>[] {
+  if (Array.isArray(res)) return res;
+  if (res && typeof res === "object" && "data" in (res as Record<string, unknown>) && Array.isArray((res as Record<string, unknown>).data)) {
+    return (res as Record<string, unknown>).data as Record<string, unknown>[];
+  }
+  return [];
+}
+
 export default function AdminUsers() {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,6 +65,26 @@ export default function AdminUsers() {
   const [suspendTarget, setSuspendTarget] = useState<User | null>(null);
   const [suspendReason, setSuspendReason] = useState("");
   const [unsuspendTarget, setUnsuspendTarget] = useState<User | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await getUsers();
+        if (!mounted) return;
+        const list = normalizeUsersResponse(res);
+        setUsers(list.map(mapBackendUser));
+      } catch {
+        if (!mounted) return;
+        toast.error("Failed to load users");
+        setUsers([]);
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const filtered = users.filter((u) => {
     const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
@@ -53,36 +95,62 @@ export default function AdminUsers() {
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  const changeRole = (id: string, newRole: User["role"]) => {
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role: newRole } : u)));
-    toast.success("User role updated");
+  const changeRole = async (id: string, newRole: User["role"]) => {
+    const res = await setUserRole(id, newRole.toLowerCase());
+    if (res && (res as Record<string, unknown>).success !== false) {
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role: newRole } : u)));
+      toast.success("User role updated");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to update role");
+    }
     setEditingUser(null);
   };
 
-  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
-
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
-    setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
-    toast.success("User deleted");
+    const res = await deleteUserApi(deleteTarget.id);
+    if (res && (res as Record<string, unknown>).success !== false) {
+      setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id));
+      toast.success("User deleted");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to delete user");
+    }
     setDeleteTarget(null);
   };
 
-  const confirmSuspend = () => {
+  const confirmSuspend = async () => {
     if (!suspendTarget) return;
-    const now = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
-    setUsers((prev) => prev.map((u) => (u.id === suspendTarget.id ? { ...u, status: "Suspended", suspendedAt: now, suspendReason: suspendReason || undefined } : u)));
-    toast.success("User suspended");
+    const res = await suspendUser(suspendTarget.id);
+    if (res && (res as Record<string, unknown>).success !== false) {
+      const now = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
+      setUsers((prev) => prev.map((u) => (u.id === suspendTarget.id ? { ...u, status: "Suspended", suspendedAt: now, suspendReason: suspendReason || undefined } : u)));
+      toast.success("User suspended");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to suspend user");
+    }
     setSuspendTarget(null);
     setSuspendReason("");
   };
 
-  const confirmUnsuspend = () => {
+  const confirmUnsuspend = async () => {
     if (!unsuspendTarget) return;
-    setUsers((prev) => prev.map((u) => (u.id === unsuspendTarget.id ? { ...u, status: "Active", suspendedAt: undefined, suspendReason: undefined } : u)));
-    toast.success("User reactivated");
+    const res = await unsuspendUser(unsuspendTarget.id);
+    if (res && (res as Record<string, unknown>).success !== false) {
+      setUsers((prev) => prev.map((u) => (u.id === unsuspendTarget.id ? { ...u, status: "Active", suspendedAt: undefined, suspendReason: undefined } : u)));
+      toast.success("User reactivated");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to reactivate user");
+    }
     setUnsuspendTarget(null);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <GlobalLoader variant="pulse" size="md" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -148,8 +216,12 @@ export default function AdminUsers() {
                 <tr key={user.id} className="hover:bg-(--background)/50 transition-colors">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-(--primary)/10 text-(--primary) text-xs font-bold flex items-center justify-center">
-                        {user.avatar}
+                      <div className="w-8 h-8 rounded-full bg-(--primary)/10 text-(--primary) text-xs font-bold flex items-center justify-center overflow-hidden shrink-0">
+                        {user.image ? (
+                          <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                        ) : (
+                          user.avatar
+                        )}
                       </div>
                       <span className="font-medium text-(--foreground)">{user.name}</span>
                     </div>
@@ -398,13 +470,13 @@ export default function AdminUsers() {
 
       {/* Add User Modal */}
       {showAddModal && (
-        <AddUserModal onClose={() => setShowAddModal(false)} onAdd={(user) => { setUsers((prev) => [user, ...prev]); setShowAddModal(false); }} />
+        <AddUserModal onClose={() => setShowAddModal(false)} onAdded={() => { setShowAddModal(false); window.location.reload(); }} />
       )}
     </div>
   );
 }
 
-function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: User) => void }) {
+function AddUserModal({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -426,17 +498,7 @@ function AddUserModal({ onClose, onAdd }: { onClose: () => void; onAdd: (user: U
       if (userId && role !== "User") {
         await authClient.admin.setRole({ userId, role: role.toLowerCase() as "admin" | "user" | ("admin" | "user")[] });
       }
-      const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-      const newUser: User = {
-        id: userId || Date.now().toString(),
-        name,
-        email,
-        role,
-        status: "Active",
-        joined: new Date().toISOString().split("T")[0],
-        avatar: initials,
-      };
-      onAdd(newUser);
+      onAdded();
       toast.success("User added successfully");
     } catch {
       toast.error("Something went wrong");

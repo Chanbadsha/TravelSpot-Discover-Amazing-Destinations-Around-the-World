@@ -66,7 +66,23 @@ export default function ProfilePosts({ initialPosts = [] }: { initialPosts?: Pos
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
 
-  const handleDelete = async (id: string) => {};
+  const handleDelete = async (id: string) => {
+    setLoading(true);
+    try {
+      const res = await deletePost(id);
+      if (!res || res.success === false) {
+        toast.error(res?.message || "Failed to delete post");
+        return;
+      }
+      setPosts((prev) => prev.filter((p) => p._id !== id));
+      toast.success("Post deleted successfully");
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setConfirmDelete(null);
+      setLoading(false);
+    }
+  };
 
   const totalPages = Math.ceil(posts.length / ITEMS_PER_PAGE);
   const paginated = posts.slice(

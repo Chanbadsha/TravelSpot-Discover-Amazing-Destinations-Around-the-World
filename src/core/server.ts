@@ -8,13 +8,16 @@ export const serverMutation = async (path: string, data: unknown) => {
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
-
     if (!response.ok) {
-      throw new Error(result?.message || "Request failed");
+      throw new Error(`Request failed with status ${response.status}`);
     }
 
-    return result;
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      return await response.json();
+    }
+
+    return { success: true };
   } catch (error) {
     return {
       success: false,
@@ -68,20 +71,24 @@ export const serverPatch = async (path: string, data: unknown) => {
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
-
     if (!response.ok) {
-      throw new Error(result?.message || "Request failed");
+      throw new Error(`Request failed with status ${response.status}`);
     }
 
-    return result;
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      return await response.json();
+    }
+
+    return { success: true };
   } catch (error) {
-    return [];
+    return { success: false, message: (error as Error).message || "Update failed" };
   }
 };
 
 export const serverDelete = async (path: string, data: unknown) => {
   try {
+    console.log(`${process.env.NEXT_PUBLIC_API_URL}/${path}`);
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${path}`, {
       method: "DELETE",
       headers: {
@@ -90,14 +97,17 @@ export const serverDelete = async (path: string, data: unknown) => {
       body: JSON.stringify(data),
     });
 
-    const result = await response.json();
-
     if (!response.ok) {
-      throw new Error(result?.message || "Request failed");
+      throw new Error(`Request failed with status ${response.status}`);
     }
 
-    return result;
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      return await response.json();
+    }
+
+    return { success: true };
   } catch (error) {
-    return [];
+    return { success: false, message: (error as Error).message || "Delete failed" };
   }
 };

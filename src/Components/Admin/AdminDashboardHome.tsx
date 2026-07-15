@@ -1,23 +1,28 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
 import { FiUsers, FiMapPin, FiClock, FiShield, FiTrendingUp, FiEye } from "react-icons/fi";
+import { getUsers } from "@/src/services/usersService";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
-const statsCards = [
-  { label: "Total Users", value: 2458, icon: FiUsers, color: "text-blue-500", bg: "bg-blue-500/10" },
-  { label: "Total Destinations", value: 847, icon: FiMapPin, color: "text-teal-500", bg: "bg-teal-500/10" },
-  { label: "Pending Reviews", value: 36, icon: FiClock, color: "text-amber-500", bg: "bg-amber-500/10" },
-  { label: "Moderators", value: 12, icon: FiShield, color: "text-purple-500", bg: "bg-purple-500/10" },
-];
+function getInitials(name: string) {
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+}
 
-const recentUsers = [
-  { name: "Alice Johnson", email: "alice@example.com", role: "User", joined: "2 hours ago", avatar: "AJ" },
-  { name: "Bob Smith", email: "bob@example.com", role: "Moderator", joined: "5 hours ago", avatar: "BS" },
-  { name: "Charlie Brown", email: "charlie@example.com", role: "User", joined: "1 day ago", avatar: "CB" },
-  { name: "Diana Ross", email: "diana@example.com", role: "User", joined: "2 days ago", avatar: "DR" },
-  { name: "Eve Adams", email: "eve@example.com", role: "Moderator", joined: "3 days ago", avatar: "EA" },
-];
+function timeAgo(dateStr: string) {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diff = now - then;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(dateStr).toISOString().split("T")[0];
+}
 
 const pendingDestinations = [
   { name: "Santorini Sunset Point", location: "Santorini, Greece", category: "Beach", submittedBy: "Alice J." },
@@ -26,6 +31,61 @@ const pendingDestinations = [
 ];
 
 export default function AdminDashboardHome() {
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [moderatorCount, setModeratorCount] = useState(0);
+  const [recentUsers, setRecentUsers] = useState<{ name: string; email: string; role: string; joined: string; avatar: string; image?: string | null }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await getUsers();
+        if (!mounted) return;
+        const list = Array.isArray(res) ? res : ((res as Record<string, unknown>)?.data || []) as Record<string, unknown>[];
+        setTotalUsers(list.length);
+        setModeratorCount(list.filter((u) => String(u.role || "").toLowerCase() === "moderator").length);
+        const sorted = [...list].sort((a, b) => new Date(b.createdAt as string).getTime() - new Date(a.createdAt as string).getTime());
+        const recent = sorted.slice(0, 5).map((item) => {
+          const name = (item.name as string) || "Unknown";
+          const image = item.image as string | null | undefined;
+          return {
+            name,
+            email: (item.email as string) || "",
+            role: String(item.role || "user").charAt(0).toUpperCase() + String(item.role || "user").slice(1),
+            joined: timeAgo(item.createdAt as string),
+            avatar: image || getInitials(name),
+            image,
+          };
+        });
+        setRecentUsers(recent);
+      } catch {
+        if (!mounted) return;
+        setTotalUsers(0);
+        setModeratorCount(0);
+        setRecentUsers([]);
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <GlobalLoader variant="pulse" size="md" />
+      </div>
+    );
+  }
+
+  const statsCards = [
+    { label: "Total Users", value: totalUsers, icon: FiUsers, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { label: "Total Destinations", value: 847, icon: FiMapPin, color: "text-teal-500", bg: "bg-teal-500/10" },
+    { label: "Pending Reviews", value: 36, icon: FiClock, color: "text-amber-500", bg: "bg-amber-500/10" },
+    { label: "Moderators", value: moderatorCount, icon: FiShield, color: "text-purple-500", bg: "bg-purple-500/10" },
+  ];
+
   return (
     <div>
       {/* Header */}
@@ -77,8 +137,12 @@ export default function AdminDashboardHome() {
             {recentUsers.map((user) => (
               <div key={user.email} className="flex items-center justify-between py-2 border-b border-(--border) last:border-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-(--primary)/10 text-(--primary) text-xs font-bold flex items-center justify-center">
-                    {user.avatar}
+                  <div className="w-8 h-8 rounded-full bg-(--primary)/10 text-(--primary) text-xs font-bold flex items-center justify-center overflow-hidden shrink-0">
+                    {user.image ? (
+                      <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      user.avatar
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-(--foreground)">{user.name}</p>
@@ -97,6 +161,9 @@ export default function AdminDashboardHome() {
                 </div>
               </div>
             ))}
+            {recentUsers.length === 0 && (
+              <p className="text-sm text-(--muted-foreground) text-center py-4">No users yet</p>
+            )}
           </div>
         </motion.div>
 

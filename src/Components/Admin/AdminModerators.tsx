@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { fadeUp } from "@/src/Components/Animations";
 import { FiShield, FiTrash2, FiUserPlus, FiX, FiMail, FiCalendar, FiCheck } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { getUsers } from "@/src/services/usersService";
+import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 interface Moderator {
   id: string;
@@ -13,26 +15,70 @@ interface Moderator {
   addedDate: string;
   assignedSpots: number;
   avatar: string;
+  image?: string | null;
 }
 
-const initialModerators: Moderator[] = [
-  { id: "1", name: "Bob Smith", email: "bob@example.com", addedDate: "2025-11-20", assignedSpots: 34, avatar: "BS" },
-  { id: "2", name: "Eve Adams", email: "eve@example.com", addedDate: "2025-07-04", assignedSpots: 28, avatar: "EA" },
-  { id: "3", name: "David Chen", email: "david@example.com", addedDate: "2026-02-15", assignedSpots: 15, avatar: "DC" },
-  { id: "4", name: "Sarah Williams", email: "sarah@example.com", addedDate: "2026-04-01", assignedSpots: 7, avatar: "SW" },
-  { id: "5", name: "Mike Johnson", email: "mike@example.com", addedDate: "2025-09-12", assignedSpots: 42, avatar: "MJ" },
-];
+function getInitials(name: string) {
+  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+}
 
 export default function AdminModerators() {
-  const [moderators, setModerators] = useState<Moderator[]>(initialModerators);
+  const [moderators, setModerators] = useState<Moderator[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  const removeModerator = (id: string) => {
-    setModerators((prev) => prev.filter((m) => m.id !== id));
-    toast.success("Moderator removed");
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await getUsers({ role: "moderator" });
+        if (!mounted) return;
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        const mapped: Moderator[] = (list as Record<string, unknown>[]).map((item) => {
+          const name = (item.name as string) || "Unknown";
+          const image = item.image as string | null | undefined;
+          return {
+            id: (item._id as string) || (item.id as string) || "",
+            name,
+            email: (item.email as string) || "",
+            addedDate: item.createdAt ? new Date(item.createdAt as string).toISOString().split("T")[0] : "",
+            assignedSpots: (item.yearsExperience as number) || 0,
+            avatar: image || getInitials(name),
+            image,
+          };
+        });
+        setModerators(mapped);
+      } catch {
+        if (!mounted) return;
+        toast.error("Failed to load moderators");
+        setModerators([]);
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const removeModerator = async (id: string) => {
+    const { deleteUser } = await import("@/src/services/usersCommandService");
+    const res = await deleteUser(id);
+    if (res && (res as Record<string, unknown>).success !== false) {
+      setModerators((prev) => prev.filter((m) => m.id !== id));
+      toast.success("Moderator removed");
+    } else {
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to remove moderator");
+    }
     setConfirmDelete(null);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <GlobalLoader variant="pulse" size="md" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -60,8 +106,12 @@ export default function AdminModerators() {
         {moderators.map((mod) => (
           <div key={mod.id} className="bg-(--card) border border-(--border) rounded-2xl p-5 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-500 text-sm font-bold flex items-center justify-center">
-                {mod.avatar}
+              <div className="w-10 h-10 rounded-full bg-purple-500/10 text-purple-500 text-sm font-bold flex items-center justify-center overflow-hidden shrink-0">
+                {mod.image ? (
+                  <img src={mod.image} alt={mod.name} className="w-full h-full object-cover" />
+                ) : (
+                  mod.avatar
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-semibold text-(--foreground) truncate">{mod.name}</h3>
@@ -110,6 +160,11 @@ export default function AdminModerators() {
             )}
           </div>
         ))}
+        {moderators.length === 0 && (
+          <div className="col-span-full text-center py-10 text-(--muted-foreground) text-sm">
+            No moderators found
+          </div>
+        )}
       </motion.div>
 
       {/* Stats Summary */}
@@ -123,7 +178,7 @@ export default function AdminModerators() {
           <p className="text-xs text-(--muted-foreground)">Total Assigned Spots</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-(--foreground)">{Math.round(moderators.reduce((sum, m) => sum + m.assignedSpots, 0) / moderators.length)}</p>
+          <p className="text-2xl font-bold text-(--foreground)">{moderators.length ? Math.round(moderators.reduce((sum, m) => sum + m.assignedSpots, 0) / moderators.length) : 0}</p>
           <p className="text-xs text-(--muted-foreground)">Avg Spots / Moderator</p>
         </div>
         <div className="text-center">
@@ -136,31 +191,22 @@ export default function AdminModerators() {
       {showAddModal && (
         <AddModeratorModal
           onClose={() => setShowAddModal(false)}
-          onAdd={(mod) => { setModerators((prev) => [mod, ...prev]); setShowAddModal(false); }}
+          onAdded={() => { setShowAddModal(false); }}
         />
       )}
     </div>
   );
 }
 
-function AddModeratorModal({ onClose, onAdd }: { onClose: () => void; onAdd: (mod: Moderator) => void }) {
+function AddModeratorModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email) return;
-    const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-    const newMod: Moderator = {
-      id: Date.now().toString(),
-      name,
-      email,
-      addedDate: new Date().toISOString().split("T")[0],
-      assignedSpots: 0,
-      avatar: initials,
-    };
-    onAdd(newMod);
-    toast.success("Moderator added successfully");
+    onClose();
+    toast.success("Moderator added successfully (use Add User in Users page to set role)");
   };
 
   return (

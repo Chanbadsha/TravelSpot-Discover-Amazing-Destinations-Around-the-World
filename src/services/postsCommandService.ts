@@ -10,5 +10,6 @@ export const updatePost = async (postData: Record<string, unknown> & { id: strin
 };
 
 export const deletePost = async (postId: string) => {
-  return await serverDelete(`places/${postId}`, {});
+
+  return await serverDelete(`places/${postId}`, { status: "cancelled" });
 };
