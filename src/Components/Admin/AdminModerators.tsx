@@ -191,7 +191,6 @@ export default function AdminModerators() {
       {showAddModal && (
         <AddModeratorModal
           onClose={() => setShowAddModal(false)}
-          onAdded={() => { setShowAddModal(false); }}
         />
       )}
     </div>
