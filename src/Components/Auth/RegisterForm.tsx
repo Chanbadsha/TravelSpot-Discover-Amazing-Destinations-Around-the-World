@@ -104,10 +104,7 @@ export default function RegisterForm() {
         const formData = new FormData();
         formData.append("image", file);
 
-        const res = await fetch(
-          process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API_URL as string,
-          { method: "POST", body: formData },
-        );
+        const res = await fetch("/api/upload/image", { method: "POST", body: formData });
         const json = await res.json();
         if (!json.success) {
           toast.error(json?.error?.message || "Failed to upload image");

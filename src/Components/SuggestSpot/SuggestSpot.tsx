@@ -122,7 +122,7 @@ export default function SuggestSpot() {
   const uploadToImgBB = useCallback(async (file: File): Promise<string> => {
     const fd = new FormData();
     fd.append("image", file);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API_URL}`, {
+    const res = await fetch("/api/upload/image", {
       method: "POST",
       body: fd,
     });

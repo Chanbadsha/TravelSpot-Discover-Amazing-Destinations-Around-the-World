@@ -94,7 +94,7 @@ export default function Contact() {
     resolver: zodResolver(contactFormSchema),
   });
 
-  const onSubmit = (data: ContactFormData) => {
+  const onSubmit = () => {
     toast.success("Message sent successfully! We'll get back to you soon.");
     reset();
   };
