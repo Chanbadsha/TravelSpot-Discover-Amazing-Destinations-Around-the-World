@@ -37,15 +37,23 @@ export const serverFetch = async (path: string, query: Record<string, string> = 
       { ...options, next: { revalidate: 0 } },
     );
 
-    const result = await response.json();
+    const contentType = response.headers.get("content-type") || "";
 
     if (!response.ok) {
-      throw new Error(result?.message || "Failed to fetch data");
+      if (contentType.includes("application/json")) {
+        const err = await response.json();
+        throw new Error(err?.message || "Failed to fetch data");
+      }
+      throw new Error(`Request failed with status ${response.status}`);
     }
 
+    if (!contentType.includes("application/json")) {
+      throw new Error(`Unexpected response type: ${contentType}`);
+    }
+
+    const result = await response.json();
     return result;
   } catch (error) {
-    console.error(`[serverFetch] ${path}:`, (error as Error).message);
     return { data: [], error: (error as Error).message };
   }
 };

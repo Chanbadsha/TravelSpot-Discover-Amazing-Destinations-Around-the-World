@@ -5,9 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { FiLock, FiLogIn, FiMail } from "react-icons/fi";
+import { FiLock, FiLogIn, FiMail, FiShield } from "react-icons/fi";
 import { z } from "zod";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
@@ -21,8 +22,14 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+const DEMO_ADMIN = {
+  email: "admin@travelspot.com",
+  password: "TravelSpo@tAdmin",
+};
+
 export default function LoginForm() {
   const router = useRouter();
+  const [demoLoading, setDemoLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -40,6 +47,18 @@ export default function LoginForm() {
       toast.success("Signed in successfully");
       router.push("/");
     }
+  };
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    const result = await authClient.signIn.email(DEMO_ADMIN);
+    if (result.error) {
+      toast.error(result.error.message || "Failed to sign in");
+    } else {
+      toast.success("Signed in as admin");
+      router.push("/");
+    }
+    setDemoLoading(false);
   };
 
   return (
@@ -149,6 +168,32 @@ export default function LoginForm() {
             </button>
           </motion.div>
         </form>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+          className="mt-4"
+        >
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={demoLoading}
+            className="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-600 text-white font-semibold rounded-xl h-11 text-sm transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {demoLoading ? (
+              <>
+                <GlobalLoader variant="spinner" size="sm" />
+                <span>Signing in as admin...</span>
+              </>
+            ) : (
+              <>
+                <FiShield className="size-4 shrink-0" />
+                <span>Demo Admin Login</span>
+              </>
+            )}
+          </button>
+        </motion.div>
 
         <motion.p
           initial={{ opacity: 0 }}

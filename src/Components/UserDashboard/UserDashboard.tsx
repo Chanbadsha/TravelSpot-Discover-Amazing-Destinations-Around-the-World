@@ -19,6 +19,7 @@ export interface Post {
   coverImage: string;
   status: SpotStatus;
   createdAt: string;
+  creatorId?: string;
 }
 
 export default function UserDashboard({ initialPosts = [] }: { initialPosts?: Post[] }) {

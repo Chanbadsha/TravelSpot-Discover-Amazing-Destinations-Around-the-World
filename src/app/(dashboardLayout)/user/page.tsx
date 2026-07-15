@@ -1,7 +1,7 @@
 import UserDashboard from "@/src/Components/UserDashboard/UserDashboard";
 import type { Post } from "@/src/Components/UserDashboard/UserDashboard";
 import { getServerSession } from "@/src/lib/auth";
-import { getPostsByUserId } from "@/src/services/postsService";
+import { getPostsByUserId, getPosts } from "@/src/services/postsService";
 
 export const dynamic = "force-dynamic";
 
@@ -10,11 +10,13 @@ export default async function UserPage() {
   const userId = session?.user?.id;
 
   let posts: Post[] = [];
-  try {
-    const result = await getPostsByUserId(userId as string);
-    posts = result?.data ?? [];
-  } catch {
-    // API error — user dashboard will show empty state gracefully
+  const result = await getPostsByUserId(userId as string);
+  posts = result?.data ?? [];
+
+  if (posts.length === 0) {
+    const all = await getPosts();
+    const allData = all?.data ?? [];
+    posts = allData.filter((p: Post) => p.creatorId === userId);
   }
 
   return <UserDashboard initialPosts={posts} />;
