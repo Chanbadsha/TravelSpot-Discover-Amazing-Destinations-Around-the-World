@@ -105,16 +105,17 @@ export default function RegisterForm() {
         formData.append("image", file);
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API_URL}`,
+          process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API_URL as string,
           { method: "POST", body: formData },
         );
-        const data = await res.json();
-        if (data?.data?.url) {
-          setPreview(data.data.url);
+        const json = await res.json();
+        if (!json.success) {
+          toast.error(json?.error?.message || "Failed to upload image");
         } else {
-          toast.error("Failed to upload image");
+          setPreview(json.data.display_url || json.data.url);
         }
-      } catch {
+      } catch (err) {
+        console.error("Image upload error:", err);
         toast.error("Failed to upload image");
       } finally {
         setUploadingPhoto(false);
