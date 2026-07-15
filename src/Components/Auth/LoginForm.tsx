@@ -4,7 +4,7 @@ import { authClient } from "@/src/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -29,6 +29,8 @@ const DEMO_ADMIN = {
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
   const [demoLoading, setDemoLoading] = useState(false);
   const {
     register,
@@ -45,7 +47,7 @@ export default function LoginForm() {
       toast.error(result.error.message || "Failed to sign in");
     } else {
       toast.success("Signed in successfully");
-      router.push("/");
+      router.push(redirectTo || "/");
     }
   };
 
@@ -56,7 +58,7 @@ export default function LoginForm() {
       toast.error(result.error.message || "Failed to sign in");
     } else {
       toast.success("Signed in as admin");
-      router.push("/");
+      router.push(redirectTo || "/");
     }
     setDemoLoading(false);
   };

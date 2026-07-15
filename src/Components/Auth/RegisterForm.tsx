@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   FiUser,
@@ -75,6 +75,8 @@ function getPasswordStrength(pw: string): {
 
 export default function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
   const [preview, setPreview] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -140,7 +142,7 @@ export default function RegisterForm() {
       console.log(result.error);
     } else {
       toast.success("Account created successfully");
-      router.push("/");
+      router.push(redirectTo || "/");
     }
   };
 
