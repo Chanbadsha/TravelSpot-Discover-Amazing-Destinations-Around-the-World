@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TravelSpot
+
+An open community platform to discover, rate, and share famous tourist spots and their facilities around the world.
+
+Built with **Next.js 16** (App Router), **React 19**, **TypeScript 5**, and **Tailwind CSS v4**.
+
+## Features
+
+- **Browse Destinations** — Explore tourist spots with ratings, reviews, and facility info
+- **User Authentication** — Register/login via email/password (powered by better-auth + MongoDB)
+- **Admin Dashboard** — Manage users, moderators, and destinations
+- **User Dashboard** — Manage your posts, profile, and saved destinations
+- **Blog** — Read and share travel experiences
+- **Suggest a Spot** — Submit new tourist spots to the community
+- **Dark Mode** — Light/dark theme toggle via next-themes
+- **Responsive UI** — HeroUI components with Tailwind v4 styling
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16.2 (App Router) |
+| UI Library | React 19, HeroUI v3 |
+| Styling | Tailwind CSS v4 |
+| Auth | better-auth (MongoDB adapter, admin plugin) |
+| Forms | react-hook-form + zod |
+| Animations | framer-motion |
+| Icons | react-icons (Fi/Md) |
+| Notifications | react-hot-toast |
+| Backend API | Express (separate repo, consumed via REST) |
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 20+
+- npm
+- MongoDB instance (local or Atlas)
+
+### Environment Variables
+
+Create `.env.local` in the project root:
+
+```env
+BETTER_AUTH_SECRET=<your-secret>
+BETTER_AUTH_URL=http://localhost:3000
+MONGODB_URI=<your-mongodb-connection-string>
+MONGODB_DB=<database-name>
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Install & Run
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+### Commands
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/                  # App Router pages
+    (mainLayout)/       # Home, destinations, blog, contact, suggest-spot
+    (auth)/             # Login, register
+    (dashboardLayout)/  # Admin & user dashboards
+    api/auth/           # better-auth API route
+    my-posts/           # User posts management
+    profile/            # User profile
+  Components/           # UI components organized by domain
+  Provider/             # Theme provider
+  lib/                  # Auth config, context, utilities
+  core/                 # HTTP helpers (serverFetch, serverMutation, etc.)
+  services/             # Read-only API service calls
+  controllers/          # (stub)
+  utils/                # (stub)
+```
 
-## Deploy on Vercel
+## Authentication
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+TravelSpot uses [better-auth](https://better-auth.com) with a MongoDB adapter. Authentication is handled via:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Server-side** — `src/lib/auth.ts` — `betterAuth` instance with email/password, admin plugin, custom user fields
+- **Client-side** — `src/lib/auth-client.ts` — `authClient` with `adminClient()` plugin
+- Exports: `signIn`, `signUp`, `useSession`, `signOut`, `updateUser`
+
+## API
+
+The frontend communicates with a backend REST API at `NEXT_PUBLIC_API_URL` (default `http://localhost:5000/api`).
+
+- **Read operations** — `src/services/*.ts` files use `serverFetch`
+- **Write operations** — `src/services/*CommandService.ts` files use `serverMutation`/`serverPatch`/`serverDelete`
+
+A client-side `DestinationContext` provides fallback seed data (8 destinations) and localStorage-based saved destinations for prototyping.
+
+## Deployment
+
+The project is configured for deployment on [Vercel](https://vercel.com). Set the required environment variables in your Vercel project dashboard.
