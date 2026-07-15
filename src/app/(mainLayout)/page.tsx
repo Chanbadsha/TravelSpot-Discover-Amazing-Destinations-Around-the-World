@@ -5,6 +5,8 @@ import TestimonialsAndNewsLetter from "@/src/Components/HomePage/TestimonialsAnd
 import FaqAndFooter from "@/src/Components/HomePage/FaqAndFooter";
 import { getDestinations } from "@/src/services/destinationsService";
 
+export const dynamic = "force-dynamic";
+
 const HomePage = async () => {
   const result = await getDestinations();
   const destinations = Array.isArray(result) ? [] : (result.data ?? []);
