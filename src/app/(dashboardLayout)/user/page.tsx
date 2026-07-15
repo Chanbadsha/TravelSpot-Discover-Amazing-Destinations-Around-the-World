@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import UserDashboard from "@/src/Components/UserDashboard/UserDashboard";
 import type { Post } from "@/src/Components/UserDashboard/UserDashboard";
 import { getServerSession } from "@/src/lib/auth";
 import { getPostsByUserId, getPosts } from "@/src/services/postsService";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Your TravelSpot dashboard — manage your posts and profile.",
+};
 
 export default async function UserPage() {
   const session = await getServerSession();

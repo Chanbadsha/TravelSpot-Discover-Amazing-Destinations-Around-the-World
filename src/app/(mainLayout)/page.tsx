@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import HomePageHero from "@/src/Components/HomePage/HomeHero";
 import StatsAndFeatures from "@/src/Components/HomePage/StatsAndFeatures";
 import ExploreAndFeatured from "@/src/Components/HomePage/ExploreAndFeatured";
@@ -6,6 +7,12 @@ import FaqAndFooter from "@/src/Components/HomePage/FaqAndFooter";
 import { getDestinations } from "@/src/services/destinationsService";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Home",
+  description:
+    "Discover, rate, and share famous tourist spots and their facilities around the world.",
+};
 
 const HomePage = async () => {
   const result = await getDestinations();

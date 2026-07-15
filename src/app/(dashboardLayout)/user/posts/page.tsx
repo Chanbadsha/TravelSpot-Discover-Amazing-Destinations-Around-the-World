@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import ProfilePosts from "@/src/Components/Profile/ProfilePosts";
 import type { Post } from "@/src/Components/Profile/ProfilePosts";
 import { getServerSession } from "@/src/lib/auth";
 import { getPostsByUserId, getPosts } from "@/src/services/postsService";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "My Posts",
+  description: "Manage your submitted posts and destinations on TravelSpot.",
+};
 
 export default async function PostsPage() {
   const session = await getServerSession();

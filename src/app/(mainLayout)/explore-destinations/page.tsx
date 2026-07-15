@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import ExploreDestinations from "@/src/Components/ExploreDestinations/ExploreDestinations";
 import { getDestinations } from "@/src/services/destinationsService";
+
+export const metadata: Metadata = {
+  title: "Explore Destinations",
+  description:
+    "Browse and search tourist destinations from around the world. Filter by location, category, and more.",
+};
 
 const ExploreDestinationsPage = async ({
   searchParams,

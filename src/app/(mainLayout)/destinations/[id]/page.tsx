@@ -1,6 +1,25 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DestinationDetails from "@/src/Components/DestinationDetails/DestinationDetails";
 import { getDestinationById, getDestinations } from "@/src/services/destinationsService";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const res = await getDestinationById(id);
+  const data = res?.data as Record<string, unknown> | undefined;
+  const name = (data?.name as string) || "Destination";
+
+  return {
+    title: name,
+    description:
+      (data?.description as string) ||
+      `Explore ${name} — ratings, reviews, photos, and travel tips.`,
+  };
+}
 
 const normalizeDestination = (data: Record<string, unknown>) => {
   if (!data) return null;

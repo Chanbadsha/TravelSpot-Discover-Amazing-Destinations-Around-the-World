@@ -16,7 +16,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TravelSpot - Discover Famous Tourist Spots",
+  title: {
+    template: "%s | TravelSpot",
+    default: "TravelSpot - Discover Famous Tourist Spots",
+  },
   description:
     "An open community platform to discover, rate, and share famous tourist spots and their facilities around the world.",
 };
