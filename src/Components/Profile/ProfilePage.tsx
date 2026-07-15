@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { fadeUp, stagger } from "@/src/Components/Animations";
 import {
@@ -8,12 +8,25 @@ import {
   FiUser, FiGlobe, FiTwitter, FiLinkedin, FiSave, FiEdit2, FiX,
   FiBookmark, FiCheckCircle, FiLoader,
 } from "react-icons/fi";
-import { useSession, updateUser } from "@/src/lib/auth-client";
+import { useSession, updateUser as updateUserAuth } from "@/src/lib/auth-client";
 import { getUserById } from "@/src/services/usersService";
+import { updateUser as updateUserApi } from "@/src/services/usersCommandService";
 import { getPostsByCreatorId } from "@/src/services/postsService";
 import { useDestinations } from "@/src/lib/DestinationContext";
 import toast from "react-hot-toast";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
+
+async function uploadImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await fetch(process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API_URL!, {
+    method: "POST",
+    body: formData,
+  });
+  const data = await res.json();
+  if (!data?.data?.url) throw new Error("Upload failed");
+  return data.data.url;
+}
 
 interface UserData {
   name: string;
@@ -35,6 +48,9 @@ export default function ProfilePage() {
   const savedCounts = user ? getSavedCounts(user.id) : { total: 0, visited: 0, wantToVisit: 0 };
   const savedWithData = user ? getUserSavedDestinationsWithData(user.id) : [];
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
   const [profileData, setProfileData] = useState<UserData | null>(null);
   const [myPosts, setMyPosts] = useState<{ id: string; name: string; createdAt: string }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +61,9 @@ export default function ProfilePage() {
       getUserById(user.id).catch(() => null),
       getPostsByCreatorId(user.id).catch(() => []),
     ]).then(([userData, posts]) => {
-      if (userData) setProfileData(userData as UserData);
+      if (userData && typeof userData === "object" && "data" in (userData as Record<string, unknown>)) {
+        setProfileData(((userData as Record<string, unknown>).data as UserData));
+      }
       if (Array.isArray(posts)) {
         setMyPosts(posts.map((p: Record<string, unknown>) => ({
           id: (p._id as string) || (p.id as string) || "",
@@ -75,6 +93,7 @@ export default function ProfilePage() {
       setForm((p) => ({
         ...p,
         name: profileData.name || p.name,
+        email: profileData.email || p.email,
         bio: profileData.bio || p.bio,
         location: profileData.location || p.location,
         website: profileData.website || p.website,
@@ -84,18 +103,41 @@ export default function ProfilePage() {
     }
   }, [profileData]);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadImage(file);
+      await updateUserAuth({ image: url } as Parameters<typeof updateUserAuth>[0]);
+      setForm((p) => ({ ...p }));
+      toast.success("Profile photo updated");
+    } catch {
+      toast.error("Failed to upload image");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const initials = user
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "JD";
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user?.id) return;
     setSaving(true);
     try {
-      await updateUser({
-        name: form.name,
+      await updateUserAuth({ name: form.name, email: form.email } as Parameters<typeof updateUserAuth>[0]);
+      await updateUserApi({
+        id: user.id,
         bio: form.bio,
-      } as any);
+        location: form.location,
+        website: form.website,
+        twitter: form.twitter,
+        linkedin: form.linkedin,
+      });
       toast.success("Profile updated successfully");
       setEditing(false);
     } catch {
@@ -157,9 +199,16 @@ export default function ProfilePage() {
                 initials
               )}
             </div>
-            <button type="button" className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-(--primary) text-white flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-              <FiCamera className="text-xs" />
-            </button>
+            {uploading ? (
+              <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+                <GlobalLoader variant="spinner" size="sm" />
+              </div>
+            ) : (
+              <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-(--primary) text-white flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <FiCamera className="text-xs" />
+              </button>
+            )}
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
           </div>
 
           <div className="flex-1 text-center sm:text-left w-full">

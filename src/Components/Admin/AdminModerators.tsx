@@ -6,6 +6,7 @@ import { fadeUp } from "@/src/Components/Animations";
 import { FiShield, FiTrash2, FiUserPlus, FiX, FiMail, FiCalendar, FiCheck } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { getUsers } from "@/src/services/usersService";
+import { setUserRole } from "@/src/services/usersCommandService";
 import GlobalLoader from "@/src/Components/UI/GlobalLoader";
 
 interface Moderator {
@@ -62,13 +63,12 @@ export default function AdminModerators() {
   }, []);
 
   const removeModerator = async (id: string) => {
-    const { deleteUser } = await import("@/src/services/usersCommandService");
-    const res = await deleteUser(id);
+    const res = await setUserRole(id, "user");
     if (res && (res as Record<string, unknown>).success !== false) {
       setModerators((prev) => prev.filter((m) => m.id !== id));
-      toast.success("Moderator removed");
+      toast.success("Moderator demoted to User");
     } else {
-      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to remove moderator");
+      toast.error(((res as Record<string, unknown>)?.message as string) || "Failed to demote moderator");
     }
     setConfirmDelete(null);
   };
