@@ -33,10 +33,11 @@ export default function AdminModerators() {
     (async () => {
       setLoading(true);
       try {
-        const res = await getUsers({ role: "moderator" });
+        const res = await getUsers();
         if (!mounted) return;
-        const list = Array.isArray(res) ? res : (res?.data || []);
-        const mapped: Moderator[] = (list as Record<string, unknown>[]).map((item) => {
+        const list = Array.isArray(res) ? res : ((res as Record<string, unknown>)?.data || []) as Record<string, unknown>[];
+        const moderators = list.filter((u) => String(u.role || "").toLowerCase() === "moderator");
+        const mapped: Moderator[] = moderators.map((item) => {
           const name = (item.name as string) || "Unknown";
           const image = item.image as string | null | undefined;
           return {
@@ -161,8 +162,15 @@ export default function AdminModerators() {
           </div>
         ))}
         {moderators.length === 0 && (
-          <div className="col-span-full text-center py-10 text-(--muted-foreground) text-sm">
-            No moderators found
+          <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center mb-4">
+              <FiShield className="text-2xl text-purple-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-(--foreground) mb-1">No Moderators Yet</h3>
+            <p className="text-sm text-(--muted-foreground) max-w-sm">
+              There are no users with the moderator role. You can assign the moderator role to existing users from the{" "}
+              <a href="/admin/users" className="text-(--primary) hover:underline font-medium">Users</a> page.
+            </p>
           </div>
         )}
       </motion.div>
