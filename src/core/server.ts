@@ -1,6 +1,11 @@
 export const serverMutation = async (path: string, data: unknown) => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${path}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      throw new Error("NEXT_PUBLIC_API_URL is not set");
+    }
+
+    const response = await fetch(`${apiUrl}/${path}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +68,12 @@ export const serverFetch = async (path: string, query: Record<string, string> = 
 
 export const serverPatch = async (path: string, data: unknown) => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${path}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      throw new Error("NEXT_PUBLIC_API_URL is not set");
+    }
+
+    const response = await fetch(`${apiUrl}/${path}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -88,8 +98,12 @@ export const serverPatch = async (path: string, data: unknown) => {
 
 export const serverDelete = async (path: string, data: unknown) => {
   try {
-    console.log(`${process.env.NEXT_PUBLIC_API_URL}/${path}`);
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${path}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      throw new Error("NEXT_PUBLIC_API_URL is not set");
+    }
+
+    const response = await fetch(`${apiUrl}/${path}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
