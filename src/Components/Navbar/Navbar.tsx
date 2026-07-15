@@ -28,7 +28,9 @@ const Navbar = () => {
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [mobileOpen]);
 
   const closeMobile = () => setMobileOpen(false);
@@ -45,27 +47,27 @@ const Navbar = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <MdTravelExplore className="text-2xl text-teal-400" />
-            <span className="text-lg font-bold text-white">
-              TravelSpot
-            </span>
+            <span className="text-lg font-bold text-white">TravelSpot</span>
           </Link>
 
           {/* Desktop Nav */}
           <ul className="hidden md:flex items-center gap-1">
-            {navLinks.filter((l) => l.href !== "/suggest-spot" || user).map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive(link.href)
-                      ? "text-teal-400 bg-teal-400/10"
-                      : "text-gray-400 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
+            {navLinks
+              .filter((l) => l.href !== "/suggest-spot" || user)
+              .map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive(link.href)
+                        ? "text-teal-400 bg-teal-400/10"
+                        : "text-gray-400 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
           </ul>
 
           {/* Right Actions */}
@@ -73,7 +75,9 @@ const Navbar = () => {
             {/* Theme Toggle */}
             <button
               type="button"
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              onClick={() =>
+                setTheme(resolvedTheme === "dark" ? "light" : "dark")
+              }
               className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors cursor-pointer text-gray-400 hover:text-white hover:bg-white/10"
               aria-label="Toggle theme"
             >
@@ -134,7 +138,9 @@ const Navbar = () => {
       {/* Mobile Drawer */}
       <div
         className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
-          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          mobileOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={closeMobile}
       />
@@ -158,31 +164,40 @@ const Navbar = () => {
           <div className="px-4 py-4 border-b border-gray-800">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-teal-500/20 text-teal-400 text-sm font-bold flex items-center justify-center">
-                {user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+                {user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+                <p className="text-sm font-semibold text-white truncate">
+                  {user.name}
+                </p>
                 <p className="text-xs text-gray-500 truncate">{user.email}</p>
               </div>
             </div>
           </div>
         )}
         <ul className="px-3 py-4 space-y-1">
-          {navLinks.filter((l) => l.href !== "/suggest-spot" || user).map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                onClick={closeMobile}
-                className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+          {navLinks
+            .filter((l) => l.href !== "/suggest-spot" || user)
+            .map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={closeMobile}
+                  className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                     isActive(link.href)
                       ? "text-teal-400 bg-teal-400/10"
                       : "text-gray-400 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
         </ul>
         {/* Mobile Dashboard Links */}
         {user && (
@@ -211,7 +226,10 @@ const Navbar = () => {
           {user ? (
             <Link
               href="/"
-              onClick={() => { closeMobile(); authClient.signOut(); }}
+              onClick={() => {
+                closeMobile();
+                authClient.signOut();
+              }}
               className="flex items-center justify-center gap-2 w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-xl py-3 text-sm font-semibold transition-colors hover:bg-gray-700"
             >
               Sign Out
