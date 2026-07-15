@@ -1,9 +1,6 @@
 "use client";
 
-import { useState } from "react";
-<<<<<<< HEAD
-import { FiSearch, FiMapPin, FiStar, FiSliders, FiClock, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-=======
+import { useState, useRef } from "react";
 import {
   FiSearch,
   FiMapPin,
@@ -14,13 +11,11 @@ import {
   FiChevronRight,
   FiX,
 } from "react-icons/fi";
->>>>>>> main
 import { MdTravelExplore, MdVerified } from "react-icons/md";
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn, stagger } from "@/src/Components/Animations";
 import Link from "next/link";
-import { Button, InputGroup, Card } from "@heroui/react";
-import { ObjectId } from "mongodb";
+import { Button, Card } from "@heroui/react";
 
 const categories = [
   { key: "all", label: "All" },
@@ -35,7 +30,7 @@ const categories = [
 type SpotStatus = "pending" | "verified" | "cancelled";
 
 interface Destination {
-  _id: ObjectId | string;
+  _id: string;
   name: string;
   description: string;
   coverImage: string;
@@ -60,16 +55,11 @@ const ExploreDestinations = ({
   initialCategory?: string;
   initialDate?: string;
 }) => {
-<<<<<<< HEAD
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 8;
-=======
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState(initialLocation);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 8;
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const hasActiveFilters = searchQuery || activeCategory !== "all";
 
@@ -78,7 +68,6 @@ const ExploreDestinations = ({
     setActiveCategory("all");
     setCurrentPage(1);
   };
->>>>>>> main
 
   const filtered = destinations.filter((d) => {
     if (d.status === "cancelled") return false;
@@ -93,11 +82,7 @@ const ExploreDestinations = ({
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-<<<<<<< HEAD
-    currentPage * ITEMS_PER_PAGE
-=======
     currentPage * ITEMS_PER_PAGE,
->>>>>>> main
   );
 
   return (
@@ -153,11 +138,7 @@ const ExploreDestinations = ({
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-<<<<<<< HEAD
-                    className="w-full bg-transparent text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none"
-=======
                     className="w-full bg-[var(--background)] border border-[var(--border)] rounded-xl pl-11 pr-4 py-3.5 text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]/20"
->>>>>>> main
                   />
                 </div>
               </div>
@@ -172,6 +153,8 @@ const ExploreDestinations = ({
                 </button>
               )}
               <Button
+                type="button"
+                onClick={() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                 className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-[17px] rounded-xl shrink-0 transition-all cursor-pointer"
                 size="lg"
               >
@@ -193,14 +176,10 @@ const ExploreDestinations = ({
             <motion.div key={cat.key} variants={scaleIn}>
               <button
                 type="button"
-<<<<<<< HEAD
-                onClick={() => { setActiveCategory(cat.key); setCurrentPage(1); }}
-=======
                 onClick={() => {
                   setActiveCategory(cat.key);
                   setCurrentPage(1);
                 }}
->>>>>>> main
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
                   activeCategory === cat.key
                     ? "bg-[var(--primary)] text-white shadow-md"
@@ -215,6 +194,7 @@ const ExploreDestinations = ({
 
         {/* Results Header */}
         <motion.div
+          ref={resultsRef}
           variants={fadeUp}
           initial="hidden"
           animate="visible"

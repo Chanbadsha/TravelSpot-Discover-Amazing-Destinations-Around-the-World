@@ -150,7 +150,15 @@ const ratingDistribution = [
 const globalDescription = (name: string) =>
   `TravelSpot is your ultimate guide to discovering the world's most captivating destinations. Every place has a story to tell, and ${name} is no exception — a destination waiting to be explored, experienced, and remembered. Whether you are drawn to the rich tapestry of history and culture, the serenity of untouched natural landscapes, or the thrill of off-the-beaten-path adventures, TravelSpot brings you closer to the places that matter. Our platform is built for travelers who seek more than just a getaway — who want to connect with the soul of a destination, understand its heritage, and create lasting memories. From ancient architectural wonders and bustling local markets to tranquil coastlines and misty mountain retreats, every corner of the world holds something extraordinary. We believe that travel is not just about moving from one place to another — it is about discovering new perspectives, embracing diverse traditions, and finding inspiration in the unfamiliar. With detailed guides, authentic reviews, and a vibrant community of fellow explorers, TravelSpot empowers you to plan smarter, travel deeper, and share your journey with the world. Whether you are setting out on your very first adventure or you are a seasoned globetrotter looking for your next hidden gem, TravelSpot is here to inspire, inform, and connect you to the places that will leave a lasting mark on your soul. Let every trip be a story worth telling, and let TravelSpot be the compass that guides you there.`;
 
-const DestinationDetails = ({ destination }: { destination: Destination }) => {
+const DestinationDetails = ({
+  destination,
+  nearbyAttractions = [],
+  relatedDestinations = [],
+}: {
+  destination: Destination;
+  nearbyAttractions?: { id: string; name: string; distance: string; image: string }[];
+  relatedDestinations?: { id: string; name: string; image: string; rating: number }[];
+}) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
   const [starRating, setStarRating] = useState(0);
@@ -559,8 +567,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                     {destination?.creator?.name.slice(0, 12)}..
                   </strong>
                 </span>
-                <span className="text-(--border)">|</span>
-                <span>{destination.submittedAt}</span>
+
                 {destination.verifiedAt && (
                   <>
                     <span className="text-(--border)">|</span>
@@ -884,7 +891,11 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                       <button
                         type="button"
                         onClick={() => {
-                          saveDestination(user.id, destId, "wantToVisit", { name: destination.name, image: destination.coverImage, location: destination.location });
+                          saveDestination(user.id, destId, "wantToVisit", {
+                            name: destination.name,
+                            image: destination.coverImage,
+                            location: destination.location,
+                          });
                           setShowDropdown(false);
                         }}
                         className="flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-amber-400 hover:text-amber-500"
@@ -894,7 +905,11 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
                       <button
                         type="button"
                         onClick={() => {
-                          saveDestination(user.id, destId, "visited", { name: destination.name, image: destination.coverImage, location: destination.location });
+                          saveDestination(user.id, destId, "visited", {
+                            name: destination.name,
+                            image: destination.coverImage,
+                            location: destination.location,
+                          });
                           setShowDropdown(false);
                         }}
                         className="flex-1 rounded-xl font-medium transition-all cursor-pointer h-10 text-sm flex items-center justify-center gap-2 bg-transparent border border-(--border) text-foreground hover:border-green-400 hover:text-green-500"
@@ -936,27 +951,29 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
             viewport={{ once: true }}
             className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
           >
-            {destination.nearbyAttractions.map((attraction, ind) => (
+            {nearbyAttractions.map((attraction, ind) => (
               <motion.div key={ind} variants={fadeUp}>
-                <Card className="overflow-hidden border border-(--border) rounded-2xl bg-(--card)">
-                  <div className="relative h-36">
-                    <Image
-                      src={isValidUrl(attraction.image) || "/placeholder.svg"}
-                      alt={attraction?.name || ""}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-sm font-semibold text-foreground mb-1">
-                      {attraction.name}
-                    </h3>
-                    <p className="text-xs text-(--muted-foreground)">
-                      {attraction.distance} away
-                    </p>
-                  </div>
-                </Card>
+                <Link href={`/destinations/${attraction.id}`}>
+                  <Card className="overflow-hidden group border border-(--border) rounded-2xl bg-(--card) cursor-pointer">
+                    <div className="relative h-36">
+                      <Image
+                        src={isValidUrl(attraction.image) || "/placeholder.svg"}
+                        alt={attraction?.name || ""}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-sm font-semibold text-foreground mb-1">
+                        {attraction.name}
+                      </h3>
+                      <p className="text-xs text-(--muted-foreground)">
+                        {attraction.distance} away
+                      </p>
+                    </div>
+                  </Card>
+                </Link>
               </motion.div>
             ))}
           </motion.div>
@@ -988,7 +1005,7 @@ const DestinationDetails = ({ destination }: { destination: Destination }) => {
             viewport={{ once: true }}
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {destination.related.map((dest, ind) => (
+            {relatedDestinations.map((dest, ind) => (
               <motion.div key={ind} variants={fadeUp}>
                 <Link href={`/destinations/${dest.id}`}>
                   <Card className="overflow-hidden group border border-(--border) rounded-2xl bg-(--card) cursor-pointer">

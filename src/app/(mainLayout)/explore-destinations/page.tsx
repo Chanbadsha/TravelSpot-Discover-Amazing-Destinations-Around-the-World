@@ -7,7 +7,8 @@ const ExploreDestinationsPage = async ({
   searchParams: Promise<{ location?: string; category?: string; date?: string }>;
 }) => {
   const { location, category, date } = await searchParams;
-  const { data: destinations } = await getDestinations();
+  const result = await getDestinations();
+  const destinations = Array.isArray(result) ? [] : (result.data ?? []);
 
   return (
     <ExploreDestinations
